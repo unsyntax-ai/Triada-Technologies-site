@@ -89,7 +89,7 @@ header.site.scrolled .bar { background: color-mix(in srgb, var(--bg) 62%, transp
 .brand.original { background: #FFFFFF; padding: 6px 12px; border-radius: var(--r-pill); }
 .brand.original img { height: 40px; filter: none; }
 nav ul { list-style: none; display: flex; gap: 22px; margin: 0; padding: 0; flex-wrap: wrap; }
-nav a { color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 500; padding: 6px 2px; }
+nav a { color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; min-height: 40px; padding: 0 2px; }
 nav a:hover, nav a[aria-current="page"] { color: var(--accent); }
 .header-cta { display: flex; gap: 8px; align-items: center; }
 .header-cta .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
@@ -189,8 +189,11 @@ footer.site-foot { border-top: 1px solid var(--line); padding-block: 40px 56px; 
 }
 @media (max-width: 620px) {
   body { font-size: 16px; }
+  .bar { border-radius: 24px; }
   .header-cta .btn-line { display: none; }
-  nav ul { gap: 14px; }
+  nav { width: 100%; order: 3; overflow-x: auto; scrollbar-width: none; }
+  nav ul { flex-wrap: nowrap; gap: 18px; padding: 2px 0 6px; }
+  nav a { white-space: nowrap; }
   .brand img { height: 28px; }
   .brand.original img { height: 34px; }
 }
