@@ -12,8 +12,8 @@
   onScroll();
 
   // Fade sections and cards in as they enter the screen
-  var targets = document.querySelectorAll('main section > .wrap, main .hero-grid, main .page-hero .wrap');
-  targets.forEach(function (el) { el.classList.add('reveal'); });
+  var targets = document.querySelectorAll('main section > .wrap, main .hero-grid, main .page-hero .wrap, main .card, main .marquee');
+  targets.forEach(function (el, i) { el.classList.add('reveal'); el.style.transitionDelay = ((i % 3) * 90) + 'ms'; });
   if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
