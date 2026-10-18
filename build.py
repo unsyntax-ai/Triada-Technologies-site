@@ -1,5 +1,9 @@
 """Generates the six TriadaTechnologies pages. Run: python3 build.py"""
+import hashlib
 import html
+import json
+import os
+import re
 
 NAV = [
     ("index.html", "Home"),
@@ -15,7 +19,15 @@ PHONE_HREF = "tel:+14693962108"
 EMAIL = "hr@triadatechnologies.com"
 
 
-def head(title, desc, page, schema=""):
+SITE = "https://triadatechnologies.com"
+OG_IMAGE = SITE + "/assets/og-image.jpg"
+OG_ALT = "TriadaTechnologies, staffing in Lansdale, PA"
+
+
+def head(title, desc, page, schema="", og_type="website", noindex=False):
+    url = SITE + "/" + ("" if page == "index.html" else page)
+    e = html.escape
+    robots = "noindex, follow" if noindex else "index, follow, max-image-preview:large"
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -23,8 +35,23 @@ def head(title, desc, page, schema=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://triadatechnologies.com/{page}">
+<meta name="robots" content="{robots}">
+<meta name="theme-color" content="#FAFAFA">
+<link rel="canonical" href="{url}">
+<meta property="og:site_name" content="TriadaTechnologies">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="{og_type}">
+<meta property="og:title" content="{e(title)}">
+<meta property="og:description" content="{e(desc)}">
+<meta property="og:url" content="{url}">
+<meta property="og:image" content="{OG_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{OG_ALT}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{e(title)}">
+<meta name="twitter:description" content="{e(desc)}">
+<meta name="twitter:image" content="{OG_IMAGE}">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
@@ -36,6 +63,33 @@ def head(title, desc, page, schema=""):
 <body>
 <a class="skip" href="#main">Skip to content</a>
 '''
+
+
+def ld(obj):
+    return '<script type="application/ld+json">' + json.dumps(obj, ensure_ascii=False).replace("</", "<\\/") + "</script>\n"
+
+
+def breadcrumb(*crumbs):
+    """crumbs: (name, page) pairs after Home."""
+    items = [("Home", "")] + [(n, p) for n, p in crumbs]
+    return ld({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE + "/" + p} for i, (n, p) in enumerate(items)]})
+
+
+ORG_ID = SITE + "/#organization"
+
+
+def org(with_phone=False):
+    o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "TriadaTechnologies",
+         "url": SITE + "/", "logo": SITE + "/assets/logo.svg", "image": OG_IMAGE,
+         "description": "Multi-industry staffing and recruitment partner in Lansdale, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services.",
+         "email": EMAIL,
+         "address": {"@type": "PostalAddress", "addressLocality": "Lansdale", "addressRegion": "PA", "addressCountry": "US"},
+         "areaServed": {"@type": "Country", "name": "United States"},
+         "knowsAbout": ["Contract staffing", "Contract-to-hire", "Direct hire placement", "Executive search", "Vendor management systems", "Technology hiring"]}
+    if with_phone:
+        o["telephone"] = PHONE
+    return o
 
 
 def header(active):
@@ -84,8 +138,8 @@ FOOTER = f'''<footer class="site-foot">
 '''
 
 
-def page(title, desc, page_name, body, script=False, schema=""):
-    s = (head(title, desc, page_name, schema) + header(page_name)
+def page(title, desc, page_name, body, script=False, schema="", og_type="website", noindex=False):
+    s = (head(title, desc, page_name, schema, og_type, noindex) + header(page_name)
          + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER)
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
@@ -138,28 +192,14 @@ steps_html = "\n".join(
     f'      <li><h3>{t}</h3><p>{d}</p></li>' for t, d in STEPS)
 
 # ---------- HOME ----------
-HOME_SCHEMA = f'''<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "TriadaTechnologies",
-  "url": "https://triadatechnologies.com/",
-  "logo": "https://triadatechnologies.com/assets/logo.svg",
-  "description": "Multi-industry staffing and recruitment partner in Lansdale, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services.",
-  "email": "{EMAIL}",
-  "address": {{
-    "@type": "PostalAddress",
-    "addressLocality": "Lansdale",
-    "addressRegion": "PA",
-    "addressCountry": "US"
-  }},
-  "areaServed": "US",
-  "knowsAbout": ["Contract staffing", "Contract-to-hire", "Direct hire placement", "Executive search", "Vendor management systems"]
-}}
-</script>
-'''
+HOME_SCHEMA = ld({"@context": "https://schema.org", "@graph": [
+    org(),
+    {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "TriadaTechnologies",
+     "inLanguage": "en-US", "publisher": {"@id": ORG_ID}},
+]})
 
 home = f'''<section class="hero-full" aria-label="Introduction">
+  <img class="hero-video hero-img" src="assets/hero-city.jpg" alt="City skyline at dusk" width="1920" height="1280" fetchpriority="high" decoding="async">
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-center">
     <p class="eyebrow">Staffing in Lansdale, PA</p>
@@ -249,6 +289,17 @@ home = f'''<section class="hero-full" aria-label="Introduction">
 # ---------- SERVICES ----------
 SERVICES_SCHEMA = ""
 
+FAQ_ITEMS = [
+    ("What types of staffing do you offer?",
+     "We offer temporary, contract, contract-to-hire, direct hire, and executive search placements, along with vendor management programs for ongoing workforce needs."),
+    ("Where are you located?",
+     "TriadaTechnologies is based in Lansdale, Pennsylvania. We work with employers and candidates across multiple industries in the region and beyond."),
+    ("How do I get started?",
+     f'Visit our <a href="contact.html">contact page</a> or email {EMAIL} with the role you need to fill, or with the roles you are looking for. A recruiter will reply during business hours.'),
+]
+faq_html = "\n".join(
+    f'      <div class="card">\n        <h3>{q}</h3>\n        <p>{a}</p>\n      </div>' for q, a in FAQ_ITEMS)
+
 services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">Services</p>
@@ -306,18 +357,7 @@ services = f'''<section class="page-hero" style="border-top:0">
       <h2>Common questions about staffing with us</h2>
     </div>
     <div class="faq">
-      <div class="card">
-        <h3>What types of staffing do you offer?</h3>
-        <p>We offer temporary, contract, contract-to-hire, direct hire, and executive search placements, along with vendor management programs for ongoing workforce needs.</p>
-      </div>
-      <div class="card">
-        <h3>Where are you located?</h3>
-        <p>TriadaTechnologies is based in Lansdale, Pennsylvania. We work with employers and candidates across multiple industries in the region and beyond.</p>
-      </div>
-      <div class="card">
-        <h3>How do I get started?</h3>
-        <p>Visit our <a href="contact.html">contact page</a> or email {EMAIL} with the role you need to fill, or with the roles you are looking for. A recruiter will reply during business hours.</p>
-      </div>
+{faq_html}
     </div>
   </div>
 </section>
@@ -604,25 +644,75 @@ def build_post(p):
 
 
 def post_schema(p):
-    data = {
+    url = f"{SITE}/insight-{p['slug']}.html"
+    words = sum(len(t.split()) for sec in p["sections"] for t in sec["paragraphs"])
+    article = {
         "@context": "https://schema.org", "@type": "Article",
         "headline": p["title"], "description": p["description"],
         "datePublished": p["published"], "dateModified": p["updated"],
-        "mainEntityOfPage": f"{SITE_URL}/insight-{p['slug']}.html",
-        "articleSection": p["tag"],
-        "author": {"@type": "Organization", "name": "TriadaTechnologies"},
-        "publisher": {"@type": "Organization", "name": "TriadaTechnologies", "url": SITE_URL},
+        "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+        "articleSection": p["tag"], "inLanguage": "en-US", "wordCount": words,
+        "image": OG_IMAGE,
+        "author": {"@id": ORG_ID}, "publisher": {"@id": ORG_ID},
+        "isPartOf": {"@type": "WebSite", "@id": SITE + "/#website"},
         "citation": [s["url"] for s in p["sources"]],
     }
-    return '<script type="application/ld+json">' + json.dumps(data).replace("</", "<\\/") + "</script>\n"
+    return ld(article) + breadcrumb(("Insights", "insights.html"), (p["title"], f"insight-{p['slug']}.html"))
 
 
-def seo_files(posts, today):
-    urls = [(n, None) for n, _ in NAV] + [("insights-archive.html", None)]
-    urls += [(f"insight-{p['slug']}.html", p["updated"]) for p in posts]
+def plain(t):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", t)).strip()
+
+
+def page_schema(fname):
+    if fname == "index.html":
+        return HOME_SCHEMA
+    if fname == "services.html":
+        faq = ld({"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": plain(a)}} for q, a in FAQ_ITEMS]})
+        return breadcrumb(("Services", fname)) + faq
+    if fname == "about.html":
+        return breadcrumb(("About", fname)) + ld({"@context": "https://schema.org", "@type": "AboutPage",
+                                                   "name": "About TriadaTechnologies", "url": f"{SITE}/{fname}", "about": {"@id": ORG_ID}})
+    if fname == "jobs.html":
+        return breadcrumb(("Jobs", fname))
+    if fname == "insights.html":
+        return breadcrumb(("Insights", fname)) + ld({"@context": "https://schema.org", "@type": "CollectionPage",
+                                                      "name": "Insights on hiring and the job market", "url": f"{SITE}/{fname}",
+                                                      "isPartOf": {"@id": SITE + "/#website"}, "publisher": {"@id": ORG_ID}})
+    if fname == "insights-archive.html":
+        return breadcrumb(("Insights", "insights.html"), ("Archive", fname))
+    if fname == "contact.html":
+        return breadcrumb(("Contact", fname)) + ld({"@context": "https://schema.org", "@type": "ContactPage",
+                                                     "name": "Contact TriadaTechnologies", "url": f"{SITE}/{fname}",
+                                                     "mainEntity": org(with_phone=True)})
+    return ""
+
+
+# real "last modified" dates: a page's date only moves when its content changes
+LASTMOD_FILE = os.path.join(BASE, "data", "lastmod.json")
+
+
+def lastmod_for(outputs, today):
+    try:
+        with open(LASTMOD_FILE, encoding="utf-8") as f:
+            book = json.load(f)
+    except Exception:
+        book = {}
+    for name, text in outputs.items():
+        h = hashlib.sha1(text.encode("utf-8")).hexdigest()
+        if book.get(name, {}).get("hash") != h:
+            book[name] = {"hash": h, "date": today.isoformat()}
+    with open(LASTMOD_FILE, "w", encoding="utf-8") as f:
+        json.dump(book, f, indent=1, sort_keys=True)
+    return {n: v["date"] for n, v in book.items()}
+
+
+def seo_files(posts, today, dates):
+    names = [n for n, _ in NAV] + ["insights-archive.html"] + [f"insight-{p['slug']}.html" for p in posts]
     items = "".join(
-        f"  <url><loc>{SITE_URL}/{'' if n == 'index.html' else n}</loc><lastmod>{(d or today.isoformat())}</lastmod></url>\n"
-        for n, d in urls)
+        f"  <url><loc>{SITE_URL}/{'' if n == 'index.html' else n}</loc><lastmod>{dates.get(n, today.isoformat())}</lastmod></url>\n"
+        for n in names)
     with open("sitemap.xml", "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + items + "</urlset>\n")
     with open("robots.txt", "w", encoding="utf-8") as f:
@@ -636,6 +726,21 @@ def seo_files(posts, today):
         lines += [f"- [{p['title']}]({SITE_URL}/insight-{p['slug']}.html): {p['summary']} ({p['published']})" for p in posts]
     with open("llms.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def retired_slugs():
+    try:
+        with open(os.path.join(BASE, "data", "retired.json"), encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def redirect_page(target):
+    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>Moved | TriadaTechnologies</title>\n'
+            f'<meta name="robots" content="noindex, follow">\n<link rel="canonical" href="{SITE}/{target}">\n'
+            f'<meta http-equiv="refresh" content="0; url={target}"></head>\n'
+            f'<body><p>This article has moved to the <a href="{target}">archive</a>.</p></body></html>\n')
 
 
 POSTS = load_posts()
@@ -693,7 +798,7 @@ contact = f'''<section class="page-hero" style="border-top:0">
 
 pages = [
     ("index.html", "TriadaTechnologies | Staffing in Lansdale, PA",
-     "TriadaTechnologies is a Lansdale, PA staffing firm placing temporary, contract, contract-to-hire, and direct-hire talent in IT, healthcare, finance, engineering, and more.",
+     "TriadaTechnologies is a Lansdale, PA staffing firm placing temporary, contract, contract-to-hire, and direct-hire talent in IT, healthcare, and finance.",
      home, True, HOME_SCHEMA),
     ("services.html", "Staffing Services | TriadaTechnologies",
      "Temporary, contract, contract-to-hire, direct hire, and executive search staffing in nine industries, from TriadaTechnologies in Lansdale, PA.",
@@ -702,13 +807,13 @@ pages = [
      "About TriadaTechnologies, a multi-industry staffing and recruitment partner in Lansdale, PA, connecting clients, vendors, and candidates.",
      about, True, ""),
     ("jobs.html", "Open Jobs | TriadaTechnologies",
-     "Current job openings and how to submit your resume to TriadaTechnologies in Lansdale, PA.",
+     "Current job openings with TriadaTechnologies clients in Lansdale, PA, and how to submit your resume for temporary, contract, or direct-hire roles.",
      jobs, True, ""),
     ("insights.html", "Insights on Hiring | TriadaTechnologies",
-     "Articles on contract, contract-to-hire, and direct hiring from TriadaTechnologies.",
+     "Sourced articles on technology hiring, in-demand skills, and workforce planning from TriadaTechnologies, a staffing firm in Lansdale, PA.",
      insights, True, ""),
     ("insights-archive.html", "Insights Archive | TriadaTechnologies",
-     "Searchable list of earlier TriadaTechnologies articles on hiring and the technology job market.",
+     "Searchable list of earlier TriadaTechnologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
      archive_page, True, ""),
     ("contact.html", "Contact TriadaTechnologies | Lansdale, PA",
      f"Contact TriadaTechnologies in Lansdale, PA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
@@ -716,17 +821,27 @@ pages = [
 ]
 
 if __name__ == "__main__":
+    outputs = {}
     for fname, title, desc, body, script, schema in pages:
-        out = page(title, desc, fname, body, script=script, schema=schema)
-        with open(fname, "w", encoding="utf-8") as f:
-            f.write(out)
-        print("wrote", fname)
+        outputs[fname] = page(title, desc, fname, body, script=script, schema=page_schema(fname))
     for p in POSTS:
         fname = f"insight-{p['slug']}.html"
-        out = page(p["title"] + " | TriadaTechnologies Insights", p["description"], fname,
-                   build_post(p), script=True, schema=post_schema(p))
-        with open(fname, "w", encoding="utf-8") as f:
-            f.write(out)
-        print("wrote", fname)
-    seo_files(POSTS, TODAY)
+        outputs[fname] = page(p["title"] + " | TriadaTechnologies Insights", p["description"], fname,
+                              build_post(p), script=True, schema=post_schema(p), og_type="article")
+    outputs["404.html"] = page("Page not found | TriadaTechnologies", "The page you are looking for does not exist.", "404.html",
+                               hero_card("404", "Page not found.", "The page you are looking for has moved or does not exist.")
+                               + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="index.html">Go to home</a></div></section>',
+                               script=True, noindex=True)
+    for name, text in outputs.items():
+        with open(name, "w", encoding="utf-8") as f:
+            f.write(text)
+        print("wrote", name)
+    for slug in retired_slugs():
+        name = f"insight-{slug}.html"
+        if name not in outputs:
+            with open(name, "w", encoding="utf-8") as f:
+                f.write(redirect_page("insights-archive.html"))
+            print("redirect", name)
+    dates = lastmod_for({k: v for k, v in outputs.items() if k != "404.html"}, TODAY)
+    seo_files(POSTS, TODAY, dates)
     print("wrote sitemap.xml, robots.txt, llms.txt")

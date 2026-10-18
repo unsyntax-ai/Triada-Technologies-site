@@ -294,6 +294,16 @@ def prune_old():
                 if os.path.exists(path):
                     os.remove(path)
             print("deleted (older than 12 months):", p["slug"])
+            retired = os.path.join(ROOT, "data", "retired.json")
+            try:
+                with open(retired, encoding="utf-8") as f:
+                    gone = json.load(f)
+            except Exception:
+                gone = []
+            if p["slug"] not in gone:
+                gone.append(p["slug"])
+                with open(retired, "w", encoding="utf-8") as f:
+                    json.dump(gone, f, indent=1)
 
 
 def mock_post(n):
