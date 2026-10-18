@@ -28,6 +28,28 @@
     targets.forEach(function (el) { el.classList.add('in'); });
   }
 
+
+  // Insights archive: search and month filter
+  var aSearch = document.getElementById('archive-search');
+  var aMonth = document.getElementById('archive-month');
+  if (aSearch && aMonth) {
+    var rows = document.querySelectorAll('#archive-list .archive-row');
+    var empty = document.getElementById('archive-empty');
+    var apply = function () {
+      var q = aSearch.value.trim().toLowerCase();
+      var m = aMonth.value;
+      var shown = 0;
+      rows.forEach(function (r) {
+        var ok = (!m || r.getAttribute('data-month') === m) && (!q || r.getAttribute('data-text').indexOf(q) !== -1);
+        r.hidden = !ok;
+        if (ok) shown++;
+      });
+      empty.hidden = shown !== 0;
+    };
+    aSearch.addEventListener('input', apply);
+    aMonth.addEventListener('change', apply);
+  }
+
   // Contact form: preview only
   var form = document.getElementById('contact-form');
   if (form) {
