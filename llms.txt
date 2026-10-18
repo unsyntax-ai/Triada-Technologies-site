@@ -10,3 +10,7 @@
 - [Jobs](https://triadatechnologies.com/jobs.html)
 - [Insights](https://triadatechnologies.com/insights.html)
 - [Contact](https://triadatechnologies.com/contact.html)
+
+## Insights
+
+- [Navigating the Changing Technology Labor Market](https://triadatechnologies.com/insight-navigating-the-changing-technology-labor-market.html): Technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers. (2026-10-18)

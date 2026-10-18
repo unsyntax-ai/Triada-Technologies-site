@@ -65,18 +65,30 @@
   </div>
 </section>
 
-<section>
+<section class="listing" data-page="9">
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Coming soon</p>
-      <h2>Our first articles are on the way</h2>
-      <p class="lead">We will publish practical guidance on hiring trends, role requirements, and career moves in the industries we serve. Check back soon, or contact our team with a question you would like answered.</p>
+    <div class="toolbar toolbar-wide">
+      <label for="q">Search
+        <input id="q" type="search" placeholder="Search articles" autocomplete="off">
+      </label>
+      <label for="month">Date
+        <select id="month"><option value="">All dates</option><option value="2026-10">October 2026</option></select>
+      </label>
+      <label for="sort">Sort
+        <select id="sort"><option value="new">Latest first</option><option value="old">Oldest first</option></select>
+      </label>
+      <a class="btn btn-white" href="insights-archive.html">Archive</a>
     </div>
-    <div class="card" style="max-width:610px">
-      <h3>Ask a question</h3>
-      <p>Tell us which hiring or career topic you would like us to cover, and our team will consider it for an upcoming article.</p>
-      <a class="btn btn-white" href="contact.html">Ask a question</a>
+    <div class="posts" id="items">
+      <article class="card post-card" data-item data-date="2026-10-18" data-text="navigating the changing technology labor market technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers. hiring trends">
+        <a class="post-art pal-navy" href="insight-navigating-the-changing-technology-labor-market.html" aria-hidden="true" tabindex="-1"><img src="assets/insights/navigating-the-changing-technology-labor-market.svg" alt="" width="400" height="300" loading="lazy"></a>
+        <p class="meta">Oct 18, 2026 · Hiring trends</p>
+        <h3><a href="insight-navigating-the-changing-technology-labor-market.html">Navigating the Changing Technology Labor Market</a></h3>
+        <p>Technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers.</p>
+      </article>
     </div>
+    <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Load more</button></div>
   </div>
 </section>
 </main>
