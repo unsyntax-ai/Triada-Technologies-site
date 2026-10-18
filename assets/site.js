@@ -29,25 +29,40 @@
   }
 
 
-  // Insights archive: search and month filter
-  var aSearch = document.getElementById('archive-search');
-  var aMonth = document.getElementById('archive-month');
-  if (aSearch && aMonth) {
-    var rows = document.querySelectorAll('#archive-list .archive-row');
-    var empty = document.getElementById('archive-empty');
-    var apply = function () {
-      var q = aSearch.value.trim().toLowerCase();
-      var m = aMonth.value;
-      var shown = 0;
-      rows.forEach(function (r) {
-        var ok = (!m || r.getAttribute('data-month') === m) && (!q || r.getAttribute('data-text').indexOf(q) !== -1);
-        r.hidden = !ok;
-        if (ok) shown++;
+  // Insights lists: search, date filter, sort, load more
+  var list = document.getElementById('items');
+  if (list) {
+    var q = document.getElementById('q');
+    var mo = document.getElementById('month');
+    var so = document.getElementById('sort');
+    var more = document.getElementById('more');
+    var empty = document.getElementById('empty');
+    var pageSize = parseInt(list.closest('.listing').getAttribute('data-page'), 10) || 9;
+    var items = Array.prototype.slice.call(list.querySelectorAll('[data-item]'));
+    var shown = pageSize;
+    var render = function () {
+      var term = q.value.trim().toLowerCase();
+      var month = mo.value;
+      var oldest = so.value === 'old';
+      items.sort(function (a, b) {
+        var x = a.getAttribute('data-date'), y = b.getAttribute('data-date');
+        return oldest ? (x < y ? -1 : x > y ? 1 : 0) : (x < y ? 1 : x > y ? -1 : 0);
       });
-      empty.hidden = shown !== 0;
+      var match = 0;
+      items.forEach(function (el) {
+        list.appendChild(el);
+        var ok = (!month || el.getAttribute('data-date').slice(0, 7) === month) &&
+                 (!term || el.getAttribute('data-text').indexOf(term) !== -1);
+        if (ok) { match++; el.hidden = match > shown; } else { el.hidden = true; }
+      });
+      empty.hidden = match !== 0;
+      more.hidden = match <= shown;
     };
-    aSearch.addEventListener('input', apply);
-    aMonth.addEventListener('change', apply);
+    [q, mo, so].forEach(function (c) {
+      c.addEventListener(c === q ? 'input' : 'change', function () { shown = pageSize; render(); });
+    });
+    more.addEventListener('click', function () { shown += pageSize; render(); });
+    render();
   }
 
   // Contact form: preview only

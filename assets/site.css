@@ -319,8 +319,6 @@ footer.site-foot .eyebrow { color: #5EEAD4; }
 .post-card h3 a { color: var(--ink); }
 .post-card h3 a:hover { color: var(--accent-deep); }
 
-.archive-tools { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--s-3); max-width: 760px; margin-bottom: var(--s-4); }
-.archive-tools label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
 .archive-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-1); }
 .archive-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; padding: var(--s-2) var(--s-3); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .archive-row a { color: var(--ink); font-weight: 500; }
@@ -343,3 +341,20 @@ footer.site-foot .eyebrow { color: #5EEAD4; }
 @media (max-width: 900px) { .posts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .posts, .archive-tools { grid-template-columns: 1fr; } }
 .archive-row[hidden] { display: none; }
+
+/* ---------- Insights v2: carded hero, toolbar, load more ---------- */
+.page-hero.hero-carded { padding-top: clamp(40px, 6vw, 72px); padding-bottom: clamp(24px, 3vw, 40px); }
+.hero-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-panel); padding: clamp(28px, 4vw, 56px); box-shadow: var(--shadow-soft); }
+.hero-card .lead { max-width: 58ch; }
+.article-head .hero-card { max-width: 760px; }
+.listing { border-top: 0; padding-top: var(--s-4); }
+.toolbar { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-2); align-items: end; margin-bottom: var(--s-4); }
+.toolbar.toolbar-wide { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto; }
+.toolbar label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+.toolbar .btn { min-width: 140px; }
+.post-card[hidden] { display: none; }
+.load-more { display: flex; justify-content: center; margin-top: var(--s-4); }
+.load-more[hidden], #more[hidden] { display: none; }
+.post-art img { height: 78%; }
+@media (max-width: 900px) { .toolbar, .toolbar.toolbar-wide { grid-template-columns: repeat(2, minmax(0, 1fr)); } .toolbar .btn { width: 100%; } }
+@media (max-width: 700px) { .toolbar, .toolbar.toolbar-wide { grid-template-columns: 1fr; } .hero-card { padding: var(--s-3); } }

@@ -39,7 +39,7 @@ def head(title, desc, page, schema=""):
 
 
 def header(active):
-    if active.startswith("insight-"):
+    if active.startswith("insight"):
         active = "insights.html"
     links = "\n".join(
         '        <li><a href="{}"{}>{}</a></li>'.format(
@@ -465,7 +465,8 @@ def art_src(p):
 def post_card(p):
     url = f"insight-{p['slug']}.html"
     e = html.escape
-    return f'''      <article class="card post-card">
+    hay = e((p['title'] + ' ' + p['summary'] + ' ' + p['tag']).lower(), quote=True)
+    return f'''      <article class="card post-card" data-item data-date="{p['published']}" data-text="{hay}">
         <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="400" height="300" loading="lazy"></a>
         <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
         <h3><a href="{url}">{e(p['title'])}</a></h3>
@@ -477,22 +478,46 @@ def archive_row(p):
     url = f"insight-{p['slug']}.html"
     e = html.escape
     hay = e((p['title'] + ' ' + p['summary'] + ' ' + p['tag']).lower(), quote=True)
-    return (f'      <li class="archive-row" data-month="{p["published"][:7]}" data-text="{hay}">'
+    return (f'      <li class="archive-row" data-item data-date="{p["published"]}" data-text="{hay}">'
             f'<a href="{url}">{e(p["title"])}</a><span>{pretty(p["published"])} · {e(p["tag"])}</span></li>')
+
+
+def toolbar(posts, archive_button):
+    months = sorted({p["published"][:7] for p in posts}, reverse=True)
+    opts = "".join(f'<option value="{m}">{dt.date.fromisoformat(m + "-01").strftime("%B %Y")}</option>' for m in months)
+    btn = '\n      <a class="btn btn-white" href="insights-archive.html">Archive</a>' if archive_button else ""
+    return f'''    <div class="toolbar{' toolbar-wide' if archive_button else ''}">
+      <label for="q">Search
+        <input id="q" type="search" placeholder="Search articles" autocomplete="off">
+      </label>
+      <label for="month">Date
+        <select id="month"><option value="">All dates</option>{opts}</select>
+      </label>
+      <label for="sort">Sort
+        <select id="sort"><option value="new">Latest first</option><option value="old">Oldest first</option></select>
+      </label>{btn}
+    </div>'''
+
+
+def hero_card(eyebrow, title_html, lead):
+    return f'''<section class="page-hero hero-carded" style="border-top:0">
+  <div class="wrap">
+    <div class="hero-card">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{title_html}</h1>
+      <p class="lead">{lead}</p>
+    </div>
+  </div>
+</section>
+'''
 
 
 def build_insights(posts, today):
     live = [p for p in posts if (today - dt.date.fromisoformat(p["published"])).days <= LIVE_DAYS]
     old = [p for p in posts if p not in live]
-    hero = '''<section class="page-hero" style="border-top:0">
-  <div class="wrap">
-    <p class="eyebrow">Insights</p>
-    <h1>Notes on <em>hiring</em> and the job market.</h1>
-    <p class="lead">Short, sourced articles on technology hiring, in-demand skills, and workforce planning, written for clients who are planning their teams and for candidates who are planning their next role.</p>
-  </div>
-</section>
-'''
-    if not posts:
+    hero = hero_card("Insights", "Notes on <em>hiring</em> and the job market.",
+                     "Short, sourced articles on technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.")
+    if not live and not old:
         return hero + '''
 <section>
   <div class="wrap">
@@ -508,46 +533,41 @@ def build_insights(posts, today):
     </div>
   </div>
 </section>'''
-    out = hero
-    if live:
-        out += f'''
-<section>
+    cards = chr(10).join(post_card(p) for p in live)
+    return hero + f'''
+<section class="listing" data-page="9">
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Latest</p>
-      <h2>Recent articles</h2>
+{toolbar(live, True)}
+    <div class="posts" id="items">
+{cards}
     </div>
-    <div class="posts">
-{chr(10).join(post_card(p) for p in live)}
-    </div>
+    <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Load more</button></div>
   </div>
 </section>'''
-    if old:
-        months = sorted({p["published"][:7] for p in old}, reverse=True)
-        opts = "".join(f'<option value="{m}">{dt.date.fromisoformat(m + "-01").strftime("%B %Y")}</option>' for m in months)
-        out += f'''
-<section id="archive">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Archive</p>
-      <h2>Earlier articles</h2>
-      <p class="lead">Articles older than 30 days stay here for a year. Search by keyword or choose a month.</p>
-    </div>
-    <div class="archive-tools">
-      <label for="archive-search">Search
-        <input id="archive-search" type="search" placeholder="Search articles" autocomplete="off">
-      </label>
-      <label for="archive-month">Month
-        <select id="archive-month"><option value="">All months</option>{opts}</select>
-      </label>
-    </div>
-    <ul class="archive-list" id="archive-list">
+
+
+def build_archive(posts, today):
+    old = [p for p in posts if (today - dt.date.fromisoformat(p["published"])).days > LIVE_DAYS]
+    hero = hero_card("Archive", "Earlier <em>articles.</em>",
+                     "Articles older than 30 days are kept here for 12 months, as a simple list you can search and sort.")
+    if not old:
+        body = '''    <p class="archive-empty">No archived articles yet. Articles move here 30 days after they are published.</p>
+    <p style="margin-top:20px"><a class="btn btn-white" href="insights.html">Back to Insights</a></p>'''
+    else:
+        body = f'''{toolbar(old, False)}
+    <ul class="archive-list" id="items">
 {chr(10).join(archive_row(p) for p in old)}
     </ul>
-    <p id="archive-empty" class="archive-empty" hidden>No articles match your search.</p>
+    <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Load more</button></div>
+    <p style="margin-top:32px"><a class="btn btn-white" href="insights.html">Back to Insights</a></p>'''
+    return hero + f'''
+<section class="listing" data-page="20">
+  <div class="wrap">
+{body}
   </div>
 </section>'''
-    return out
 
 
 def build_post(p):
@@ -557,12 +577,14 @@ def build_post(p):
         for s in p["sections"])
     take = "".join(f"<li>{e(t)}</li>" for t in p["takeaways"])
     srcs = "".join(f'<li><a href="{e(s["url"], quote=True)}" rel="noopener" target="_blank">{e(s["title"])}</a></li>' for s in p["sources"])
-    return f'''<section class="page-hero" style="border-top:0">
+    return f'''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap article-head">
-    <p class="eyebrow">{e(p['tag'])}</p>
-    <h1>{e(p['title'])}</h1>
-    <p class="lead">{e(p['summary'])}</p>
-    <p class="meta">Published {pretty(p['published'])} · Updated {pretty(p['updated'])}</p>
+    <div class="hero-card">
+      <p class="eyebrow">{e(p['tag'])}</p>
+      <h1>{e(p['title'])}</h1>
+      <p class="lead">{e(p['summary'])}</p>
+      <p class="meta">Published {pretty(p['published'])} · Updated {pretty(p['updated'])}</p>
+    </div>
   </div>
 </section>
 
@@ -596,7 +618,7 @@ def post_schema(p):
 
 
 def seo_files(posts, today):
-    urls = [(n, None) for n, _ in NAV]
+    urls = [(n, None) for n, _ in NAV] + [("insights-archive.html", None)]
     urls += [(f"insight-{p['slug']}.html", p["updated"]) for p in posts]
     items = "".join(
         f"  <url><loc>{SITE_URL}/{'' if n == 'index.html' else n}</loc><lastmod>{(d or today.isoformat())}</lastmod></url>\n"
@@ -619,6 +641,7 @@ def seo_files(posts, today):
 POSTS = load_posts()
 TODAY = build_date()
 insights = build_insights(POSTS, TODAY)
+archive_page = build_archive(POSTS, TODAY)
 
 # ---------- CONTACT ----------
 contact = f'''<section class="page-hero" style="border-top:0">
@@ -684,6 +707,9 @@ pages = [
     ("insights.html", "Insights on Hiring | TriadaTechnologies",
      "Articles on contract, contract-to-hire, and direct hiring from TriadaTechnologies.",
      insights, True, ""),
+    ("insights-archive.html", "Insights Archive | TriadaTechnologies",
+     "Searchable list of earlier TriadaTechnologies articles on hiring and the technology job market.",
+     archive_page, True, ""),
     ("contact.html", "Contact TriadaTechnologies | Lansdale, PA",
      f"Contact TriadaTechnologies in Lansdale, PA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
      contact, True, ""),

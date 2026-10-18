@@ -163,17 +163,19 @@ SOURCES:
 
 
 def svg_prompt(title, topic):
-    return f"""Draw a small flat vector illustration as SVG for an article titled "{title}".
-It should show: {topic}.
+    return f"""Draw a very simple, calm, minimal flat illustration as SVG for an article titled "{title}".
+Idea to show: {topic}. Express it with one clear central object or gesture, drawn in an editorial
+style like a modern AI-company blog: a few soft rounded shapes, generous empty space, light and airy.
 
 Hard rules:
 - Output only the SVG code, nothing else, no markdown fence.
 - viewBox="0 0 400 300", xmlns="http://www.w3.org/2000/svg". Transparent background (no full-size rect).
-- Use only these elements: svg, g, path, circle, ellipse, rect, line, polyline, polygon.
-- No text, no letters, no numbers, no gradients, no filters, no images, no scripts, no style tags.
-- Colours only from: {", ".join(FILLS)}. Outlines {INK}, stroke-width 3 or 4, round caps and joins.
-- Simple friendly shapes, centred, with generous empty space around. Under 40 shapes.
-- Abstract or object based. Do not draw real brands, logos, or faces.
+- Use at most 10 shapes in total. Fewer is better. No small details, no patterns, no repeated tiny items.
+- Prefer solid filled shapes with no outline. Use an outline ({INK}, stroke-width 3, round caps) on at most 2 shapes.
+- Use at most 3 colours from: {", ".join(FILLS)}. Mostly soft tints (#E4F1EE, #F3ECE2, #C9D3F0) with one accent ({FILLS[0]}).
+- Allowed elements only: svg, g, path, circle, ellipse, rect, line, polyline, polygon.
+- No text, letters, numbers, gradients, filters, images, scripts or style tags.
+- Abstract or object based. No faces, no people, no real brands or logos.
 """
 
 
@@ -210,7 +212,7 @@ def clean_svg(raw):
         el.tail = None
         return all(walk(c) for c in list(el))
 
-    if root.tag.replace(ns, "") != "svg" or not walk(root) or count < 4 or count > 80:
+    if root.tag.replace(ns, "") != "svg" or not walk(root) or count < 3 or count > 24:
         return None
     root.attrib["viewBox"] = "0 0 400 300"
     root.attrib["role"] = "img"
@@ -312,9 +314,40 @@ MOCK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect
             '<circle cx="270" cy="110" r="9" fill="#14B8A6" stroke="#1B2126" stroke-width="3"/><circle cx="160" cy="160" r="7" fill="#F3ECE2" stroke="#1B2126" stroke-width="3"/></svg>')
 
 
+def redo_art():
+    """Redraw the illustration of every post with the current, lighter style."""
+    key = os.environ.get("GOOGLE_API_KEY")
+    if not key:
+        print("GOOGLE_API_KEY is not set.", file=sys.stderr)
+        return 1
+    with open(SOURCES, encoding="utf-8") as f:
+        model = os.environ.get("GEMINI_MODEL") or json.load(f).get("model", "gemini-3.8-flash")
+    for p in load_posts():
+        svg = None
+        for _ in range(3):
+            try:
+                svg = clean_svg(gemini(svg_prompt(p["title"], p["topic"]), model, key, as_json=False, temperature=0.8))
+            except Exception as e:
+                print("illustration request failed:", e)
+            if svg:
+                break
+        if svg:
+            with open(os.path.join(ART_DIR, p["slug"] + ".svg"), "w", encoding="utf-8") as f:
+                f.write(svg)
+            p["has_art"] = True
+            with open(os.path.join(DATA_DIR, p["slug"] + ".json"), "w", encoding="utf-8") as f:
+                json.dump(p, f, indent=2, ensure_ascii=False)
+            print("redrew:", p["slug"])
+        else:
+            print("kept old illustration:", p["slug"])
+    return 0
+
+
 def run(args):
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(ART_DIR, exist_ok=True)
+    if args.redo_art:
+        return redo_art()
     prune_old()
     existing = load_posts()
     date = today().isoformat()
@@ -397,5 +430,6 @@ def run(args):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--mock", action="store_true", help="make a sample post with no network")
+    ap.add_argument("--redo-art", action="store_true", help="redraw illustrations for all posts, no new article")
     ap.add_argument("--force", action="store_true", help="allow a second post on the same day")
     sys.exit(run(ap.parse_args()))
