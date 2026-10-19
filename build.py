@@ -506,7 +506,7 @@ def post_card(p):
     e = html.escape
     hay = e((p['title'] + ' ' + p['summary'] + ' ' + p['tag']).lower(), quote=True)
     return f'''      <article class="card post-card" data-item data-date="{p['published']}" data-text="{hay}">
-        <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="400" height="300" loading="lazy"></a>
+        <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="480" height="270" loading="lazy"></a>
         <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
         <h3><a href="{url}">{e(p['title'])}</a></h3>
         <p>{e(p['summary'])}</p>
@@ -629,7 +629,7 @@ def build_post(p):
 
 <section>
   <div class="wrap article">
-    <div class="post-art pal-{e(p['palette'])} post-art-lg"><img src="{art_src(p)}" alt="" width="400" height="300"></div>
+    <div class="post-art pal-{e(p['palette'])} post-art-lg"><img src="{art_src(p)}" alt="" width="480" height="270"></div>
     <div class="article-body">
       {secs}
       <div class="card takeaways"><h3>Key takeaways</h3><ul>{take}</ul></div>

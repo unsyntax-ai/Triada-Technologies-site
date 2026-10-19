@@ -14,6 +14,7 @@ Run locally with --mock to test with no network and no key.
 """
 import argparse
 import datetime as dt
+import hashlib
 import html.parser
 import json
 import os
@@ -33,11 +34,22 @@ SOURCES = os.path.join(ROOT, "data", "sources.json")
 KEEP_DAYS = 365
 PALETTES = ["teal", "sand", "navy", "mist"]
 INK = "#0F172A"
-FILLS = ["#1E3A8A", "#14B8A6", "#FF6A00", "#FFFFFF", "#E8EDF8", "#D9F2EE", "#FDE6D4", "#0F172A", "#5EEAD4", "#C7D2EE"]
+NAVY, TEAL, ORANGE, WHITE = "#1E3A8A", "#14B8A6", "#FF6A00", "#FFFFFF"
+FILLS = [INK, WHITE, NAVY, TEAL, ORANGE]          # colours the AI may use for the drawing itself
+BLOBS = ["#C9D4F2", "#BDECE6", "#FFD5B8"]          # soft brush-stroke colours behind the drawing: navy, teal, orange tints
 SVG_TAGS = {"svg", "g", "path", "circle", "ellipse", "rect", "line", "polyline", "polygon"}
 SVG_ATTRS = {"viewBox", "xmlns", "d", "cx", "cy", "r", "rx", "ry", "x", "y", "x1", "y1", "x2", "y2",
              "width", "height", "points", "fill", "stroke", "stroke-width", "stroke-linecap",
              "stroke-linejoin", "opacity", "transform", "fill-opacity", "role", "aria-label"}
+W, H = 480, 270   # illustration canvas, same 16:9 shape as the card image area
+
+# Rough brush-stroke shapes that sit behind the drawing (one is chosen per article)
+BLOB_PATHS = [
+    "M70 118C54 66 126 28 214 36C300 44 392 22 432 78C468 128 418 156 430 196C444 242 360 258 290 246C230 236 190 262 124 238C70 218 90 168 70 118Z",
+    "M54 150C40 96 98 52 170 52C236 52 262 22 338 36C410 50 452 96 436 156C422 208 442 232 372 246C300 260 252 236 186 250C108 266 66 214 54 150Z",
+    "M92 70C150 24 262 30 330 46C396 62 448 94 432 156C418 212 380 246 300 244C238 242 212 262 150 244C80 224 40 176 56 122C62 100 74 84 92 70Z",
+    "M60 96C86 48 176 40 250 48C330 56 408 40 436 100C458 148 410 170 424 208C436 244 340 252 268 242C200 232 146 258 96 226C48 194 40 130 60 96Z",
+]
 
 
 # ---------- small helpers ----------
@@ -164,28 +176,73 @@ SOURCES:
 """
 
 
+SAMPLE_SUBJECT = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270">'
+    '<rect x="105" y="42" width="260" height="160" rx="10" fill="#FFFFFF" stroke="#0F172A" stroke-width="7"/>'
+    '<polygon points="215,204 255,204 272,238 198,238" fill="#0F172A"/>'
+    '<line x1="140" y1="72" x2="205" y2="71" stroke="#0F172A" stroke-width="6"/>'
+    '<rect x="140" y="132" width="34" height="48" fill="#FFFFFF" stroke="#0F172A" stroke-width="5"/>'
+    '<rect x="196" y="108" width="34" height="72" fill="#FFFFFF" stroke="#0F172A" stroke-width="5"/>'
+    '<rect x="252" y="80" width="34" height="100" fill="#14B8A6" stroke="#0F172A" stroke-width="5"/>'
+    '<line x1="130" y1="184" x2="330" y2="183" stroke="#0F172A" stroke-width="6"/>'
+    '<circle cx="372" cy="132" r="32" fill="#FFFFFF" stroke="#0F172A" stroke-width="7"/>'
+    '<line x1="396" y1="156" x2="424" y2="190" stroke="#0F172A" stroke-width="11"/>'
+    '</svg>')
+
+
 def svg_prompt(title, topic):
-    return f"""Draw a very simple, calm, minimal flat illustration as SVG for an article titled "{title}".
-Idea to show: {topic}. Make the main subject large: it should fill about 75 percent of the canvas width and height, centred. Express it with one clear central object or gesture, drawn in an editorial
-style like a modern AI-company blog: a few soft rounded shapes, generous empty space, light and airy.
+    return f"""Draw a hand-drawn, sketchbook style editorial illustration as SVG for an article titled "{title}".
+Idea to show: {topic}.
+
+The look, in plain words: a doodle made with a thick felt-tip marker. Bold dark outlines, objects filled plain white, one or two solid dark or coloured accents, and a few short dashes that stand in for lines of text. It is friendly, loose and uncluttered, like a modern product-blog illustration. The soft coloured brush shape behind the drawing is added for you afterwards, so do not draw any background.
 
 Hard rules:
 - Output only the SVG code, nothing else, no markdown fence.
-- viewBox="0 0 400 300", xmlns="http://www.w3.org/2000/svg". Transparent background (no full-size rect).
-- Use at most 10 shapes in total. Fewer is better. No small details, no patterns, no repeated tiny items.
-- Prefer solid filled shapes with no outline. Use an outline ({INK}, stroke-width 3, round caps) on at most 2 shapes.
-- Use at most 4 colours from: {", ".join(FILLS)}. Mostly soft tints (#E8EDF8, #D9F2EE, #FDE6D4) with navy ({FILLS[0]}) as the main accent, a little teal ({FILLS[1]}), and at most one tiny orange ({FILLS[2]}) detail.
+- viewBox="0 0 {W} {H}", xmlns="http://www.w3.org/2000/svg". No background rectangle.
+- One to three clear objects about the topic (a screen, a document, a briefcase, a gear, a magnifying glass, a chart, a calendar, a puzzle piece, a handshake-free everyday object). Make them large: together they fill about 70 percent of the width and 80 percent of the height, centred.
+- Outlines: stroke="{INK}", stroke-width between 5 and 8, stroke-linecap="round", stroke-linejoin="round". Every closed shape gets an outline.
+- Fill closed objects with {WHITE}. Use a solid {INK} fill for small accents (a stand, a handle, a tab). Use {NAVY} or {TEAL} for at most two shapes, and {ORANGE} for at most one very small shape.
+- Use at most 25 shapes. Keep corners slightly rounded (rx on rects). Use short plain dashes (line elements) instead of text.
 - Allowed elements only: svg, g, path, circle, ellipse, rect, line, polyline, polygon.
-- No text, letters, numbers, gradients, filters, images, scripts or style tags.
-- Abstract or object based. No faces, no people, no real brands or logos.
+- No text, letters, numbers, gradients, filters, images, scripts, style tags, faces or people. No real brands or logos.
+
+Here is an example of the right level of detail and style, for a different topic. Do not copy it; draw something that fits this article:
+{SAMPLE_SUBJECT}
 """
 
 
-def clean_svg(raw):
-    """Return a safe SVG string, or None if it cannot be trusted."""
+def _viewbox(root):
+    try:
+        x, y, w, h = [float(v) for v in re.split(r"[ ,]+", root.attrib.get("viewBox", "").strip())]
+        if w > 0 and h > 0:
+            return x, y, w, h
+    except ValueError:
+        pass
+    return 0, 0, W, H
+
+
+def compose(subject_xml, seed):
+    """Put the cleaned drawing on a rough brush-stroke shape, with a hand-drawn wobble. The look is added here, not by the AI."""
+    h = int(hashlib.sha1(seed.encode("utf-8")).hexdigest(), 16)
+    blob = BLOB_PATHS[h % len(BLOB_PATHS)]
+    colour = BLOBS[(h // 7) % len(BLOBS)]
+    flip = "" if (h // 31) % 2 == 0 else f' transform="translate({W} 0) scale(-1 1)"'
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 10 440 248" role="img">'
+        '<defs>'
+        '<filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="14"/></filter>'
+        '<filter id="wob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="8" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/></filter>'
+        '</defs>'
+        f'<path d="{blob}" fill="{colour}" filter="url(#rough)"{flip}/>'
+        f'<g filter="url(#wob)" stroke-linecap="round" stroke-linejoin="round">{subject_xml}</g>'
+        '</svg>')
+
+
+def clean_svg(raw, seed="triada"):
+    """Return a safe, finished SVG string (drawing on a brush shape), or None if the drawing cannot be trusted."""
     raw = raw.strip()
     raw = re.sub(r"^```(?:svg|xml)?|```$", "", raw, flags=re.M).strip()
-    if len(raw) > 24000 or "<!" in raw or "<?" in raw:
+    if len(raw) > 30000 or "<!" in raw or "<?" in raw:
         return None
     try:
         root = ET.fromstring(raw)
@@ -206,7 +263,13 @@ def clean_svg(raw):
         for k in ("fill", "stroke"):
             v = el.attrib.get(k)
             if v and v != "none" and v.upper() not in FILLS:
-                el.attrib[k] = INK if k == "stroke" else "#E8EDF8"
+                el.attrib[k] = INK if k == "stroke" else WHITE
+        sw = el.attrib.get("stroke-width")
+        if sw is not None:
+            try:
+                el.attrib["stroke-width"] = str(min(12.0, max(4.0, float(sw))))
+            except ValueError:
+                del el.attrib["stroke-width"]
         for k, v in el.attrib.items():
             if re.search(r"url\(|javascript|data:|<|>", v, re.I):
                 return False
@@ -214,14 +277,17 @@ def clean_svg(raw):
         el.tail = None
         return all(walk(c) for c in list(el))
 
-    if root.tag.replace(ns, "") != "svg" or not walk(root) or count < 3 or count > 24:
+    if root.tag.replace(ns, "") != "svg" or not walk(root) or count < 4 or count > 40:
         return None
-    root.attrib["viewBox"] = "0 0 400 300"
-    root.attrib["role"] = "img"
-    root.attrib.pop("width", None)
-    root.attrib.pop("height", None)
+    vx, vy, vw, vh = _viewbox(root)
+    kids = list(root)
     ET.register_namespace("", "http://www.w3.org/2000/svg")
-    out = ET.tostring(root, encoding="unicode")
+    inner = "".join(ET.tostring(k, encoding="unicode") for k in kids)
+    if (vx, vy, vw, vh) != (0, 0, W, H):        # drawn on a different canvas: scale it to fit, centred
+        sc = min(W / vw, H / vh)
+        inner = f'<g transform="translate({(W - vw * sc) / 2 - vx * sc:.2f} {(H - vh * sc) / 2 - vy * sc:.2f}) scale({sc:.4f})">{inner}</g>'
+    inner = inner.replace(' xmlns="http://www.w3.org/2000/svg"', "")
+    out = compose(inner, seed)
     try:
         ET.fromstring(out)
     except ET.ParseError:
@@ -338,7 +404,7 @@ def redo_art():
         svg = None
         for _ in range(3):
             try:
-                svg = clean_svg(gemini(svg_prompt(p["title"], p["topic"]), model, key, as_json=False, temperature=0.8))
+                svg = clean_svg(gemini(svg_prompt(p["title"], p["topic"]), model, key, as_json=False, temperature=0.8), p["title"])
             except Exception as e:
                 print("illustration request failed:", e)
             if svg:
@@ -369,7 +435,7 @@ def run(args):
 
     if args.mock:
         post = mock_post(len(existing) + 1)
-        svg = MOCK_SVG
+        svg = clean_svg(SAMPLE_SUBJECT, post["title"])
         allowed = {"https://example.com/source"}
         src_titles = {"https://example.com/source": "Example source"}
     else:
@@ -412,7 +478,7 @@ def run(args):
         svg = None
         for attempt in range(3):
             try:
-                svg = clean_svg(gemini(svg_prompt(post["title"], post["topic"]), model, key, as_json=False, temperature=0.8))
+                svg = clean_svg(gemini(svg_prompt(post["title"], post["topic"]), model, key, as_json=False, temperature=0.8), post["title"])
             except Exception as e:
                 print("illustration request failed:", e)
             if svg:
