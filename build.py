@@ -203,7 +203,7 @@ home = f'''<section class="hero-full" aria-label="Introduction">
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-center">
     <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
-    <h1>Creating value for everyone.</h1>
+    <h1>Creating value for <span class="swap">everyone</span>.</h1>
   </div>
 </section>
 
