@@ -2,8 +2,10 @@ name: Daily insight
 
 on:
   schedule:
-    - cron: "15 12 * * *"
-  workflow_dispatch:
+    - cron: "15 12 * * *"   # every day, 12:15 UTC
+  push:
+    branches: [main]        # rebuild pages whenever files are uploaded, so the list never goes stale
+  workflow_dispatch:          # lets you run it by hand from the Actions tab
     inputs:
       redo_art:
         description: "Only redraw the illustrations of existing articles"
@@ -27,6 +29,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Write today's insight
+        if: github.event_name != 'push'
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }}
