@@ -2,7 +2,7 @@
 // Turns rough notes into a clean job listing using Groq. Only the admin can call it.
 // The Groq key is read from the secret GROQ_API_KEY and never reaches the browser.
 
-const ADMIN_EMAIL = "cvmaster.ops@gmail.com";
+const ADMIN_EMAIL = "unsyntax.ai@gmail.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://evofqeolhdlteyztrzin.supabase.co";
 // Tried in order. If Groq retires or does not offer one, the next is used.
 const MODELS = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];

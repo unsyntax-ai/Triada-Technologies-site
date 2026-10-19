@@ -28,5 +28,5 @@ create policy "Public can read live jobs" on public.jobs
 drop policy if exists "Admin full access" on public.jobs;
 create policy "Admin full access" on public.jobs
   for all to authenticated
-  using ((auth.jwt() ->> 'email') = 'cvmaster.ops@gmail.com')
-  with check ((auth.jwt() ->> 'email') = 'cvmaster.ops@gmail.com');
+  using ((auth.jwt() ->> 'email') = 'unsyntax.ai@gmail.com')
+  with check ((auth.jwt() ->> 'email') = 'unsyntax.ai@gmail.com');

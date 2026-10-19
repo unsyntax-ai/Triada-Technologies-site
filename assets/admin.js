@@ -94,9 +94,55 @@
       body: JSON.stringify({ email: email, create_user: false })
     }).then(function (r) {
       if (r.status === 429) msg('a-msg', 'Too many requests. Please wait a minute and try again.', 'bad');
-      else msg('a-msg', 'If that address is allowed, a sign-in link is on its way. Open it on this device.', 'ok');
+      else {
+        msg('a-msg', 'If that address is allowed, a sign-in code is on its way. Enter it below.', 'ok');
+        $('a-code-row').hidden = false;
+        digits()[0].focus();
+      }
     }).catch(function () { msg('a-msg', 'Could not reach the sign-in service. Check your connection.', 'bad'); })
       .then(function () { $('a-send').disabled = false; });
+  });
+  function verify() {
+    var email = $('a-email').value.trim(), code = digits().map(function (i) { return i.value; }).join('');
+    if (!email || code.length !== 6) { msg('a-msg', 'Enter your email and all 6 digits of the code.', 'bad'); return; }
+    if ($('a-verify').disabled) return;
+    $('a-verify').disabled = true;
+    fetch(T.url + '/auth/v1/verify', {
+      method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'email', email: email, token: code })
+    }).then(function (r) { return r.json().then(function (d) { if (!r.ok || !d.access_token) throw new Error(); return d; }); })
+      .then(function (d) {
+        save({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: now() + (d.expires_in || 3600) });
+        digits().forEach(function (i) { i.value = ''; }); msg('a-msg', ''); show();
+      })
+      .catch(function () { msg('a-msg', 'That code did not work or has expired. Request a new one.', 'bad'); digits().forEach(function (i) { i.value = ''; }); digits()[0].focus(); })
+      .then(function () { $('a-verify').disabled = false; });
+  }
+  $('a-verify').addEventListener('click', verify);
+  // six single-digit boxes: type, paste, backspace and arrows all work; the sixth digit signs in
+  function digits() { return Array.prototype.slice.call(document.querySelectorAll('.otp input')); }
+  digits().forEach(function (box, i, all) {
+    box.addEventListener('input', function () {
+      var v = box.value.replace(/\D/g, '');
+      box.value = v.slice(-1);
+      if (v && i < all.length - 1) all[i + 1].focus();
+      if (all.every(function (b) { return b.value; })) verify();
+    });
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !box.value && i > 0) { all[i - 1].focus(); all[i - 1].value = ''; }
+      else if (e.key === 'ArrowLeft' && i > 0) all[i - 1].focus();
+      else if (e.key === 'ArrowRight' && i < all.length - 1) all[i + 1].focus();
+      else if (e.key === 'Enter') verify();
+    });
+    box.addEventListener('paste', function (e) {
+      var t = ((e.clipboardData || window.clipboardData).getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!t) return;
+      e.preventDefault();
+      t.split('').forEach(function (ch, k) { all[k].value = ch; });
+      (all[Math.min(t.length, 5)]).focus();
+      if (t.length === 6) verify();
+    });
+    box.addEventListener('focus', function () { box.select(); });
   });
   $('a-out').addEventListener('click', signOut);
 

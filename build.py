@@ -510,11 +510,25 @@ admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
     <div class="card admin-card">
       <h2>Sign in</h2>
-      <p>Enter the admin email. We will send a one-time sign-in link. Open it on this device.</p>
+      <p>Enter the admin email and we will send a one-time sign-in code. Type the code below. (If your email shows a link instead of a code, just click the link.)</p>
       <label for="a-email">Admin email
         <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
       </label>
-      <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in link</button>
+      <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in code</button>
+      <div id="a-code-row" hidden>
+        <div class="otp-wrap">
+          <span class="otp-label" id="otp-label">Sign-in code from your email</span>
+          <div class="otp" role="group" aria-labelledby="otp-label">
+            <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+          </div>
+        </div>
+        <button class="btn btn-solid" type="button" id="a-verify">Sign in</button>
+      </div>
       <p id="a-msg" class="a-msg" role="status"></p>
     </div>
   </div>
