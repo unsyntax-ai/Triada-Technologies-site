@@ -1,6 +1,6 @@
 # TriadaTechnologies
 
-> Staffing and recruitment firm in Lansdale, PA. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.
+> Nationwide staffing and recruitment firm headquartered in Lansdale, PA, serving the United States. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.
 
 ## Pages
 
@@ -10,7 +10,3 @@
 - [Jobs](https://triadatechnologies.com/jobs.html)
 - [Insights](https://triadatechnologies.com/insights.html)
 - [Contact](https://triadatechnologies.com/contact.html)
-
-## Insights
-
-- [Navigating the Changing Technology Labor Market](https://triadatechnologies.com/insight-navigating-the-changing-technology-labor-market.html): Technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers. (2026-10-18)

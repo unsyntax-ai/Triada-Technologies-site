@@ -21,7 +21,7 @@ EMAIL = "hr@triadatechnologies.com"
 
 SITE = "https://triadatechnologies.com"
 OG_IMAGE = SITE + "/assets/og-image.jpg"
-OG_ALT = "TriadaTechnologies, staffing in Lansdale, PA"
+OG_ALT = "TriadaTechnologies, nationwide staffing based in Lansdale, PA"
 
 
 def head(title, desc, page, schema="", og_type="website", noindex=False):
@@ -82,7 +82,7 @@ ORG_ID = SITE + "/#organization"
 def org(with_phone=False):
     o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "TriadaTechnologies",
          "url": SITE + "/", "logo": SITE + "/assets/logo.svg", "image": OG_IMAGE,
-         "description": "Multi-industry staffing and recruitment partner in Lansdale, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services.",
+         "description": "Nationwide staffing and recruitment partner headquartered in Lansdale, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.",
          "email": EMAIL,
          "address": {"@type": "PostalAddress", "addressLocality": "Lansdale", "addressRegion": "PA", "addressCountry": "US"},
          "areaServed": {"@type": "Country", "name": "United States"},
@@ -121,10 +121,10 @@ FOOTER = f'''<footer class="site-foot">
   <div class="wrap foot">
     <div>
       <img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies">
-      <p style="margin-top:13px">Staffing and recruitment in Lansdale, PA.</p>
+      <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Lansdale, PA.</p>
     </div>
     <div>
-      <p>Lansdale, PA</p>
+      <p>Headquartered in Lansdale, PA</p>
       <p><a href="mailto:{EMAIL}">{EMAIL}</a></p>
       <p><a href="contact.html">Contact page</a></p>
     </div>
@@ -153,7 +153,7 @@ def cta_card():
       <div class="copy">
         <p class="eyebrow">Next step</p>
         <h2>Bring us the role. We will bring back people who fit it.</h2>
-        <p>Share the job title, the main responsibilities, and your timeline. A recruiter from our Lansdale team will review the details and reply during business hours with clear next steps, so you know exactly what happens next.</p>
+        <p>Share the job title, the main responsibilities, and your timeline. A recruiter from our team will review the details and reply during business hours with clear next steps, so you know exactly what happens next.</p>
       </div>
       <div class="cta-panel">
         <p class="label">Email</p>
@@ -202,7 +202,7 @@ home = f'''<section class="hero-full" aria-label="Introduction">
   <img class="hero-video hero-img" src="assets/hero-city.jpg" alt="City skyline at dusk" width="1920" height="1280" fetchpriority="high" decoding="async">
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-center">
-    <p class="eyebrow">Staffing in Lansdale, PA</p>
+    <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
     <h1>Creating value for everyone.</h1>
   </div>
 </section>
@@ -210,7 +210,7 @@ home = f'''<section class="hero-full" aria-label="Introduction">
 <section id="intro" class="intro">
   <div class="wrap hero-grid">
     <div>
-      <p class="lead">Creating value for every side of the hiring journey. TriadaTechnologies connects clients, vendors, and candidates through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
+      <p class="lead">Creating value for every side of the hiring journey. TriadaTechnologies connects clients, vendors, and candidates across the United States through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
       <div class="hero-actions">
         <a class="btn btn-white" href="contact.html">Hire talent</a>
         <a class="btn btn-white" href="jobs.html">Find work</a>
@@ -292,8 +292,8 @@ SERVICES_SCHEMA = ""
 FAQ_ITEMS = [
     ("What types of staffing do you offer?",
      "We offer temporary, contract, contract-to-hire, direct hire, and executive search placements, along with vendor management programs for ongoing workforce needs."),
-    ("Where are you located?",
-     "TriadaTechnologies is based in Lansdale, Pennsylvania. We work with employers and candidates across multiple industries in the region and beyond."),
+    ("Do you work outside Pennsylvania?",
+     "Yes. We are headquartered in Lansdale, Pennsylvania, and we place temporary, contract, contract-to-hire, and direct-hire talent for employers across the United States, in many industries."),
     ("How do I get started?",
      f'Visit our <a href="contact.html">contact page</a> or email {EMAIL} with the role you need to fill, or with the roles you are looking for. A recruiter will reply during business hours.'),
 ]
@@ -304,7 +304,7 @@ services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">Services</p>
     <h1>Staffing for <em>every stage</em> of hiring.</h1>
-    <p class="lead">Temporary, contract, contract-to-hire, direct placement, and executive search, with vetted talent across nine industries. We shape each engagement around your schedule, your budget, and the level of responsibility the role carries.</p>
+    <p class="lead">Temporary, contract, contract-to-hire, direct placement, and executive search, with vetted talent across nine industries, for employers nationwide. We shape each engagement around your schedule, your budget, and the level of responsibility the role carries.</p>
   </div>
 </section>
 
@@ -369,7 +369,7 @@ about = '''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">About</p>
     <h1>Connecting clients, <em>vendors, and candidates.</em></h1>
-    <p class="lead">TriadaTechnologies is a multi-industry staffing and workforce solutions partner in Lansdale, Pennsylvania. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
+    <p class="lead">TriadaTechnologies is a multi-industry staffing and workforce solutions partner headquartered in Lansdale, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
   </div>
 </section>
 
@@ -380,7 +380,7 @@ about = '''<section class="page-hero" style="border-top:0">
       <h2>A multi-industry staffing partner</h2>
     </div>
     <div>
-      <p class="body">TriadaTechnologies is a multi-industry recruitment and workforce solutions partner based in Lansdale, Pennsylvania. We connect organizations with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
+      <p class="body">TriadaTechnologies is a multi-industry recruitment and workforce solutions partner headquartered in Lansdale, Pennsylvania. We connect organizations across the United States with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
       <p class="body">We work to bridge the gap between candidates, vendors, and client goals. Every engagement begins with understanding the work itself, so that the people we place can succeed in their roles and the organizations we serve can keep their momentum.</p>
       <p class="body">Our team focuses on quality, reliability, and speed in every partnership. We would rather be precise and honest with you than promise more than the role can deliver.</p>
     </div>
@@ -411,7 +411,7 @@ about = '''<section class="page-hero" style="border-top:0">
       <h2>Where we are going</h2>
     </div>
     <div>
-      <p class="body">To be the most trusted workforce solutions provider in our region, recognized for building high-performing teams and for fostering long-term relationships that outlast any single placement.</p>
+      <p class="body">To be the most trusted workforce solutions provider for employers and professionals across the United States, recognized for building high-performing teams and for fostering long-term relationships that outlast any single placement.</p>
     </div>
   </div>
 </section>
@@ -556,7 +556,7 @@ def build_insights(posts, today):
     live = [p for p in posts if (today - dt.date.fromisoformat(p["published"])).days <= LIVE_DAYS]
     old = [p for p in posts if p not in live]
     hero = hero_card("Insights", "Notes on <em>hiring</em> and the job market.",
-                     "Short, sourced articles on technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.")
+                     "Short, sourced articles on U.S. technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.")
     if not live and not old:
         return hero + '''
 <section>
@@ -718,7 +718,7 @@ def seo_files(posts, today, dates):
     with open("robots.txt", "w", encoding="utf-8") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
     lines = ["# TriadaTechnologies", "",
-             "> Staffing and recruitment firm in Lansdale, PA. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.", "",
+             "> Nationwide staffing and recruitment firm headquartered in Lansdale, PA, serving the United States. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.", "",
              "## Pages", ""]
     lines += [f"- [{label}]({SITE_URL}/{'' if n == 'index.html' else n})" for n, label in NAV]
     if posts:
@@ -797,26 +797,26 @@ contact = f'''<section class="page-hero" style="border-top:0">
 '''
 
 pages = [
-    ("index.html", "TriadaTechnologies | Staffing in Lansdale, PA",
-     "TriadaTechnologies is a Lansdale, PA staffing firm placing temporary, contract, contract-to-hire, and direct-hire talent in IT, healthcare, and finance.",
+    ("index.html", "TriadaTechnologies | Staffing Services Across the USA",
+     "TriadaTechnologies is a nationwide staffing firm based in Lansdale, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
      home, True, HOME_SCHEMA),
     ("services.html", "Staffing Services | TriadaTechnologies",
-     "Temporary, contract, contract-to-hire, direct hire, and executive search staffing in nine industries, from TriadaTechnologies in Lansdale, PA.",
+     "Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from TriadaTechnologies.",
      services, True, ""),
-    ("about.html", "About TriadaTechnologies | Lansdale, PA Staffing",
-     "About TriadaTechnologies, a multi-industry staffing and recruitment partner in Lansdale, PA, connecting clients, vendors, and candidates.",
+    ("about.html", "About TriadaTechnologies | Nationwide Staffing, Lansdale, PA",
+     "About TriadaTechnologies, a multi-industry staffing partner based in Lansdale, PA, connecting clients, vendors, and candidates across the USA.",
      about, True, ""),
     ("jobs.html", "Open Jobs | TriadaTechnologies",
-     "Current job openings with TriadaTechnologies clients in Lansdale, PA, and how to submit your resume for temporary, contract, or direct-hire roles.",
+     "Current job openings with TriadaTechnologies clients across the USA, and how to submit your resume for temporary, contract, or direct-hire roles.",
      jobs, True, ""),
     ("insights.html", "Insights on Hiring | TriadaTechnologies",
-     "Sourced articles on technology hiring, in-demand skills, and workforce planning from TriadaTechnologies, a staffing firm in Lansdale, PA.",
+     "Sourced articles on U.S. technology hiring, in-demand skills, and workforce planning from TriadaTechnologies, a nationwide staffing firm.",
      insights, True, ""),
     ("insights-archive.html", "Insights Archive | TriadaTechnologies",
      "Searchable list of earlier TriadaTechnologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
      archive_page, True, ""),
-    ("contact.html", "Contact TriadaTechnologies | Lansdale, PA",
-     f"Contact TriadaTechnologies in Lansdale, PA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
+    ("contact.html", "Contact TriadaTechnologies | Nationwide Staffing",
+     f"Contact TriadaTechnologies, based in Lansdale, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
      contact, True, ""),
 ]
 

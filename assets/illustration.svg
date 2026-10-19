@@ -1,10 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Placeholder illustration">
-  <rect width="400" height="300" fill="#EEF0F6"/>
-  <circle cx="200" cy="150" r="92" fill="#E4F1EE"/>
-  <path d="M40 250 Q90 200 140 240 T250 230 L250 300 L40 300 Z" fill="#F3ECE2"/>
-  <circle cx="200" cy="96" r="26" fill="none" stroke="#1B2126" stroke-width="4"/>
-  <path d="M146 250 C146 196 168 166 200 166 C232 166 254 196 254 250" fill="none" stroke="#1B2126" stroke-width="4" stroke-linecap="round"/>
-  <path d="M168 200 C190 214 210 214 232 200" fill="none" stroke="#1B2126" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="318" cy="70" r="10" fill="#3A4068"/>
-  <circle cx="82" cy="92" r="6" fill="#7A5C3A"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" role="img" aria-label="Placeholder illustration">
+  <rect width="400" height="225" fill="#EEF2FA"/>
+  <circle cx="200" cy="118" r="104" fill="#DCE5F6"/>
+  <path d="M0 190 Q70 150 140 182 T290 172 T400 178 L400 225 L0 225 Z" fill="#D2F0EB"/>
+  <circle cx="200" cy="82" r="34" fill="none" stroke="#0F172A" stroke-width="5"/>
+  <path d="M120 225 C120 150 150 124 200 124 C250 124 280 150 280 225" fill="none" stroke="#0F172A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M166 160 C190 178 210 178 234 160" fill="none" stroke="#0F172A" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="330" cy="52" r="11" fill="#1E3A8A"/>
+  <circle cx="72" cy="60" r="7" fill="#14B8A6"/>
+  <circle cx="352" cy="150" r="4" fill="#FF6A00"/>
 </svg>

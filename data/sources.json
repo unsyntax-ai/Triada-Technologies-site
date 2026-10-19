@@ -1,6 +1,6 @@
 {
   "model": "gemini-3.8-flash",
-  "focus": "Focus on what is changing in tech hiring: roles, skills, contract versus permanent demand, and what candidates and employers should do next.",
+  "focus": "Focus on what is changing in U.S. tech hiring: roles, skills, contract versus permanent demand, and what employers and candidates anywhere in the country should do next.",
   "sources": [
     "https://hiringlab.indeed.com/",
     "https://www.comptia.org/en-us/resources/research/tech-jobs-report/",
