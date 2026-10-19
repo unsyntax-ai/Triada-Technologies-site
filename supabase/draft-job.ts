@@ -4,7 +4,8 @@
 
 const ADMIN_EMAIL = "cvmaster.ops@gmail.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://evofqeolhdlteyztrzin.supabase.co";
-const MODEL = "llama-3.3-70b-versatile"; // change here if Groq retires this model
+// Tried in order. If Groq retires or does not offer one, the next is used.
+const MODELS = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];
 const TYPES = ["Contract", "Contract-to-hire", "Direct hire", "Temporary"];
 
 const CORS = {
@@ -54,25 +55,35 @@ Deno.serve(async (req) => {
   const groqKey = Deno.env.get("GROQ_API_KEY");
   if (!groqKey) return reply({ error: "The Groq key is not set in Supabase secrets." }, 500);
 
-  // 3. Ask Groq for a draft.
-  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${groqKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: MODEL,
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-      messages: [{ role: "system", content: SYSTEM }, { role: "user", content: `Recruiter notes:\n${notes}` }],
-    }),
-  });
-  if (!r.ok) return reply({ error: `The AI service returned an error (${r.status}).` }, 502);
-
-  let d: Record<string, unknown>;
-  try {
-    d = JSON.parse((await r.json()).choices[0].message.content);
-  } catch {
-    return reply({ error: "The AI draft could not be read. Try again." }, 502);
+  // 3. Ask Groq for a draft, trying each model until one works.
+  let d: Record<string, unknown> | null = null;
+  let lastError = "";
+  for (const model of MODELS) {
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${groqKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+        messages: [{ role: "system", content: SYSTEM }, { role: "user", content: `Recruiter notes:\n${notes}` }],
+      }),
+    });
+    if (!r.ok) {
+      let detail = "";
+      try { detail = (await r.json()).error?.message ?? ""; } catch { /* ignore */ }
+      lastError = `${model}: ${r.status} ${detail}`.trim();
+      if (r.status === 401) return reply({ error: "Groq rejected the key. Check the GROQ_API_KEY secret." }, 502);
+      continue; // try the next model
+    }
+    try {
+      d = JSON.parse((await r.json()).choices[0].message.content);
+      break;
+    } catch {
+      lastError = `${model}: unreadable answer`;
+    }
   }
+  if (!d) return reply({ error: `The AI service could not draft this. ${lastError}`.slice(0, 300) }, 502);
 
   // 4. Clean the draft so the form always gets safe, expected shapes.
   const type = TYPES.includes(String(d.employment_type)) ? String(d.employment_type) : "Contract";
