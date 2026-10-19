@@ -442,3 +442,5 @@ footer.site-foot .eyebrow { color: #5EEAD4; }
 .otp { display: flex; gap: var(--s-1); }
 .otp input { width: 52px; min-height: 60px; height: 60px; padding: 0; text-align: center; font-size: 26px; font-weight: 600; font-family: var(--sans); color: var(--ink); border-radius: 14px; }
 @media (max-width: 420px) { .otp { gap: 6px; } .otp input { width: 44px; height: 54px; min-height: 54px; font-size: 22px; } }
+
+#job-detail .lead{white-space:pre-line}

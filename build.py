@@ -560,7 +560,7 @@ admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
           </label>
         </div>
         <label for="f-pay">Pay (optional, shown to candidates) <input id="f-pay" maxlength="120" placeholder="Leave empty to hide"></label>
-        <label for="f-summary">Summary <textarea id="f-summary" maxlength="900"></textarea></label>
+        <label for="f-summary">Summary <textarea id="f-summary" maxlength="6000"></textarea></label>
         <label for="f-resp">Responsibilities (one per line) <textarea id="f-resp"></textarea></label>
         <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
         <fieldset class="a-when">
