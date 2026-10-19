@@ -220,7 +220,6 @@ home = f'''<section class="hero-full" aria-label="Introduction">
       <p class="eyebrow">The real cost of waiting</p>
       <strong>Every open seat slows down the work your team was hired to do.</strong>
       <p>Projects stall, deadlines slip, and the people already carrying the load start to feel the strain. We find candidates who match the role and the team, screen them with care, and bring them in ready to contribute. Once the seat is filled, your team can return to its best work, with the steady confidence that progress is moving again.</p>
-      <p class="call">Reach us at <a href="contact.html">our contact page</a> to start.</p>
     </aside>
   </div>
 </section>
