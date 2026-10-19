@@ -1,34 +1,38 @@
 {
  "about.html": {
-  "date": "2026-10-18",
-  "hash": "e4480b175de6f180bc84b019548190a4f2f714dc"
+  "date": "2026-10-19",
+  "hash": "0d491db82d56882f6c3aff475052921f8694871e"
  },
  "contact.html": {
-  "date": "2026-10-18",
-  "hash": "ae8991694c74f60b4cd82fa5a2b66b8b5d8b554b"
+  "date": "2026-10-19",
+  "hash": "cf9680d45e7b7c89dcfa06ce070bc8e4a8e4ec5e"
  },
  "index.html": {
-  "date": "2026-10-18",
-  "hash": "394a74203d36ef469401115cfc5e62bd9c9e47a3"
+  "date": "2026-10-19",
+  "hash": "512ba08a955b308416729a152e8f096ed70e4f7a"
+ },
+ "insight-navigating-tech-skills-and-hiring-shifts-in-the-u-s-market.html": {
+  "date": "2026-10-19",
+  "hash": "970056f2cd291c6d0e7c9929694f60b4f2d3e664"
  },
  "insight-navigating-the-changing-technology-labor-market.html": {
-  "date": "2026-10-18",
-  "hash": "39dfeaf19aa3072067b33366ae70b688742554be"
+  "date": "2026-10-19",
+  "hash": "baa23f1f739810652fe00ef0dbbeade792455866"
  },
  "insights-archive.html": {
-  "date": "2026-10-18",
-  "hash": "dab189192d2def5f7670ea1929ca2c861de79e56"
+  "date": "2026-10-19",
+  "hash": "898f65b696ca9d4ca191630beeaeede0cd068dbf"
  },
  "insights.html": {
-  "date": "2026-10-18",
-  "hash": "70d2246072f616eea7cf43357c41247b002ce999"
+  "date": "2026-10-19",
+  "hash": "3f8aa6693be06b7137392d4683fc82cdf15f7812"
  },
  "jobs.html": {
-  "date": "2026-10-18",
-  "hash": "3c4bf47483b4b031fd1869518a4ba171e5f47242"
+  "date": "2026-10-19",
+  "hash": "616556dce0e1d06861cfb85d89ff32fd0d9dc9d9"
  },
  "services.html": {
-  "date": "2026-10-18",
-  "hash": "61706f32bdab416d2b8fa57bd5238216b35fb28b"
+  "date": "2026-10-19",
+  "hash": "3b9b3e765dfdca31614f8581dbb578a8884d61ac"
  }
 }
