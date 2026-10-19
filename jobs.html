@@ -63,8 +63,35 @@
         <p class="lead">Current openings with our clients are listed here, each with a clear description of the responsibilities, skills, and location. If nothing matches yet, send us your resume and we will contact you when a suitable role opens.</p>
       </div>
       <div class="admin-slot">
-        <button class="btn btn-solid" type="button" id="post-job-btn">Post a job</button>
+        <a class="btn btn-solid" href="admin.html">Post a job</a>
         <small>Admin only</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="listing">
+  <div class="wrap">
+    <p id="jobs-status" class="archive-empty">Loading open roles...</p>
+    <noscript><p class="archive-empty">Turn on JavaScript to see the current openings, or send us your resume and we will reach out.</p></noscript>
+    <div id="jobs-board" hidden>
+      <div class="toolbar">
+        <label for="jq">Search
+          <input id="jq" type="search" placeholder="Search by title or location" autocomplete="off">
+        </label>
+        <label for="jtype">Type
+          <select id="jtype"><option value="">All types</option><option>Contract</option><option>Contract-to-hire</option><option>Direct hire</option><option>Temporary</option></select>
+        </label>
+        <p id="jobs-count" class="meta"></p>
+      </div>
+      <div id="jobs-list" class="jobs-grid"></div>
+      <p id="jobs-empty" class="archive-empty" hidden>No roles match your search.</p>
+    </div>
+    <div id="jobs-none" hidden>
+      <div class="section-head">
+        <p class="eyebrow">Current openings</p>
+        <h2>No openings listed right now</h2>
+        <p class="lead">Our recruiters are always building their candidate pipeline. Send us your resume and the roles you are looking for, and we will reach out when a matching position opens.</p>
       </div>
     </div>
   </div>
@@ -72,11 +99,6 @@
 
 <section>
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Current openings</p>
-      <h2>No openings listed right now</h2>
-      <p class="lead">Our recruiters are always building their candidate pipeline. Send us your resume and the roles you are looking for, and we will reach out when a matching position opens.</p>
-    </div>
     <div class="card" style="max-width:610px">
       <h3>Submit your resume</h3>
       <p>Include the job titles you are targeting, your core skills, and your preferred work arrangement, whether that is temporary, contract, contract-to-hire, or direct hire.</p>
@@ -106,5 +128,7 @@
 </footer>
 
 <script src="assets/site.js"></script>
+<script src="assets/jobs-config.js"></script>
+<script src="assets/jobs.js"></script>
 </body>
 </html>

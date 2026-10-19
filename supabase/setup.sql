@@ -1,0 +1,32 @@
+-- Triada jobs: table and access rules. Paste all of this into Supabase > SQL Editor > Run.
+create table if not exists public.jobs (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  location text not null default 'Remote (U.S.)',
+  employment_type text not null default 'Contract'
+    check (employment_type in ('Contract', 'Contract-to-hire', 'Direct hire', 'Temporary')),
+  pay text,
+  summary text not null default '',
+  responsibilities text[] not null default '{}',
+  requirements text[] not null default '{}',
+  status text not null default 'draft' check (status in ('draft', 'published', 'closed')),
+  publish_at timestamptz,
+  expires_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.jobs enable row level security;
+
+-- Visitors can read only jobs that are published, already started, and not expired.
+drop policy if exists "Public can read live jobs" on public.jobs;
+create policy "Public can read live jobs" on public.jobs
+  for select to anon, authenticated
+  using (status = 'published' and publish_at <= now() and (expires_at is null or expires_at > now()));
+
+-- Only the admin email can see everything and add, change or delete jobs.
+drop policy if exists "Admin full access" on public.jobs;
+create policy "Admin full access" on public.jobs
+  for all to authenticated
+  using ((auth.jwt() ->> 'email') = 'cvmaster.ops@gmail.com')
+  with check ((auth.jwt() ->> 'email') = 'cvmaster.ops@gmail.com');

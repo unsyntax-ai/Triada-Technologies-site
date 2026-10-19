@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | TriadaTechnologies</title>
+<meta name="description" content="Private admin page.">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#FAFAFA">
+<link rel="canonical" href="https://triadatechnologies.com/admin.html">
+<meta property="og:site_name" content="TriadaTechnologies">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Admin | TriadaTechnologies">
+<meta property="og:description" content="Private admin page.">
+<meta property="og:url" content="https://triadatechnologies.com/admin.html">
+<meta property="og:image" content="https://triadatechnologies.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TriadaTechnologies, nationwide staffing based in Lansdale, PA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Admin | TriadaTechnologies">
+<meta name="twitter:description" content="Private admin page.">
+<meta name="twitter:image" content="https://triadatechnologies.com/assets/og-image.jpg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="index.html" aria-label="TriadaTechnologies home"><img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies"></a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="jobs.html">Jobs</a></li>
+        <li><a href="insights.html">Insights</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <a class="btn btn-white" href="jobs.html">Find work</a>
+      <a class="btn btn-white" href="contact.html">Hire talent</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-hero hero-carded" style="border-top:0">
+  <div class="wrap">
+    <div class="hero-card">
+      <p class="eyebrow">Admin</p>
+      <h1>Post and manage jobs.</h1>
+      <p class="lead">Paste rough notes about a role and let AI draft the listing. You always read, edit and approve it before it goes live.</p>
+    </div>
+  </div>
+</section>
+
+<section class="listing" id="a-signin">
+  <div class="wrap">
+    <div class="card admin-card">
+      <h2>Sign in</h2>
+      <p>Enter the admin email. We will send a one-time sign-in link. Open it on this device.</p>
+      <label for="a-email">Admin email
+        <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
+      </label>
+      <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in link</button>
+      <p id="a-msg" class="a-msg" role="status"></p>
+    </div>
+  </div>
+</section>
+
+<div id="a-app" hidden>
+  <section class="listing">
+    <div class="wrap">
+      <div class="a-bar"><p class="meta">Signed in as <strong id="a-who"></strong></p><button class="btn btn-white btn-sm" type="button" id="a-out">Sign out</button></div>
+
+      <div class="card admin-card">
+        <h2>1. Draft with AI</h2>
+        <p>Paste anything you have: a client email, a call note, a rough list. Include the title, location, contract type, pay if known, duties and must-have skills.</p>
+        <label for="a-notes">Rough notes
+          <textarea id="a-notes" placeholder="Example: Need a senior data engineer for a 6 month contract, remote in the US, Azure Databricks, PySpark, ADF, 8+ years, $70 to 80 per hour on C2C..."></textarea>
+        </label>
+        <button class="btn btn-solid" type="button" id="a-draft">Draft with AI</button>
+        <p id="a-draft-msg" class="a-msg" role="status"></p>
+      </div>
+
+      <div class="card admin-card">
+        <h2 id="form-title">New job</h2>
+        <div id="f-confirm" class="a-confirm" hidden></div>
+        <label for="f-title">Job title <input id="f-title" maxlength="120"></label>
+        <div class="field-row">
+          <label for="f-location">Location <input id="f-location" maxlength="120" placeholder="City, ST or Remote (U.S.)"></label>
+          <label for="f-type">Type
+            <select id="f-type"><option>Contract</option><option>Contract-to-hire</option><option>Direct hire</option><option>Temporary</option></select>
+          </label>
+        </div>
+        <label for="f-pay">Pay (optional, shown to candidates) <input id="f-pay" maxlength="120" placeholder="Leave empty to hide"></label>
+        <label for="f-summary">Summary <textarea id="f-summary" maxlength="900"></textarea></label>
+        <label for="f-resp">Responsibilities (one per line) <textarea id="f-resp"></textarea></label>
+        <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
+        <fieldset class="a-when">
+          <legend>Publishing</legend>
+          <label class="a-radio" id="keep-row" hidden><input type="radio" name="when" value="keep"> Keep as it is</label>
+          <label class="a-radio"><input type="radio" name="when" value="draft" checked> Save as draft (not visible)</label>
+          <label class="a-radio"><input type="radio" name="when" value="now"> Publish now</label>
+          <label class="a-radio"><input type="radio" name="when" value="later"> Schedule for <input id="f-when" type="datetime-local"></label>
+        </fieldset>
+        <label for="f-exp">Take it down after (optional) <input id="f-exp" type="date"></label>
+        <div class="a-acts">
+          <button class="btn btn-solid" type="button" id="f-save">Save job</button>
+          <button class="btn btn-white" type="button" id="f-clear">Clear form</button>
+        </div>
+        <p id="f-msg" class="a-msg" role="status"></p>
+      </div>
+
+      <div class="card admin-card">
+        <h2>Your jobs</h2>
+        <p id="a-jobs-msg" class="a-msg" role="status"></p>
+        <div id="a-jobs"></div>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot">
+    <div>
+      <img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies">
+      <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Lansdale, PA.</p>
+    </div>
+    <div>
+      <p>Headquartered in Lansdale, PA</p>
+      <p><a href="mailto:hr@triadatechnologies.com">hr@triadatechnologies.com</a></p>
+      <p><a href="contact.html">Contact page</a></p>
+    </div>
+    <div>
+      <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
+      <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
+      <p class="copy">© 2026 TriadaTechnologies. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/jobs-config.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>

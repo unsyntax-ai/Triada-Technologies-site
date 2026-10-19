@@ -138,11 +138,13 @@ FOOTER = f'''<footer class="site-foot">
 '''
 
 
-def page(title, desc, page_name, body, script=False, schema="", og_type="website", noindex=False):
+def page(title, desc, page_name, body, script=False, schema="", og_type="website", noindex=False, extra=()):
     s = (head(title, desc, page_name, schema, og_type, noindex) + header(page_name)
          + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER)
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
+    for src in extra:
+        s += f'<script src="assets/{src}"></script>\n'
     return s + '</body>\n</html>\n'
 
 
@@ -443,8 +445,35 @@ jobs = '''<section class="page-hero" style="border-top:0">
         <p class="lead">Current openings with our clients are listed here, each with a clear description of the responsibilities, skills, and location. If nothing matches yet, send us your resume and we will contact you when a suitable role opens.</p>
       </div>
       <div class="admin-slot">
-        <button class="btn btn-solid" type="button" id="post-job-btn">Post a job</button>
+        <a class="btn btn-solid" href="admin.html">Post a job</a>
         <small>Admin only</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="listing">
+  <div class="wrap">
+    <p id="jobs-status" class="archive-empty">Loading open roles...</p>
+    <noscript><p class="archive-empty">Turn on JavaScript to see the current openings, or send us your resume and we will reach out.</p></noscript>
+    <div id="jobs-board" hidden>
+      <div class="toolbar">
+        <label for="jq">Search
+          <input id="jq" type="search" placeholder="Search by title or location" autocomplete="off">
+        </label>
+        <label for="jtype">Type
+          <select id="jtype"><option value="">All types</option><option>Contract</option><option>Contract-to-hire</option><option>Direct hire</option><option>Temporary</option></select>
+        </label>
+        <p id="jobs-count" class="meta"></p>
+      </div>
+      <div id="jobs-list" class="jobs-grid"></div>
+      <p id="jobs-empty" class="archive-empty" hidden>No roles match your search.</p>
+    </div>
+    <div id="jobs-none" hidden>
+      <div class="section-head">
+        <p class="eyebrow">Current openings</p>
+        <h2>No openings listed right now</h2>
+        <p class="lead">Our recruiters are always building their candidate pipeline. Send us your resume and the roles you are looking for, and we will reach out when a matching position opens.</p>
       </div>
     </div>
   </div>
@@ -452,11 +481,6 @@ jobs = '''<section class="page-hero" style="border-top:0">
 
 <section>
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Current openings</p>
-      <h2>No openings listed right now</h2>
-      <p class="lead">Our recruiters are always building their candidate pipeline. Send us your resume and the roles you are looking for, and we will reach out when a matching position opens.</p>
-    </div>
     <div class="card" style="max-width:610px">
       <h3>Submit your resume</h3>
       <p>Include the job titles you are targeting, your core skills, and your preferred work arrangement, whether that is temporary, contract, contract-to-hire, or direct hire.</p>
@@ -464,6 +488,89 @@ jobs = '''<section class="page-hero" style="border-top:0">
     </div>
   </div>
 </section>'''
+
+job_detail = '''<section class="page-hero hero-carded" style="border-top:0">
+  <div class="wrap">
+    <div class="hero-card" id="job-detail"><p class="lead">Loading role...</p></div>
+  </div>
+</section>'''
+
+admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
+  <div class="wrap">
+    <div class="hero-card">
+      <p class="eyebrow">Admin</p>
+      <h1>Post and manage jobs.</h1>
+      <p class="lead">Paste rough notes about a role and let AI draft the listing. You always read, edit and approve it before it goes live.</p>
+    </div>
+  </div>
+</section>
+
+<section class="listing" id="a-signin">
+  <div class="wrap">
+    <div class="card admin-card">
+      <h2>Sign in</h2>
+      <p>Enter the admin email. We will send a one-time sign-in link. Open it on this device.</p>
+      <label for="a-email">Admin email
+        <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
+      </label>
+      <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in link</button>
+      <p id="a-msg" class="a-msg" role="status"></p>
+    </div>
+  </div>
+</section>
+
+<div id="a-app" hidden>
+  <section class="listing">
+    <div class="wrap">
+      <div class="a-bar"><p class="meta">Signed in as <strong id="a-who"></strong></p><button class="btn btn-white btn-sm" type="button" id="a-out">Sign out</button></div>
+
+      <div class="card admin-card">
+        <h2>1. Draft with AI</h2>
+        <p>Paste anything you have: a client email, a call note, a rough list. Include the title, location, contract type, pay if known, duties and must-have skills.</p>
+        <label for="a-notes">Rough notes
+          <textarea id="a-notes" placeholder="Example: Need a senior data engineer for a 6 month contract, remote in the US, Azure Databricks, PySpark, ADF, 8+ years, $70 to 80 per hour on C2C..."></textarea>
+        </label>
+        <button class="btn btn-solid" type="button" id="a-draft">Draft with AI</button>
+        <p id="a-draft-msg" class="a-msg" role="status"></p>
+      </div>
+
+      <div class="card admin-card">
+        <h2 id="form-title">New job</h2>
+        <div id="f-confirm" class="a-confirm" hidden></div>
+        <label for="f-title">Job title <input id="f-title" maxlength="120"></label>
+        <div class="field-row">
+          <label for="f-location">Location <input id="f-location" maxlength="120" placeholder="City, ST or Remote (U.S.)"></label>
+          <label for="f-type">Type
+            <select id="f-type"><option>Contract</option><option>Contract-to-hire</option><option>Direct hire</option><option>Temporary</option></select>
+          </label>
+        </div>
+        <label for="f-pay">Pay (optional, shown to candidates) <input id="f-pay" maxlength="120" placeholder="Leave empty to hide"></label>
+        <label for="f-summary">Summary <textarea id="f-summary" maxlength="900"></textarea></label>
+        <label for="f-resp">Responsibilities (one per line) <textarea id="f-resp"></textarea></label>
+        <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
+        <fieldset class="a-when">
+          <legend>Publishing</legend>
+          <label class="a-radio" id="keep-row" hidden><input type="radio" name="when" value="keep"> Keep as it is</label>
+          <label class="a-radio"><input type="radio" name="when" value="draft" checked> Save as draft (not visible)</label>
+          <label class="a-radio"><input type="radio" name="when" value="now"> Publish now</label>
+          <label class="a-radio"><input type="radio" name="when" value="later"> Schedule for <input id="f-when" type="datetime-local"></label>
+        </fieldset>
+        <label for="f-exp">Take it down after (optional) <input id="f-exp" type="date"></label>
+        <div class="a-acts">
+          <button class="btn btn-solid" type="button" id="f-save">Save job</button>
+          <button class="btn btn-white" type="button" id="f-clear">Clear form</button>
+        </div>
+        <p id="f-msg" class="a-msg" role="status"></p>
+      </div>
+
+      <div class="card admin-card">
+        <h2>Your jobs</h2>
+        <p id="a-jobs-msg" class="a-msg" role="status"></p>
+        <div id="a-jobs"></div>
+      </div>
+    </div>
+  </section>
+</div>'''
 
 # ---------- INSIGHTS ----------
 import datetime as dt
@@ -822,7 +929,13 @@ pages = [
 if __name__ == "__main__":
     outputs = {}
     for fname, title, desc, body, script, schema in pages:
-        outputs[fname] = page(title, desc, fname, body, script=script, schema=page_schema(fname))
+        extra = ("jobs-config.js", "jobs.js") if fname == "jobs.html" else ()
+        outputs[fname] = page(title, desc, fname, body, script=script, schema=page_schema(fname), extra=extra)
+    outputs["job.html"] = page("Open role | TriadaTechnologies Jobs",
+                               "A current job opening with TriadaTechnologies, a nationwide U.S. staffing firm.", "job.html",
+                               job_detail, script=True, extra=("jobs-config.js", "jobs.js"))
+    private = {"admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
+                                  script=True, noindex=True, extra=("jobs-config.js", "admin.js"))}
     for p in POSTS:
         fname = f"insight-{p['slug']}.html"
         outputs[fname] = page(p["title"] + " | TriadaTechnologies Insights", p["description"], fname,
@@ -831,7 +944,7 @@ if __name__ == "__main__":
                                hero_card("404", "Page not found.", "The page you are looking for has moved or does not exist.")
                                + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="index.html">Go to home</a></div></section>',
                                script=True, noindex=True)
-    for name, text in outputs.items():
+    for name, text in {**outputs, **private}.items():
         with open(name, "w", encoding="utf-8") as f:
             f.write(text)
         print("wrote", name)
@@ -841,6 +954,6 @@ if __name__ == "__main__":
             with open(name, "w", encoding="utf-8") as f:
                 f.write(redirect_page("insights-archive.html"))
             print("redirect", name)
-    dates = lastmod_for({k: v for k, v in outputs.items() if k != "404.html"}, TODAY)
+    dates = lastmod_for({k: v for k, v in outputs.items() if k not in ("404.html", "job.html")}, TODAY)
     seo_files(POSTS, TODAY, dates)
     print("wrote sitemap.xml, robots.txt, llms.txt")
