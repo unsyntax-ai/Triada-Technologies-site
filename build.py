@@ -131,7 +131,7 @@ FOOTER = f'''<footer class="site-foot">
     <div>
       <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
       <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
-      <p class="copy">© 2026 TriadaTechnologies. All rights reserved.</p>
+      <p class="copy">© 2026 TriadaTechnologies. All rights reserved. <a href="credits.html">Credits</a></p>
     </div>
   </div>
 </footer>
@@ -168,9 +168,9 @@ def cta_card():
 '''
 
 
-def ci(name):
+def ci(name, ext="jpg"):
     """Card photo. If the file has not been uploaded yet, the image removes itself so nothing looks broken."""
-    return f'<img class="card-img" src="assets/cards/{name}.jpg" alt="" width="800" height="500" loading="lazy" decoding="async" onerror="this.remove()">'
+    return f'<img class="card-img{" art" if ext == "svg" else ""}" src="assets/cards/{name}.{ext}" alt="" width="800" height="500" loading="lazy" decoding="async" onerror="this.remove()">'
 
 
 INDUSTRIES = [
@@ -374,7 +374,7 @@ services = f'''<section class="page-hero" style="border-top:0">
 {cta_card()}'''
 
 # ---------- ABOUT ----------
-about = '''<section class="page-hero" style="border-top:0">
+about = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">About</p>
     <h1>Connecting clients, <em>vendors, and candidates.</em></h1>
@@ -433,12 +433,12 @@ about = '''<section class="page-hero" style="border-top:0">
       <p class="lead">Six principles guide our recruiters, from the first call to the final follow-up.</p>
     </div>
     <div class="values">
-      <div class="card">{ci("about-integrity")}<h3>Integrity</h3><p>We are open, honest, and ethical in every business dealing, including when the answer is not the one someone hoped to hear.</p></div>
-      <div class="card">{ci("about-collaboration")}<h3>Collaboration</h3><p>We work across teams to meet the needs of clients, candidates, and partners, and we keep everyone informed as the work moves forward.</p></div>
-      <div class="card">{ci("about-excellence")}<h3>Excellence</h3><p>We hold every placement and every service to a high standard, and we check the details before we present a candidate or a proposal.</p></div>
-      <div class="card">{ci("about-commitment")}<h3>Commitment</h3><p>We care about the long-term success of both the businesses we serve and the professionals we place, not only the first day of work.</p></div>
-      <div class="card">{ci("about-people-first")}<h3>People first</h3><p>We put human connection and personal career goals ahead of transactions, because the right fit is the one that lasts.</p></div>
-      <div class="card">{ci("about-innovation")}<h3>Innovation</h3><p>We use modern recruiting tools and practices to make staffing faster, clearer, and easier to measure for the teams we support.</p></div>
+      <div class="card">{ci("about-integrity", "svg")}<h3>Integrity</h3><p>We are open, honest, and ethical in every business dealing, including when the answer is not the one someone hoped to hear.</p></div>
+      <div class="card">{ci("about-collaboration", "svg")}<h3>Collaboration</h3><p>We work across teams to meet the needs of clients, candidates, and partners, and we keep everyone informed as the work moves forward.</p></div>
+      <div class="card">{ci("about-excellence", "svg")}<h3>Excellence</h3><p>We hold every placement and every service to a high standard, and we check the details before we present a candidate or a proposal.</p></div>
+      <div class="card">{ci("about-commitment", "svg")}<h3>Commitment</h3><p>We care about the long-term success of both the businesses we serve and the professionals we place, not only the first day of work.</p></div>
+      <div class="card">{ci("about-people-first", "svg")}<h3>People first</h3><p>We put human connection and personal career goals ahead of transactions, because the right fit is the one that lasts.</p></div>
+      <div class="card">{ci("about-innovation", "svg")}<h3>Innovation</h3><p>We use modern recruiting tools and practices to make staffing faster, clearer, and easier to measure for the teams we support.</p></div>
     </div>
   </div>
 </section>'''
@@ -957,7 +957,15 @@ if __name__ == "__main__":
     outputs["job.html"] = page("Open role | TriadaTechnologies Jobs",
                                "A current job opening with TriadaTechnologies, a nationwide U.S. staffing firm.", "job.html",
                                job_detail, script=True, extra=("jobs-config.js", "jobs.js"))
-    private = {"admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
+    credits_body = """<section class="page-hero hero-carded" style="border-top:0">
+  <div class="wrap">
+    <p class="eyebrow">Credits</p>
+    <h1>Illustration credits</h1>
+    <p class="lead"><a href="https://storyset.com/team" rel="noopener" target="_blank">Team illustrations by Storyset</a></p>
+  </div>
+</section>"""
+    private = {"credits.html": page("Credits | TriadaTechnologies", "Illustration credits.", "credits.html", credits_body, script=True, noindex=True),
+               "admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
                                   script=True, noindex=True, extra=("jobs-config.js", "admin.js"))}
     for p in POSTS:
         fname = f"insight-{p['slug']}.html"
