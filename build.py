@@ -168,6 +168,11 @@ def cta_card():
 '''
 
 
+def ci(name):
+    """Card photo. If the file has not been uploaded yet, the image removes itself so nothing looks broken."""
+    return f'<img class="card-img" src="assets/cards/{name}.jpg" alt="" width="800" height="500" loading="lazy" decoding="async" onerror="this.remove()">'
+
+
 INDUSTRIES = [
     ("IT and Technology", "Software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators for teams that depend on stable, secure systems."),
     ("Healthcare and Life Sciences", "Registered nurses, allied health professionals, medical administrators, and clinical research staff who meet strict credentialing and compliance standards."),
@@ -180,7 +185,7 @@ INDUSTRIES = [
     ("Retail and Customer Support", "Call center agents, customer service representatives, retail managers, and customer experience specialists who represent your brand every day."),
 ]
 industries_html = "\n".join(
-    f'      <div class="card"><h3>{t}</h3><p>{d}</p></div>' for t, d in INDUSTRIES)
+    f'      <div class="card">{ci("industry-" + t.lower().replace(" and ", "-").replace(" ", "-"))}<h3>{t}</h3><p>{d}</p></div>' for t, d in INDUSTRIES)
 
 STEPS = [
     ("Consultation", "We confirm the requirements, the technical skills, the team culture, the working schedule, and the timeline. A clear brief makes every later step faster."),
@@ -242,9 +247,9 @@ home = f'''<section class="hero-full" aria-label="Introduction">
       <p class="lead">A good placement starts well before the first interview. We take the time to understand the role, so the candidates you see reflect what your team truly needs.</p>
     </div>
     <div class="values">
-      <div class="card"><h3>Clear requirements</h3><p>We confirm the skills, working environment, schedule, and the outcomes that define success for the role before we begin sourcing.</p></div>
-      <div class="card"><h3>Careful screening</h3><p>Every candidate is reviewed for technical fit, communication, and reliability, so the shortlist you receive is ready for a decision.</p></div>
-      <div class="card"><h3>Honest follow-up</h3><p>We stay in touch after the start date with you and the new hire, so small concerns are resolved early instead of becoming problems.</p></div>
+      <div class="card">{ci("values-requirements")}<h3>Clear requirements</h3><p>We confirm the skills, working environment, schedule, and the outcomes that define success for the role before we begin sourcing.</p></div>
+      <div class="card">{ci("values-screening")}<h3>Careful screening</h3><p>Every candidate is reviewed for technical fit, communication, and reliability, so the shortlist you receive is ready for a decision.</p></div>
+      <div class="card">{ci("values-followup")}<h3>Honest follow-up</h3><p>We stay in touch after the start date with you and the new hire, so small concerns are resolved early instead of becoming problems.</p></div>
     </div>
   </div>
 </section>
@@ -257,9 +262,9 @@ home = f'''<section class="hero-full" aria-label="Introduction">
       <p class="lead">Choose the arrangement that matches your hiring need, budget, and timeline. We will help you decide which one fits the role best.</p>
     </div>
     <div class="trio">
-      <div class="card"><h3>Temporary and contract</h3><p>Short-term and project-based professionals who can start quickly and work to your schedule, for seasonal demand, special projects, and backfill coverage.</p></div>
-      <div class="card"><h3>Contract-to-hire</h3><p>Work with a candidate first, then decide whether to bring them on permanently. You see their work in your own environment before making a long-term commitment.</p></div>
-      <div class="card"><h3>Direct hire</h3><p>Permanent placements with a shortlist built around the role, your team, and your culture. We handle sourcing, screening, and coordination from first call to offer.</p></div>
+      <div class="card">{ci("service-temporary")}<h3>Temporary and contract</h3><p>Short-term and project-based professionals who can start quickly and work to your schedule, for seasonal demand, special projects, and backfill coverage.</p></div>
+      <div class="card">{ci("service-contract-to-hire")}<h3>Contract-to-hire</h3><p>Work with a candidate first, then decide whether to bring them on permanently. You see their work in your own environment before making a long-term commitment.</p></div>
+      <div class="card">{ci("service-direct-hire")}<h3>Direct hire</h3><p>Permanent placements with a shortlist built around the role, your team, and your culture. We handle sourcing, screening, and coordination from first call to offer.</p></div>
     </div>
     <p style="margin-top:34px"><a class="btn btn-white" href="services.html">View services</a></p>
   </div>
@@ -273,11 +278,13 @@ home = f'''<section class="hero-full" aria-label="Introduction">
     </div>
     <div class="duo">
       <div class="card">
+        {ci("for-clients")}
         <h3>For clients</h3>
         <p>Tell us what you need to staff. We will send a shortlist built around your team, your budget, your timeline, and the way your team works day to day. You stay in control of every decision, from interviews to offers.</p>
         <a class="btn btn-white" href="contact.html">Hire talent</a>
       </div>
       <div class="card">
+        {ci("for-candidates")}
         <h3>For candidates</h3>
         <p>Share your resume and the roles you want. Our recruiters review your background, match you with openings that fit your skills, and keep you informed at every step. We will reach out when a matching opportunity comes up.</p>
         <a class="btn btn-white" href="jobs.html">Find work</a>
@@ -318,10 +325,10 @@ services = f'''<section class="page-hero" style="border-top:0">
       <p class="lead">Each arrangement balances speed, cost, and commitment differently. We will help you choose the one that fits your situation.</p>
     </div>
     <div class="quad">
-      <div class="card"><h3>Temporary and contract</h3><p>Short-term and project-based professionals who can start quickly and work to your schedule. Ideal for seasonal demand, special projects, and backfill coverage.</p></div>
-      <div class="card"><h3>Contract-to-hire</h3><p>Work with a candidate first, then decide whether to bring them on permanently. You see their work in your environment before making a long-term commitment.</p></div>
-      <div class="card"><h3>Direct hire</h3><p>Permanent placements with a shortlist built around the role, the team, and the culture. We manage sourcing, screening, and coordination from start to offer.</p></div>
-      <div class="card"><h3>Executive search and VMS</h3><p>Senior search for leadership roles, plus vendor management programs that keep ongoing workforce needs organized, compliant, and cost-aware.</p></div>
+      <div class="card">{ci("service-temporary")}<h3>Temporary and contract</h3><p>Short-term and project-based professionals who can start quickly and work to your schedule. Ideal for seasonal demand, special projects, and backfill coverage.</p></div>
+      <div class="card">{ci("service-contract-to-hire")}<h3>Contract-to-hire</h3><p>Work with a candidate first, then decide whether to bring them on permanently. You see their work in your environment before making a long-term commitment.</p></div>
+      <div class="card">{ci("service-direct-hire")}<h3>Direct hire</h3><p>Permanent placements with a shortlist built around the role, the team, and the culture. We manage sourcing, screening, and coordination from start to offer.</p></div>
+      <div class="card">{ci("service-executive")}<h3>Executive search and VMS</h3><p>Senior search for leadership roles, plus vendor management programs that keep ongoing workforce needs organized, compliant, and cost-aware.</p></div>
     </div>
   </div>
 </section>
@@ -426,12 +433,12 @@ about = '''<section class="page-hero" style="border-top:0">
       <p class="lead">Six principles guide our recruiters, from the first call to the final follow-up.</p>
     </div>
     <div class="values">
-      <div class="card"><h3>Integrity</h3><p>We are open, honest, and ethical in every business dealing, including when the answer is not the one someone hoped to hear.</p></div>
-      <div class="card"><h3>Collaboration</h3><p>We work across teams to meet the needs of clients, candidates, and partners, and we keep everyone informed as the work moves forward.</p></div>
-      <div class="card"><h3>Excellence</h3><p>We hold every placement and every service to a high standard, and we check the details before we present a candidate or a proposal.</p></div>
-      <div class="card"><h3>Commitment</h3><p>We care about the long-term success of both the businesses we serve and the professionals we place, not only the first day of work.</p></div>
-      <div class="card"><h3>People first</h3><p>We put human connection and personal career goals ahead of transactions, because the right fit is the one that lasts.</p></div>
-      <div class="card"><h3>Innovation</h3><p>We use modern recruiting tools and practices to make staffing faster, clearer, and easier to measure for the teams we support.</p></div>
+      <div class="card">{ci("about-integrity")}<h3>Integrity</h3><p>We are open, honest, and ethical in every business dealing, including when the answer is not the one someone hoped to hear.</p></div>
+      <div class="card">{ci("about-collaboration")}<h3>Collaboration</h3><p>We work across teams to meet the needs of clients, candidates, and partners, and we keep everyone informed as the work moves forward.</p></div>
+      <div class="card">{ci("about-excellence")}<h3>Excellence</h3><p>We hold every placement and every service to a high standard, and we check the details before we present a candidate or a proposal.</p></div>
+      <div class="card">{ci("about-commitment")}<h3>Commitment</h3><p>We care about the long-term success of both the businesses we serve and the professionals we place, not only the first day of work.</p></div>
+      <div class="card">{ci("about-people-first")}<h3>People first</h3><p>We put human connection and personal career goals ahead of transactions, because the right fit is the one that lasts.</p></div>
+      <div class="card">{ci("about-innovation")}<h3>Innovation</h3><p>We use modern recruiting tools and practices to make staffing faster, clearer, and easier to measure for the teams we support.</p></div>
     </div>
   </div>
 </section>'''
