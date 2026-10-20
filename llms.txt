@@ -13,5 +13,6 @@
 
 ## Insights
 
+- [Tech Hiring Trends: Skills, Pay, and Depth Across the U.S](https://triadatechnologies.com/insight-tech-hiring-trends-skills-pay-and-depth-across-the-u-s.html): U.S. technology hiring shows resilient long-term wage growth and demand for deep domain expertise. Understanding where specialization matters helps both employers and job seekers cut through application noise. (2026-10-20)
 - [Navigating Tech Skills and Hiring Shifts in the U.S. Market](https://triadatechnologies.com/insight-navigating-tech-skills-and-hiring-shifts-in-the-u-s-market.html): U.S. technology hiring is experiencing a steady labor market marked by elevated pay for AI-exposed roles and growing demand for specialized verification skills. Here is what employers and candidates need to know to navigate the current environment. (2026-10-19)
 - [Navigating the Changing Technology Labor Market](https://triadatechnologies.com/insight-navigating-the-changing-technology-labor-market.html): Technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers. (2026-10-18)
