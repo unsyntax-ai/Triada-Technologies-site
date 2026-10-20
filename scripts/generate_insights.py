@@ -129,7 +129,11 @@ def fetch_source(url, limit=7000):
 
 
 # ---------- Gemini ----------
-def gemini(prompt, model, key, as_json=True, temperature=0.6):
+FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
+_dead_models = set()
+
+
+def _call(prompt, model, key, as_json, temperature):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": temperature}}
@@ -140,6 +144,37 @@ def gemini(prompt, model, key, as_json=True, temperature=0.6):
     with urllib.request.urlopen(req, timeout=120) as r:
         data = json.load(r)
     return data["candidates"][0]["content"]["parts"][0]["text"]
+
+
+def gemini(prompt, model, key, as_json=True, temperature=0.6):
+    """Ask Gemini. Retries busy/rate-limit errors with a pause, and falls back to
+    another model if the chosen one is missing or keeps failing."""
+    import time
+    last = None
+    for m in [model] + [x for x in FALLBACK_MODELS if x != model]:
+        if m in _dead_models:
+            continue
+        for attempt in range(4):
+            try:
+                return _call(prompt, m, key, as_json, temperature)
+            except urllib.error.HTTPError as e:
+                last = e
+                detail = ""
+                try:
+                    detail = e.read().decode()[:300]
+                except Exception:
+                    pass
+                print(f"Gemini {m}: HTTP {e.code} {detail}", file=sys.stderr)
+                if e.code in (400, 401, 403, 404):
+                    if e.code in (404, 400):
+                        _dead_models.add(m)  # wrong model name: try the next one
+                    break
+                time.sleep(5 * 2 ** attempt)  # 429 / 5xx: wait and retry
+            except (urllib.error.URLError, TimeoutError, KeyError, IndexError, json.JSONDecodeError) as e:
+                last = e
+                print(f"Gemini {m}: {e}", file=sys.stderr)
+                time.sleep(5 * 2 ** attempt)
+    raise RuntimeError(f"All Gemini models failed: {last}")
 
 
 def article_prompt(source_blocks, recent_titles, topic_hint):
