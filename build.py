@@ -201,11 +201,12 @@ HOME_SCHEMA = ld({"@context": "https://schema.org", "@graph": [
 ]})
 
 home = f'''<section class="hero-full" aria-label="Introduction">
-  <img class="hero-video hero-img" src="assets/hero-city.jpg" alt="City skyline at dusk" width="1920" height="1280" fetchpriority="high" decoding="async">
+  <img class="hero-video hero-img" src="assets/hero-city.jpg" alt="A smiling professional celebrating at her laptop" width="2200" height="1261" fetchpriority="high" decoding="async">
   <div class="hero-shade" aria-hidden="true"></div>
   <div class="hero-center">
-    <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
+    <img class="hero-logo" src="assets/hero-logo.png" alt="TriadaTechnologies" width="1400" height="367">
     <h1>Creating value for <span class="swap">everyone</span>.</h1>
+    <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
   </div>
 </section>
 
