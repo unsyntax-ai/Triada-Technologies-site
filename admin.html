@@ -66,27 +66,81 @@
 <section class="listing" id="a-signin">
   <div class="wrap">
     <div class="card admin-card">
-      <h2>Sign in</h2>
-      <p>Enter the admin email and we will send a one-time sign-in code. Type the code below. (If your email shows a link instead of a code, just click the link.)</p>
-      <label for="a-email">Admin email
-        <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
-      </label>
-      <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in code</button>
-      <div id="a-code-row" hidden>
+
+      <div id="a-gate-pin">
+        <h2>Enter your PIN</h2>
+        <p>Enter the 6-digit admin PIN to open the job page.</p>
         <div class="otp-wrap">
-          <span class="otp-label" id="otp-label">Sign-in code from your email</span>
-          <div class="otp" role="group" aria-labelledby="otp-label">
-            <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1">
-            <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
-            <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
-            <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
-            <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
-            <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+          <span class="otp-label" id="pin-label">Admin PIN</span>
+          <div class="otp" id="a-pin" role="group" aria-labelledby="pin-label">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 1">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 2">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 3">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 4">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 5">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 6">
           </div>
         </div>
-        <button class="btn btn-solid" type="button" id="a-verify">Sign in</button>
+        <button class="btn btn-solid" type="button" id="a-unlock">Unlock</button>
+        <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN? Email me a code</button></p>
+        <p id="a-pin-msg" class="a-msg" role="status"></p>
       </div>
-      <p id="a-msg" class="a-msg" role="status"></p>
+
+      <div id="a-gate-email" hidden>
+        <h2>Sign in with the email code</h2>
+        <p>Enter the admin email and we will send a one-time sign-in code. Type the code below. After that you will choose a new PIN. (If your email shows a link instead of a code, just click the link.)</p>
+        <label for="a-email">Admin email
+          <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
+        </label>
+        <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in code</button>
+        <div id="a-code-row" hidden>
+          <div class="otp-wrap">
+            <span class="otp-label" id="otp-label">Sign-in code from your email</span>
+            <div class="otp" id="a-code" role="group" aria-labelledby="otp-label">
+              <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1">
+              <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
+              <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
+              <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
+              <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
+              <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+            </div>
+          </div>
+          <button class="btn btn-solid" type="button" id="a-verify">Sign in</button>
+        </div>
+        <p class="form-note"><button class="link-btn" type="button" id="a-back-pin">Back to the PIN</button></p>
+        <p id="a-msg" class="a-msg" role="status"></p>
+      </div>
+
+      <div id="a-gate-setpin" hidden>
+        <h2>Choose your PIN</h2>
+        <p>Choose a 6-digit PIN. You will use it each time you open this page.</p>
+        <div class="otp-wrap">
+          <span class="otp-label" id="new-pin-label">New PIN</span>
+          <div class="otp" id="a-new-pin" role="group" aria-labelledby="new-pin-label">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 1">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 2">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 3">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 4">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 5">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 6">
+          </div>
+        </div>
+        <div class="otp-wrap">
+          <span class="otp-label" id="confirm-pin-label">Type it again</span>
+          <div class="otp" id="a-confirm-pin" role="group" aria-labelledby="confirm-pin-label">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 1">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 2">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 3">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 4">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 5">
+            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 6">
+          </div>
+        </div>
+        <button class="btn btn-solid" type="button" id="a-save-pin">Save PIN and open the job page</button>
+        <p class="form-note"><button class="link-btn" type="button" id="a-setpin-cancel">Cancel and sign out</button></p>
+        <p id="a-setpin-msg" class="a-msg" role="status"></p>
+      </div>
+
     </div>
   </div>
 </section>
