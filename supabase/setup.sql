@@ -30,3 +30,14 @@ create policy "Admin full access" on public.jobs
   for all to authenticated
   using ((auth.jwt() ->> 'email') = 'unsyntax.ai@gmail.com')
   with check ((auth.jwt() ->> 'email') = 'unsyntax.ai@gmail.com');
+
+-- Admin PIN lock (used by the admin-pin Edge Function only).
+-- No policies: the public and signed-in users cannot read or change this table; only the function can.
+create table if not exists public.admin_pin (
+  id int primary key check (id = 1),
+  salt text not null,
+  hash text not null,
+  failed int not null default 0,
+  updated_at timestamptz not null default now()
+);
+alter table public.admin_pin enable row level security;
