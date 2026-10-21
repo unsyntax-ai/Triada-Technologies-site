@@ -205,14 +205,15 @@ HOME_SCHEMA = ld({"@context": "https://schema.org", "@graph": [
      "inLanguage": "en-US", "publisher": {"@id": ORG_ID}},
 ]})
 
-home = f'''<section class="hero-full" aria-label="Introduction">
-  <img class="hero-video hero-img" src="assets/hero-city.jpg" alt="A smiling professional celebrating at her laptop" width="2200" height="1261" fetchpriority="high" decoding="async">
-  <div class="hero-shade" aria-hidden="true"></div>
+home = f'''<section class="hero-full hero-split" aria-label="Introduction">
   <div class="hero-center">
     <img class="hero-logo" src="assets/hero-logo.png" alt="TriadaTechnologies" width="1400" height="367">
-    <h1>Creating value for <span class="swap">everyone</span>.</h1>
+    <h1>Creating value<br> for <span class="swap">everyone</span>.</h1>
     <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
   </div>
+  <figure class="hero-photo">
+    <img class="hero-img" src="assets/hero-city.jpg" alt="A smiling professional celebrating at her laptop" width="2200" height="1261" fetchpriority="high" decoding="async">
+  </figure>
 </section>
 
 <section id="intro" class="intro">
@@ -636,7 +637,7 @@ def post_card(p):
     e = html.escape
     hay = e((p['title'] + ' ' + p['summary'] + ' ' + p['tag']).lower(), quote=True)
     return f'''      <article class="card post-card" data-item data-date="{p['published']}" data-text="{hay}">
-        <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="480" height="270" loading="lazy"></a>
+        <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="485" height="300" loading="lazy"></a>
         <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
         <h3><a href="{url}">{e(p['title'])}</a></h3>
         <p>{e(p['summary'])}</p>
@@ -759,7 +760,7 @@ def build_post(p):
 
 <section>
   <div class="wrap article">
-    <div class="post-art pal-{e(p['palette'])} post-art-lg"><img src="{art_src(p)}" alt="" width="480" height="270"></div>
+    <div class="post-art pal-{e(p['palette'])} post-art-lg"><img src="{art_src(p)}" alt="" width="485" height="300"></div>
     <div class="article-body">
       {secs}
       <div class="card takeaways"><h3>Key takeaways</h3><ul>{take}</ul></div>

@@ -3,18 +3,19 @@
 What it does, in order:
   1. Reads the source pages listed in data/sources.json.
   2. Asks Gemini to write one original article about current tech job trends.
-  3. Asks Gemini to draw a small illustration for that article (SVG), then cleans it.
+  3. Asks Gemini which illustration from the library (scripts/illustrations.py) fits the article,
+     and with which settings. The code draws it, so every picture is on brand and safe.
   4. Saves the post (data/insights/<slug>.json) and the illustration (assets/insights/<slug>.svg).
   5. Deletes posts older than 12 months.
 
 The site build (build.py) decides which posts are live (30 days) or archived.
 
 Needs the environment variable GOOGLE_API_KEY (a GitHub secret in production).
-Run locally with --mock to test with no network and no key.
+Run locally with --mock to test with no network and no key, or --redraw to redraw
+every post's illustration from its saved choice, also with no key.
 """
 import argparse
 import datetime as dt
-import hashlib
 import html.parser
 import json
 import os
@@ -24,7 +25,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import urllib.robotparser
-import xml.etree.ElementTree as ET
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import illustrations  # noqa: E402  (lives next to this script)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data", "insights")
@@ -33,23 +36,6 @@ SOURCES = os.path.join(ROOT, "data", "sources.json")
 
 KEEP_DAYS = 365
 PALETTES = ["teal", "sand", "navy", "mist"]
-INK = "#0F172A"
-NAVY, TEAL, ORANGE, WHITE = "#1E3A8A", "#14B8A6", "#FF6A00", "#FFFFFF"
-FILLS = [INK, WHITE, NAVY, TEAL, ORANGE]          # colours the AI may use for the drawing itself
-BLOBS = ["#C9D4F2", "#BDECE6", "#FFD5B8"]          # soft brush-stroke colours behind the drawing: navy, teal, orange tints
-SVG_TAGS = {"svg", "g", "path", "circle", "ellipse", "rect", "line", "polyline", "polygon"}
-SVG_ATTRS = {"viewBox", "xmlns", "d", "cx", "cy", "r", "rx", "ry", "x", "y", "x1", "y1", "x2", "y2",
-             "width", "height", "points", "fill", "stroke", "stroke-width", "stroke-linecap",
-             "stroke-linejoin", "opacity", "transform", "fill-opacity", "role", "aria-label"}
-W, H = 480, 270   # illustration canvas, same 16:9 shape as the card image area
-
-# Rough brush-stroke shapes that sit behind the drawing (one is chosen per article)
-BLOB_PATHS = [
-    "M70 118C54 66 126 28 214 36C300 44 392 22 432 78C468 128 418 156 430 196C444 242 360 258 290 246C230 236 190 262 124 238C70 218 90 168 70 118Z",
-    "M54 150C40 96 98 52 170 52C236 52 262 22 338 36C410 50 452 96 436 156C422 208 442 232 372 246C300 260 252 236 186 250C108 266 66 214 54 150Z",
-    "M92 70C150 24 262 30 330 46C396 62 448 94 432 156C418 212 380 246 300 244C238 242 212 262 150 244C80 224 40 176 56 122C62 100 74 84 92 70Z",
-    "M60 96C86 48 176 40 250 48C330 56 408 40 436 100C458 148 410 170 424 208C436 244 340 252 268 242C200 232 146 258 96 226C48 194 40 130 60 96Z",
-]
 
 
 # ---------- small helpers ----------
@@ -211,123 +197,45 @@ SOURCES:
 """
 
 
-SAMPLE_SUBJECT = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 270">'
-    '<rect x="105" y="42" width="260" height="160" rx="10" fill="#FFFFFF" stroke="#0F172A" stroke-width="7"/>'
-    '<polygon points="215,204 255,204 272,238 198,238" fill="#0F172A"/>'
-    '<line x1="140" y1="72" x2="205" y2="71" stroke="#0F172A" stroke-width="6"/>'
-    '<rect x="140" y="132" width="34" height="48" fill="#FFFFFF" stroke="#0F172A" stroke-width="5"/>'
-    '<rect x="196" y="108" width="34" height="72" fill="#FFFFFF" stroke="#0F172A" stroke-width="5"/>'
-    '<rect x="252" y="80" width="34" height="100" fill="#14B8A6" stroke="#0F172A" stroke-width="5"/>'
-    '<line x1="130" y1="184" x2="330" y2="183" stroke="#0F172A" stroke-width="6"/>'
-    '<circle cx="372" cy="132" r="32" fill="#FFFFFF" stroke="#0F172A" stroke-width="7"/>'
-    '<line x1="396" y1="156" x2="424" y2="190" stroke="#0F172A" stroke-width="11"/>'
-    '</svg>')
+def art_prompt(post, recent_motifs):
+    return f"""Choose the illustration for an article on the TriadaTechnologies Insights page.
+Each illustration stands for one idea. Pick the one whose idea fits the article best, then set its settings
+so the picture tells the article's story (for example a falling trend gets falling bar values).
 
+Article title: {post["title"]}
+Summary: {post["summary"]}
+Section headings: {"; ".join(s.get("heading", "") for s in post.get("sections", []))}
 
-def svg_prompt(title, topic):
-    return f"""Draw a hand-drawn, sketchbook style editorial illustration as SVG for an article titled "{title}".
-Idea to show: {topic}.
+Illustrations:
+{illustrations.menu()}
 
-The look, in plain words: a doodle made with a thick felt-tip marker. Bold dark outlines, objects filled plain white, one or two solid dark or coloured accents, and a few short dashes that stand in for lines of text. It is friendly, loose and uncluttered, like a modern product-blog illustration. The soft coloured brush shape behind the drawing is added for you afterwards, so do not draw any background.
+Recently used, so avoid these unless nothing else fits: {", ".join(recent_motifs) or "none"}.
 
-Hard rules:
-- Output only the SVG code, nothing else, no markdown fence.
-- viewBox="0 0 {W} {H}", xmlns="http://www.w3.org/2000/svg". No background rectangle.
-- One to three clear objects about the topic (a screen, a document, a briefcase, a gear, a magnifying glass, a chart, a calendar, a puzzle piece, a handshake-free everyday object). Make them large: together they fill about 70 percent of the width and 80 percent of the height, centred.
-- Outlines: stroke="{INK}", stroke-width between 5 and 8, stroke-linecap="round", stroke-linejoin="round". Every closed shape gets an outline.
-- Fill closed objects with {WHITE}. Use a solid {INK} fill for small accents (a stand, a handle, a tab). Use {NAVY} or {TEAL} for at most two shapes, and {ORANGE} for at most one very small shape.
-- Use at most 25 shapes. Keep corners slightly rounded (rx on rects). Use short plain dashes (line elements) instead of text.
-- Allowed elements only: svg, g, path, circle, ellipse, rect, line, polyline, polygon.
-- No text, letters, numbers, gradients, filters, images, scripts, style tags, faces or people. No real brands or logos.
-
-Here is an example of the right level of detail and style, for a different topic. Do not copy it; draw something that fits this article:
-{SAMPLE_SUBJECT}
+Return JSON with exactly these keys:
+  "motif": one of {list(illustrations.MOTIFS)}
+  "params": an object with that illustration's settings (an empty object if it has none)
 """
 
 
-def _viewbox(root):
-    try:
-        x, y, w, h = [float(v) for v in re.split(r"[ ,]+", root.attrib.get("viewBox", "").strip())]
-        if w > 0 and h > 0:
-            return x, y, w, h
-    except ValueError:
-        pass
-    return 0, 0, W, H
-
-
-def compose(subject_xml, seed):
-    """Put the cleaned drawing on a rough brush-stroke shape, with a hand-drawn wobble. The look is added here, not by the AI."""
-    h = int(hashlib.sha1(seed.encode("utf-8")).hexdigest(), 16)
-    blob = BLOB_PATHS[h % len(BLOB_PATHS)]
-    colour = BLOBS[(h // 7) % len(BLOBS)]
-    flip = "" if (h // 31) % 2 == 0 else f' transform="translate({W} 0) scale(-1 1)"'
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 10 440 248" role="img">'
-        '<defs>'
-        '<filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="14"/></filter>'
-        '<filter id="wob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="8" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/></filter>'
-        '</defs>'
-        f'<path d="{blob}" fill="{colour}" filter="url(#rough)"{flip}/>'
-        f'<g filter="url(#wob)" stroke-linecap="round" stroke-linejoin="round">{subject_xml}</g>'
-        '</svg>')
-
-
-def clean_svg(raw, seed="triada"):
-    """Return a safe, finished SVG string (drawing on a brush shape), or None if the drawing cannot be trusted."""
-    raw = raw.strip()
-    raw = re.sub(r"^```(?:svg|xml)?|```$", "", raw, flags=re.M).strip()
-    if len(raw) > 30000 or "<!" in raw or "<?" in raw:
-        return None
-    try:
-        root = ET.fromstring(raw)
-    except ET.ParseError:
-        return None
-    ns = "{http://www.w3.org/2000/svg}"
-    count = 0
-
-    def walk(el):
-        nonlocal count
-        tag = el.tag.replace(ns, "")
-        if tag not in SVG_TAGS:
-            return False
-        count += 1
-        for k in list(el.attrib):
-            if k.replace(ns, "") not in SVG_ATTRS:
-                del el.attrib[k]
-        for k in ("fill", "stroke"):
-            v = el.attrib.get(k)
-            if v and v != "none" and v.upper() not in FILLS:
-                el.attrib[k] = INK if k == "stroke" else WHITE
-        sw = el.attrib.get("stroke-width")
-        if sw is not None:
+def pick_art(post, recent_motifs, model=None, key=None):
+    """Ask the AI which illustration fits the post; fall back to matching words if it gives no usable answer."""
+    if key:
+        for _ in range(2):
             try:
-                el.attrib["stroke-width"] = str(min(12.0, max(4.0, float(sw))))
-            except ValueError:
-                del el.attrib["stroke-width"]
-        for k, v in el.attrib.items():
-            if re.search(r"url\(|javascript|data:|<|>", v, re.I):
-                return False
-        el.text = None
-        el.tail = None
-        return all(walk(c) for c in list(el))
+                ans = json.loads(gemini(art_prompt(post, recent_motifs), model, key, temperature=0.4))
+            except Exception as e:
+                print("illustration choice failed:", e)
+                continue
+            if isinstance(ans, dict) and ans.get("motif") in illustrations.MOTIFS:
+                params = ans.get("params") if isinstance(ans.get("params"), dict) else {}
+                return {"motif": ans["motif"], "params": params}
+    words = " ".join([post["title"], post.get("summary", ""), post.get("topic", "")])
+    return {"motif": illustrations.guess(words, recent_motifs), "params": {}}
 
-    if root.tag.replace(ns, "") != "svg" or not walk(root) or count < 4 or count > 40:
-        return None
-    vx, vy, vw, vh = _viewbox(root)
-    kids = list(root)
-    ET.register_namespace("", "http://www.w3.org/2000/svg")
-    inner = "".join(ET.tostring(k, encoding="unicode") for k in kids)
-    if (vx, vy, vw, vh) != (0, 0, W, H):        # drawn on a different canvas: scale it to fit, centred
-        sc = min(W / vw, H / vh)
-        inner = f'<g transform="translate({(W - vw * sc) / 2 - vx * sc:.2f} {(H - vh * sc) / 2 - vy * sc:.2f}) scale({sc:.4f})">{inner}</g>'
-    inner = inner.replace(' xmlns="http://www.w3.org/2000/svg"', "")
-    out = compose(inner, seed)
-    try:
-        ET.fromstring(out)
-    except ET.ParseError:
-        return None
-    return out
+
+def save_art(slug, art):
+    with open(os.path.join(ART_DIR, slug + ".svg"), "w", encoding="utf-8") as f:
+        f.write(illustrations.draw(art["motif"], art["params"]))
 
 
 # ---------- post validation ----------
@@ -422,45 +330,39 @@ def mock_post(n):
     }
 
 
-MOCK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect x="70" y="70" width="260" height="170" rx="18" fill="#FFFFFF" stroke="#1B2126" stroke-width="3"/>'
-            '<polyline points="100,200 160,160 210,180 270,110 310,120" fill="none" stroke="#0F766E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
-            '<circle cx="270" cy="110" r="9" fill="#14B8A6" stroke="#1B2126" stroke-width="3"/><circle cx="160" cy="160" r="7" fill="#F3ECE2" stroke="#1B2126" stroke-width="3"/></svg>')
+def recent_motifs(posts, n=3):
+    return [p["art"]["motif"] for p in sorted(posts, key=lambda p: p["published"])[-n:] if p.get("art")]
 
 
-def redo_art():
-    """Redraw the illustration of every post with the current, lighter style."""
-    key = os.environ.get("GOOGLE_API_KEY")
-    if not key:
-        print("GOOGLE_API_KEY is not set.", file=sys.stderr)
-        return 1
-    with open(SOURCES, encoding="utf-8") as f:
-        model = os.environ.get("GEMINI_MODEL") or json.load(f).get("model", "gemini-3.8-flash")
-    for p in load_posts():
-        svg = None
-        for _ in range(3):
-            try:
-                svg = clean_svg(gemini(svg_prompt(p["title"], p["topic"]), model, key, as_json=False, temperature=0.8), p["title"])
-            except Exception as e:
-                print("illustration request failed:", e)
-            if svg:
-                break
-        if svg:
-            with open(os.path.join(ART_DIR, p["slug"] + ".svg"), "w", encoding="utf-8") as f:
-                f.write(svg)
-            p["has_art"] = True
-            with open(os.path.join(DATA_DIR, p["slug"] + ".json"), "w", encoding="utf-8") as f:
-                json.dump(p, f, indent=2, ensure_ascii=False)
-            print("redrew:", p["slug"])
-        else:
-            print("kept old illustration:", p["slug"])
+def redo_art(ask_ai):
+    """Redraw every post's illustration. With ask_ai, the AI chooses again; otherwise each post keeps
+    its saved choice (or gets one from its words), so this also works with no key."""
+    key = model = None
+    if ask_ai:
+        key = os.environ.get("GOOGLE_API_KEY")
+        if not key:
+            print("GOOGLE_API_KEY is not set.", file=sys.stderr)
+            return 1
+        with open(SOURCES, encoding="utf-8") as f:
+            model = os.environ.get("GEMINI_MODEL") or json.load(f).get("model", "gemini-3.8-flash")
+    done = []
+    for p in sorted(load_posts(), key=lambda p: p["published"]):
+        if ask_ai or not p.get("art"):
+            p["art"] = pick_art(p, recent_motifs(done), model, key)
+        save_art(p["slug"], p["art"])
+        p["has_art"] = True
+        with open(os.path.join(DATA_DIR, p["slug"] + ".json"), "w", encoding="utf-8") as f:
+            json.dump(p, f, indent=2, ensure_ascii=False)
+        done.append(p)
+        print(f'redrew: {p["slug"]} ({p["art"]["motif"]})')
     return 0
 
 
 def run(args):
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(ART_DIR, exist_ok=True)
-    if args.redo_art:
-        return redo_art()
+    if args.redo_art or args.redraw:
+        return redo_art(ask_ai=args.redo_art)
     prune_old()
     existing = load_posts()
     date = today().isoformat()
@@ -470,7 +372,7 @@ def run(args):
 
     if args.mock:
         post = mock_post(len(existing) + 1)
-        svg = clean_svg(SAMPLE_SUBJECT, post["title"])
+        art = pick_art(post, recent_motifs(existing))
         allowed = {"https://example.com/source"}
         src_titles = {"https://example.com/source": "Example source"}
     else:
@@ -510,16 +412,7 @@ def run(args):
         if not post:
             print("Article rejected:", why, file=sys.stderr)
             return 1
-        svg = None
-        for attempt in range(3):
-            try:
-                svg = clean_svg(gemini(svg_prompt(post["title"], post["topic"]), model, key, as_json=False, temperature=0.8), post["title"])
-            except Exception as e:
-                print("illustration request failed:", e)
-            if svg:
-                break
-        if not svg:
-            print("Illustration could not be verified; the default illustration will be used.")
+        art = pick_art(post, recent_motifs(existing), model, key)
 
     slug = slugify(post["title"])
     if any(p["slug"] == slug for p in existing):
@@ -527,22 +420,21 @@ def run(args):
     record = {
         "slug": slug, "title": post["title"].strip().rstrip("."), "description": post["description"].strip(),
         "tag": post["tag"], "summary": post["summary"].strip(), "palette": post["palette"],
-        "published": date, "updated": date, "has_art": bool(svg), "topic": post["topic"],
+        "published": date, "updated": date, "has_art": True, "topic": post["topic"], "art": art,
         "sections": post["sections"], "takeaways": post["takeaways"],
         "sources": [{"title": src_titles.get(u, u), "url": u} for u in post["used_sources"]],
     }
     with open(os.path.join(DATA_DIR, slug + ".json"), "w", encoding="utf-8") as f:
         json.dump(record, f, indent=2, ensure_ascii=False)
-    if svg:
-        with open(os.path.join(ART_DIR, slug + ".svg"), "w", encoding="utf-8") as f:
-            f.write(svg)
-    print("published:", slug)
+    save_art(slug, art)
+    print(f"published: {slug} (illustration: {art['motif']})")
     return 0
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--mock", action="store_true", help="make a sample post with no network")
-    ap.add_argument("--redo-art", action="store_true", help="redraw illustrations for all posts, no new article")
+    ap.add_argument("--redo-art", action="store_true", help="let the AI choose every post's illustration again, no new article")
+    ap.add_argument("--redraw", action="store_true", help="redraw every post's illustration from its saved choice, no key needed")
     ap.add_argument("--force", action="store_true", help="allow a second post on the same day")
     sys.exit(run(ap.parse_args()))

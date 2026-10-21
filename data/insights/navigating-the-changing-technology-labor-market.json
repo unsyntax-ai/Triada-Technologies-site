@@ -57,5 +57,17 @@
       "title": "Computer and Information Technology Occupations : Occupational Outlook Handbook: : U.S. Bureau of Labor Statistics",
       "url": "https://www.bls.gov/ooh/computer-and-information-technology/home.htm"
     }
-  ]
+  ],
+  "art": {
+    "motif": "bars",
+    "params": {
+      "values": [
+        38,
+        57,
+        46,
+        76,
+        100
+      ]
+    }
+  }
 }

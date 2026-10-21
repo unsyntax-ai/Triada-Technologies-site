@@ -57,5 +57,11 @@
       "title": "The Stack Overflow Blog - Stack Overflow",
       "url": "https://stackoverflow.blog/"
     }
-  ]
+  ],
+  "art": {
+    "motif": "gauge",
+    "params": {
+      "level": 78
+    }
+  }
 }
