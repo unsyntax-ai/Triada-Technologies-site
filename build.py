@@ -300,24 +300,24 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
 SERVICES_SCHEMA = ""
 
 FAQ_ITEMS = [
-    ("What is IT staffing, and how does TriadaTechnologies provide it?",
-     "IT staffing is the recruiting and placement of technology professionals, such as software engineers, cloud and DevOps engineers, cybersecurity analysts, database administrators, and system administrators, into an employer's open roles. TriadaTechnologies, a staffing firm headquartered in Lansdale, PA, finds, screens, and presents IT candidates for temporary, contract, contract-to-hire, and direct-hire positions at employers across the United States."),
-    ("Which IT and technology roles does TriadaTechnologies place?",
-     "We place software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators, along with the network technicians and telecom project coordinators who keep connectivity running. Each search starts with the technical skills, tools, and team environment the role requires, so the candidates we present match the work and not only the job title."),
-    ("What is the difference between contract, contract-to-hire, and direct-hire IT staffing?",
-     "Contract IT staffing places a professional for a defined period or project, often to cover a skill gap or a spike in workload. Contract-to-hire starts as a contract and lets you evaluate the person in your own environment before offering a permanent role. Direct hire fills a permanent position from the first day. We help you choose the model that fits the role, your budget, and your timeline."),
-    ("How does TriadaTechnologies screen IT candidates before presenting them?",
-     "Every IT candidate completes a skills review and a behavioral interview, and we verify background and credentials where the role requires it. We assess technical fit, communication, and reliability first, so the short list you receive is ready for a hiring decision. After the start date, we stay in touch with you and the new hire so small concerns are resolved early."),
-    ("How long does it take to fill an IT role?",
-     "The timeline depends on the seniority of the role, the specific technologies involved, the location, and how clearly the requirements are defined. Specialized skills such as cybersecurity or cloud architecture can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."),
-    ("Does TriadaTechnologies place IT talent outside Pennsylvania?",
-     "Yes. TriadaTechnologies is headquartered in Lansdale, Pennsylvania, and places IT professionals for employers across the United States. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
-    ("How much does IT staffing cost?",
-     "Cost depends on the engagement model, the role, the skills required, and the location. In IT staffing, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."),
-    ("What information do I need to share to start an IT search?",
-     f'Share the job title, the main responsibilities, the technologies and experience level the role needs, the team and working environment, and your timeline. A recruiter reviews the details and replies during business hours with clear next steps. Use our <a href="contact.html">contact page</a> or email {EMAIL} to begin.'),
-    ("Can TriadaTechnologies support vendor management systems (VMS) and ongoing IT workforce needs?",
-     "Yes. Alongside individual placements, we support vendor management programs that keep ongoing workforce needs organized, compliant, and cost-aware. This suits employers that hire IT contractors regularly and want one consistent process across roles. Contact us to discuss how a VMS program would fit your hiring volume."),
+    ("What staffing services does TriadaTechnologies offer?",
+     "TriadaTechnologies offers temporary, contract, contract-to-hire, direct-hire, and executive search placements, along with vendor management programs for ongoing workforce needs. Our primary focus is IT and technology staffing, and we also place professionals in healthcare, finance, engineering, administrative, manufacturing, logistics, telecommunications, and customer support roles."),
+    ("What IT and technology roles does TriadaTechnologies place?",
+     "We place software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators, along with network technicians and telecom project coordinators. Each search starts with the technical skills, tools, and team environment the role requires, so the candidates we present match the work and not only the job title."),
+    ("Which industries does TriadaTechnologies serve?",
+     "IT and technology is our primary focus. We also serve healthcare and life sciences, finance and accounting, engineering and construction, administrative and clerical, manufacturing and industrial, logistics and supply chain, telecommunications, and retail and customer support. We tailor each search to the skills, credentials, and compliance standards of the industry."),
+    ("What is the difference between contract, contract-to-hire, and direct-hire placement?",
+     "Contract placement brings in a professional for a defined period or project, such as covering a skills gap or a spike in workload. Contract-to-hire starts as a contract and lets you evaluate the person in your own environment before offering a permanent role. Direct hire fills a permanent position from the first day. We help you choose the model that fits the role, your budget, and your timeline."),
+    ("How does TriadaTechnologies screen candidates?",
+     "Every candidate completes a skills review and a behavioral interview, and we verify background and credentials where the role requires it. For IT roles, the review covers the specific technical skills the position demands. We assess fit, communication, and reliability before presenting a short list, so you receive candidates who are ready for a hiring decision."),
+    ("How long does it take to fill a role?",
+     "The timeline depends on the seniority of the role, how specialized the skills are, the location, and how clearly the requirements are defined. Specialized technical roles, such as cybersecurity or cloud architecture, can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."),
+    ("Does TriadaTechnologies work outside Pennsylvania?",
+     "Yes. TriadaTechnologies is headquartered in Lansdale, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
+    ("How much do staffing services cost?",
+     "Cost depends on the engagement model, the role, the skills required, and the location. In the staffing industry, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."),
+    ("How do I start a search with TriadaTechnologies?",
+     f'Share the job title, the main responsibilities, the skills and experience level the role needs, and your timeline. A recruiter reviews the details and replies during business hours with clear next steps. Use our <a href="contact.html">contact page</a> or email {EMAIL} to begin.'),
 ]
 faq_html = "\n".join(
     f'      <details class="faq-item">\n        <summary><h3>{q}</h3><span class="faq-icon" aria-hidden="true"></span></summary>\n        <div class="faq-a"><p>{a}</p></div>\n      </details>' for q, a in FAQ_ITEMS)
@@ -376,7 +376,7 @@ services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Questions</p>
-      <h2>Common questions about IT staffing</h2>
+      <h2>Common questions about working with TriadaTechnologies</h2>
     </div>
     <div class="faq-list">
 {faq_html}
@@ -921,7 +921,7 @@ def seo_files(posts, today, dates):
     if posts:
         lines += ["", "## Insights", ""]
         lines += [f"- [{p['title']}]({SITE_URL}/insight-{p['slug']}.html): {p['summary']} ({p['published']})" for p in posts]
-    lines += ["", "## IT staffing FAQ", ""]
+    lines += ["", "## Frequently asked questions", ""]
     for q, a in FAQ_ITEMS:
         lines += [f"### {q}", plain(a), ""]
     with open("llms.txt", "w", encoding="utf-8") as f:

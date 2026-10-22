@@ -15,6 +15,21 @@
     if (text != null) n.textContent = text;
     return n;
   }
+  // text with the searched words wrapped in <mark class="hit"> (brand orange); no HTML is ever inserted
+  function mark(node, text, term) {
+    var lower = text.toLowerCase(), at, i = 0;
+    if (!term || lower.length !== text.length) { node.textContent = text; return node; }
+    while ((at = lower.indexOf(term, i)) !== -1) {
+      if (at > i) node.appendChild(document.createTextNode(text.slice(i, at)));
+      var m = document.createElement('mark');
+      m.className = 'hit';
+      m.textContent = text.slice(at, at + term.length);
+      node.appendChild(m);
+      i = at + term.length;
+    }
+    node.appendChild(document.createTextNode(text.slice(i)));
+    return node;
+  }
   function pretty(iso) {
     var d = new Date(iso);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -45,11 +60,11 @@
         var card = el('article', 'job-row');
         var href = 'job.html?id=' + encodeURIComponent(j.id);
         var h = el('h3', 'job-title');
-        var a = el('a', null, j.title);
+        var a = mark(el('a'), j.title, term);
         a.href = href;
         h.appendChild(a);
         card.appendChild(h);
-        card.appendChild(el('p', 'job-loc', j.location));
+        card.appendChild(mark(el('p', 'job-loc'), j.location, term));
         var tp = el('p', 'job-type');
         tp.appendChild(el('span', 'type-pill', j.employment_type));
         card.appendChild(tp);

@@ -81,10 +81,33 @@
     var pageSize = parseInt(list.closest('.listing').getAttribute('data-page'), 10) || 9;
     var items = Array.prototype.slice.call(list.querySelectorAll('[data-item]'));
     var shown = pageSize;
+    // the words a reader can see on each row, kept so they can be re-marked on every search
+    var marks = items.map(function (el) {
+      var t = Array.prototype.slice.call(el.querySelectorAll('h3 a, .meta'));
+      if (!t.length) t = Array.prototype.slice.call(el.querySelectorAll('a, span'));
+      return t.map(function (n) { return [n, n.textContent]; });
+    });
+    var mark = function (node, text, term) {
+      node.textContent = '';
+      var lower = text.toLowerCase(), at, i = 0;
+      if (!term || lower.length !== text.length) { node.textContent = text; return; }
+      while ((at = lower.indexOf(term, i)) !== -1) {
+        if (at > i) node.appendChild(document.createTextNode(text.slice(i, at)));
+        var m = document.createElement('mark');
+        m.className = 'hit';
+        m.textContent = text.slice(at, at + term.length);
+        node.appendChild(m);
+        i = at + term.length;
+      }
+      node.appendChild(document.createTextNode(text.slice(i)));
+    };
     var render = function () {
       var term = q.value.trim().toLowerCase();
       var month = mo.value;
       var oldest = so.value === 'old';
+      items.forEach(function (el, k) {
+        marks[k].forEach(function (p) { mark(p[0], p[1], term); });
+      });
       items.sort(function (a, b) {
         var x = a.getAttribute('data-date'), y = b.getAttribute('data-date');
         return oldest ? (x < y ? -1 : x > y ? 1 : 0) : (x < y ? 1 : x > y ? -1 : 0);
