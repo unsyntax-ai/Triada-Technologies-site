@@ -692,9 +692,10 @@ def post_card(p):
     hay = e((p['title'] + ' ' + p['summary'] + ' ' + p['tag']).lower(), quote=True)
     return f'''      <article class="card post-card" data-item data-date="{p['published']}" data-text="{hay}">
         <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="485" height="300" loading="lazy"></a>
-        <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
-        <h3><a href="{url}">{e(p['title'])}</a></h3>
-        <p>{e(p['summary'])}</p>
+        <div class="post-text">
+          <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
+          <h3><a href="{url}">{e(p['title'])}</a></h3>
+        </div>
       </article>'''
 
 
