@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -119,6 +120,16 @@ FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
 _dead_models = set()
 
 
+# The whole job is allowed 15 minutes. Every AI call together gets this budget, so a slow or
+# overloaded Gemini ends in a clear message instead of a job that is cut off with no reason.
+BUDGET_SECONDS = int(os.environ.get("INSIGHTS_BUDGET_SECONDS", "480"))
+_deadline = time.monotonic() + BUDGET_SECONDS
+
+
+def time_left():
+    return _deadline - time.monotonic()
+
+
 def _call(prompt, model, key, as_json, temperature):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     body = {"contents": [{"parts": [{"text": prompt}]}],
@@ -127,20 +138,21 @@ def _call(prompt, model, key, as_json, temperature):
         body["generationConfig"]["responseMimeType"] = "application/json"
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
                                  headers={"Content-Type": "application/json", "x-goog-api-key": key})
-    with urllib.request.urlopen(req, timeout=120) as r:
+    with urllib.request.urlopen(req, timeout=max(10, min(90, time_left()))) as r:
         data = json.load(r)
     return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
 def gemini(prompt, model, key, as_json=True, temperature=0.6):
-    """Ask Gemini. Retries busy/rate-limit errors with a pause, and falls back to
-    another model if the chosen one is missing or keeps failing."""
-    import time
+    """Ask Gemini. Retries busy and rate-limit errors with a short pause and falls back to
+    another model if the chosen one is missing or keeps failing. Gives up when the time budget is used."""
     last = None
     for m in [model] + [x for x in FALLBACK_MODELS if x != model]:
         if m in _dead_models:
             continue
-        for attempt in range(4):
+        for attempt in range(3):
+            if time_left() < 15:
+                raise RuntimeError(f"Gemini did not answer within the {BUDGET_SECONDS // 60} minute time budget. Last error: {last}")
             try:
                 return _call(prompt, m, key, as_json, temperature)
             except urllib.error.HTTPError as e:
@@ -155,15 +167,21 @@ def gemini(prompt, model, key, as_json=True, temperature=0.6):
                     if e.code in (404, 400):
                         _dead_models.add(m)  # wrong model name: try the next one
                     break
-                time.sleep(5 * 2 ** attempt)  # 429 / 5xx: wait and retry
-            except (urllib.error.URLError, TimeoutError, KeyError, IndexError, json.JSONDecodeError) as e:
+                time.sleep(min(4 * 2 ** attempt, max(0, time_left() - 15)))  # 429 / 5xx: wait and retry
+            except Exception as e:  # network drops, timeouts, an answer in an unexpected shape
                 last = e
-                print(f"Gemini {m}: {e}", file=sys.stderr)
-                time.sleep(5 * 2 ** attempt)
+                print(f"Gemini {m}: {type(e).__name__}: {e}", file=sys.stderr)
+                time.sleep(min(4 * 2 ** attempt, max(0, time_left() - 15)))
     raise RuntimeError(f"All Gemini models failed: {last}")
 
 
-def article_prompt(source_blocks, recent_titles, topic_hint):
+def parse_json(text):
+    """The JSON object in the AI's answer, even if it came wrapped in a markdown fence."""
+    a, b = text.find("{"), text.rfind("}")
+    return json.loads(text[a:b + 1] if a != -1 and b > a else text)
+
+
+def article_prompt(source_blocks, recent_titles, topic_hint, fix=""):
     return f"""You write for the Insights section of TriadaTechnologies, a nationwide staffing firm (headquartered in Lansdale, PA) serving employers and professionals across the United States.
 Write ONE original article (about 550 to 750 words) on a current trend in the technology job market,
 for hiring managers and job seekers anywhere in the United States. {topic_hint}
@@ -191,6 +209,8 @@ Return JSON with exactly these keys:
   "sections": list of 3 to 5 objects {{"heading": string, "paragraphs": [string, ...]}}
   "takeaways": list of 3 short strings
   "used_sources": list of the source URLs you actually used
+
+{("IMPORTANT: your previous draft was rejected because: " + fix + ". Write a new draft that avoids this. Use no figure, percentage or amount unless it appears word for word in the SOURCES, and do not reuse any run of words from them.") if fix else ""}
 
 SOURCES:
 {source_blocks}
@@ -222,7 +242,7 @@ def pick_art(post, recent_motifs, model=None, key=None):
     if key:
         for _ in range(2):
             try:
-                ans = json.loads(gemini(art_prompt(post, recent_motifs), model, key, temperature=0.4))
+                ans = parse_json(gemini(art_prompt(post, recent_motifs), model, key, temperature=0.4))
             except Exception as e:
                 print("illustration choice failed:", e)
                 continue
@@ -358,9 +378,20 @@ def redo_art(ask_ai):
     return 0
 
 
+def check_today():
+    date = today().isoformat()
+    if any(p["published"] == date for p in load_posts()):
+        print(f"Today's insight ({date}) is published.")
+        return 0
+    print(f"::error::No insight was published for {date}. Open the 'Write today's insight' step to see why.", file=sys.stderr)
+    return 1
+
+
 def run(args):
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(ART_DIR, exist_ok=True)
+    if args.check:
+        return check_today()
     if args.redo_art or args.redraw:
         return redo_art(ask_ai=args.redo_art)
     prune_old()
@@ -378,7 +409,7 @@ def run(args):
     else:
         key = os.environ.get("GOOGLE_API_KEY")
         if not key:
-            print("GOOGLE_API_KEY is not set.", file=sys.stderr)
+            print("::error::GOOGLE_API_KEY is not set. Add it under Settings > Secrets and variables > Actions.", file=sys.stderr)
             return 1
         with open(SOURCES, encoding="utf-8") as f:
             cfg = json.load(f)
@@ -394,23 +425,27 @@ def run(args):
             except Exception as e:  # one broken source must not stop the day
                 print("could not read", url, "-", e)
         if not blocks:
-            print("No source could be read. No post today.", file=sys.stderr)
+            print("::error::No source page could be read, so no insight was written today.", file=sys.stderr)
             return 1
         allowed = set(src_titles)
         recent = [p["title"] for p in sorted(existing, key=lambda p: p["published"])[-14:]]
         post, why = None, ""
-        for attempt in range(3):
+        for attempt in range(4):
             try:
-                candidate = json.loads(gemini(article_prompt("\n\n".join(blocks), recent, cfg.get("focus", "")), model, key))
+                fix = why if why and not why.startswith("request failed") else ""
+                candidate = parse_json(gemini(article_prompt("\n\n".join(blocks), recent, cfg.get("focus", ""), fix), model, key))
             except Exception as e:
                 why = f"request failed: {e}"
+                if time_left() < 15:
+                    break
                 continue
             why = validate(candidate, allowed, src_texts)
             if not why:
                 post = candidate
                 break
+            print(f"Draft {attempt + 1} rejected: {why}")
         if not post:
-            print("Article rejected:", why, file=sys.stderr)
+            print(f"::error::The article was not published: {why}", file=sys.stderr)
             return 1
         art = pick_art(post, recent_motifs(existing), model, key)
 
@@ -437,4 +472,5 @@ if __name__ == "__main__":
     ap.add_argument("--redo-art", action="store_true", help="let the AI choose every post's illustration again, no new article")
     ap.add_argument("--redraw", action="store_true", help="redraw every post's illustration from its saved choice, no key needed")
     ap.add_argument("--force", action="store_true", help="allow a second post on the same day")
+    ap.add_argument("--check", action="store_true", help="exit with an error unless today's insight is published")
     sys.exit(run(ap.parse_args()))

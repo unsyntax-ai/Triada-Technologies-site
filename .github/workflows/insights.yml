@@ -2,7 +2,12 @@ name: Daily insight
 
 on:
   schedule:
-    - cron: "15 12 * * *"   # every day, 12:15 UTC
+    # Four tries a day, at quiet minutes (UTC). GitHub sometimes delays or skips a scheduled run,
+    # so the later tries make sure the post still goes out. Once today's post exists, a run does nothing.
+    - cron: "41 11 * * *"
+    - cron: "17 13 * * *"
+    - cron: "53 15 * * *"
+    - cron: "29 19 * * *"
   push:
     branches: [main]        # rebuild pages whenever files are uploaded, so the list never goes stale
   workflow_dispatch:          # lets you run it by hand from the Actions tab
@@ -15,24 +20,30 @@ on:
 permissions:
   contents: write
 
+# Pushes and the daily writer wait in separate lines, so a push can never replace a waiting daily run.
 concurrency:
-  group: insights
+  group: insights-${{ github.event_name == 'push' && 'build' || 'daily' }}
   cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Write today's insight
+        id: gen
         if: github.event_name != 'push'
+        continue-on-error: true   # an early try that fails must not stop the site from building; a later try runs again
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }}
+      - name: Note if the insight failed
+        if: steps.gen.outcome == 'failure'
+        run: echo "::warning::Today's insight could not be written on this try. See the step above for the reason. A later scheduled try runs again."
       - name: Rebuild the site
         run: python3 build.py
       - name: Commit changes
@@ -42,8 +53,12 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "Nothing to save." && exit 0
           git commit -m "Daily insight update"
-          for i in 1 2 3; do
+          for i in 1 2 3 4; do
             git pull --rebase -X theirs origin main && git push && exit 0
-            sleep 5
+            sleep $((i * 5))
           done
           exit 1
+      - name: Make sure today's insight exists
+        # fails (red) only after the last try of the day, or on a manual run, so a missing post is never silent
+        if: (github.event_name == 'workflow_dispatch' && !inputs.redo_art) || github.event.schedule == '29 19 * * *'
+        run: python3 scripts/generate_insights.py --check
