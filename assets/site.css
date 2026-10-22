@@ -600,6 +600,7 @@ html.intro-on.intro-reveal .hero-split .hero-photo { transition-delay: .2s; }
 /* ---------- Jobs: Find a Job, posting age, match results ---------- */
 .jobs-cta { display: flex; gap: var(--s-3); align-items: flex-start; flex-wrap: wrap; }
 .jobs-cta .btn { min-width: 168px; }
+.jobs-cta .admin-slot { align-items: center; }
 .toolbar.toolbar-jobs { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 @media (max-width: 700px) { .toolbar.toolbar-jobs { grid-template-columns: 1fr; } .jobs-cta { width: 100%; } .jobs-cta .btn { width: 100%; } .jobs-cta > .admin-slot { width: 100%; } }
 .job-age { margin: 0; color: var(--muted); font-size: 15px; white-space: nowrap; }
