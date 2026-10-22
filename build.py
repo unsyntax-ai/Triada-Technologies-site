@@ -131,7 +131,7 @@ FOOTER = f'''<footer class="site-foot">
     <div>
       <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
       <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
-      <p class="copy">© 2026 TriadaTechnologies. All rights reserved. <a href="credits.html">Credits</a></p>
+      <p class="copy">© 2026 TriadaTechnologies. All rights reserved.</p>
     </div>
   </div>
 </footer>
@@ -1012,15 +1012,7 @@ if __name__ == "__main__":
     outputs["job.html"] = page("Open role | TriadaTechnologies Jobs",
                                "A current job opening with TriadaTechnologies, a nationwide U.S. staffing firm.", "job.html",
                                job_detail, script=True, extra=("jobs-config.js", "jobs.js"))
-    credits_body = """<section class="page-hero hero-carded" style="border-top:0">
-  <div class="wrap">
-    <p class="eyebrow">Credits</p>
-    <h1>Illustration credits</h1>
-    <p class="lead"><a href="https://storyset.com/team" rel="noopener" target="_blank">Team illustrations by Storyset</a></p>
-  </div>
-</section>"""
-    private = {"credits.html": page("Credits | TriadaTechnologies", "Illustration credits.", "credits.html", credits_body, script=True, noindex=True),
-               "admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
+    private = {"admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
                                   script=True, noindex=True, extra=("jobs-config.js", "admin.js"))}
     for p in POSTS:
         fname = f"insight-{p['slug']}.html"

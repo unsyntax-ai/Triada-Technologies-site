@@ -484,8 +484,6 @@ header.site .wrap.bar{max-width:none;width:100%;margin:0;border-radius:0;border-
 .card:hover .card-img { transform: scale(1.04); }
 
 .card .card-img.art{object-fit:cover;background:#FAFAFA;padding:0}
-.credit{margin-top:var(--s-3);font-size:14px;color:var(--muted)}
-.credit a{color:var(--navy)}
 
 /* ---------- Home hero: editorial split ----------
    Clean off-white field: the brand logo, the tagline in ink with the colour-changing "everyone",
