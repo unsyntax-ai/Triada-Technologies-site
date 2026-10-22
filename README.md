@@ -1,2 +1,2 @@
-TriadaTechnologies website - triadatechnologies.com
+Triada Technologies website - triadatechnologies.com
 

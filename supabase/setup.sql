@@ -41,3 +41,9 @@ create table if not exists public.admin_pin (
   updated_at timestamptz not null default now()
 );
 alter table public.admin_pin enable row level security;
+
+-- Archived jobs (status 'closed') are deleted for good 365 days after they were archived.
+-- The admin page also does this each time it opens. To make it run daily on its own, enable the pg_cron
+-- extension (Database > Extensions) and run:
+--   select cron.schedule('purge-archived-jobs', '15 3 * * *',
+--     $$delete from public.jobs where status = 'closed' and updated_at < now() - interval '365 days'$$);

@@ -34,6 +34,20 @@
     var d = new Date(iso);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
+  // "Just now", "5h ago", "1 day ago", "3 days ago", "1 week ago", "2 months ago": worked out from the real posting time
+  function ago(iso) {
+    var ms = Date.now() - new Date(iso).getTime();
+    if (isNaN(ms)) return '';
+    var hours = ms / 36e5, days = Math.floor(ms / 864e5), n;
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return Math.floor(hours) + 'h ago';
+    if (days < 7) return days === 1 ? '1 day ago' : days + ' days ago';
+    if (days < 30) { n = Math.floor(days / 7); return n === 1 ? '1 week ago' : n + ' weeks ago'; }
+    if (days < 365) { n = Math.floor(days / 30); return n === 1 ? '1 month ago' : n + ' months ago'; }
+    n = Math.floor(days / 365);
+    return n === 1 ? '1 year ago' : n + ' years ago';
+  }
+  window.TriadaJobs = { ago: ago };
   function applyLink(job) {
     return 'mailto:' + T.apply + '?subject=' + encodeURIComponent('Application: ' + job.title);
   }
@@ -46,7 +60,6 @@
     var ty = document.getElementById('jtype');
     var empty = document.getElementById('jobs-empty');
     var status = document.getElementById('jobs-status');
-    var count = document.getElementById('jobs-count');
 
     var render = function () {
       var term = q.value.trim().toLowerCase();
@@ -68,12 +81,12 @@
         var tp = el('p', 'job-type');
         tp.appendChild(el('span', 'type-pill', j.employment_type));
         card.appendChild(tp);
+        card.appendChild(el('p', 'job-age', ago(j.publish_at)));
         var view = el('a', 'btn btn-white btn-sm', 'View role');
         view.href = href;
         card.appendChild(view);
         list.appendChild(card);
       });
-      count.textContent = shown === 1 ? '1 open role' : shown + ' open roles';
       empty.hidden = shown !== 0 || all.length === 0;
     };
 
@@ -113,7 +126,7 @@
     get('jobs?id=eq.' + id + '&select=*').then(function (rows) {
       if (!rows.length) { notFound(); return; }
       var j = rows[0];
-      document.title = j.title + ' | TriadaTechnologies Jobs';
+      document.title = j.title + ' | Triada Technologies Jobs';
       var metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) metaDesc.setAttribute('content', (j.title + ' (' + j.employment_type + ', ' + j.location + '). ' + j.summary).slice(0, 155));
       var canon = document.querySelector('link[rel="canonical"]');
@@ -149,7 +162,7 @@
         description: '<p>' + j.summary + '</p><h3>Responsibilities</h3><ul>' + (j.responsibilities || []).map(function (x) { return '<li>' + x.replace(/</g, '&lt;') + '</li>'; }).join('') +
           '</ul><h3>Requirements</h3><ul>' + (j.requirements || []).map(function (x) { return '<li>' + x.replace(/</g, '&lt;') + '</li>'; }).join('') + '</ul>',
         datePosted: j.publish_at, employmentType: ({ 'Contract': 'CONTRACTOR', 'Contract-to-hire': 'CONTRACTOR', 'Direct hire': 'FULL_TIME', 'Temporary': 'TEMPORARY' })[j.employment_type],
-        hiringOrganization: { '@type': 'Organization', name: 'TriadaTechnologies', sameAs: T.site },
+        hiringOrganization: { '@type': 'Organization', name: 'Triada Technologies', sameAs: T.site },
         directApply: false
       };
       if (j.expires_at) ld.validThrough = j.expires_at;

@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin | TriadaTechnologies</title>
+<title>Admin | Triada Technologies</title>
 <meta name="description" content="Private admin page.">
 <meta name="robots" content="noindex, follow">
 <meta name="theme-color" content="#FAFAFA">
 <link rel="canonical" href="https://triadatechnologies.com/admin.html">
-<meta property="og:site_name" content="TriadaTechnologies">
+<meta property="og:site_name" content="Triada Technologies">
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Admin | TriadaTechnologies">
+<meta property="og:title" content="Admin | Triada Technologies">
 <meta property="og:description" content="Private admin page.">
 <meta property="og:url" content="https://triadatechnologies.com/admin.html">
 <meta property="og:image" content="https://triadatechnologies.com/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="TriadaTechnologies, nationwide staffing based in Erie, PA">
+<meta property="og:image:alt" content="Triada Technologies, nationwide staffing based in Erie, PA">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Admin | TriadaTechnologies">
+<meta name="twitter:title" content="Admin | Triada Technologies">
 <meta name="twitter:description" content="Private admin page.">
 <meta name="twitter:image" content="https://triadatechnologies.com/assets/og-image.jpg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -34,7 +34,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site">
   <div class="wrap bar">
-    <a class="brand" href="index.html" aria-label="TriadaTechnologies home"><img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies"></a>
+    <a class="brand" href="index.html" aria-label="Triada Technologies home"><img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"></a>
     <nav aria-label="Main">
       <ul>
         <li><a href="index.html">Home</a></li>
@@ -55,10 +55,15 @@
 <main id="main">
 <section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
-    <div class="hero-card">
+    <div class="hero-card admin-hero">
+      <button class="btn btn-white btn-sm a-signout" type="button" id="a-out" hidden>Sign out</button>
       <p class="eyebrow">Admin</p>
       <h1>Post and manage jobs.</h1>
-      <p class="lead">Paste rough notes about a role and let AI draft the listing. You always read, edit and approve it before it goes live.</p>
+      <ul class="a-tips">
+        <li>Paste the job description without contact details, then review the draft before it goes live.</li>
+        <li>Schedule publishes a job automatically at the time you choose.</li>
+        <li>Archive takes a job off the Jobs page. Delete removes it for good.</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -68,77 +73,44 @@
     <div class="card admin-card">
 
       <div id="a-gate-pin">
-        <h2>Enter your PIN</h2>
-        <p>Enter the 6-digit admin PIN to open the job page.</p>
-        <div class="otp-wrap">
-          <span class="otp-label" id="pin-label">Admin PIN</span>
-          <div class="otp" id="a-pin" role="group" aria-labelledby="pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 6">
-          </div>
-        </div>
-        <button class="btn btn-solid" type="button" id="a-unlock">Unlock</button>
-        <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN? Email me a code</button></p>
-        <p id="a-pin-msg" class="a-msg" role="status"></p>
+        <h2>Enter PIN</h2>
+        <div class="otp" id="a-pin" role="group" aria-label="PIN"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 1"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 2"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 3"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 4"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 5"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 6"></div>
+        <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN?</button></p>
       </div>
 
       <div id="a-gate-email" hidden>
-        <h2>Sign in with the email code</h2>
-        <p>Enter the admin email and we will send a one-time sign-in code. Type the code below. After that you will choose a new PIN. (If your email shows a link instead of a code, just click the link.)</p>
-        <label for="a-email">Admin email
+        <label for="a-email" class="gate-title">Enter admin email address
           <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
         </label>
-        <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in code</button>
-        <div id="a-code-row" hidden>
-          <div class="otp-wrap">
-            <span class="otp-label" id="otp-label">Sign-in code from your email</span>
-            <div class="otp" id="a-code" role="group" aria-labelledby="otp-label">
-              <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
-            </div>
-          </div>
-          <button class="btn btn-solid" type="button" id="a-verify">Sign in</button>
-        </div>
-        <p class="form-note"><button class="link-btn" type="button" id="a-back-pin">Back to the PIN</button></p>
-        <p id="a-msg" class="a-msg" role="status"></p>
+        <p class="form-note">Don't have the admin email? Contact your administrator.</p>
+        <button class="btn btn-solid" type="button" id="a-send">Send Code</button>
+        <p id="a-msg" class="a-msg" role="alert"></p>
+        <p class="form-note"><button class="link-btn" type="button" id="a-back-pin">Back</button></p>
       </div>
 
-      <div id="a-gate-setpin" hidden>
-        <h2>Choose your PIN</h2>
-        <p>Choose a 6-digit PIN. You will use it each time you open this page.</p>
-        <div class="otp-wrap">
-          <span class="otp-label" id="new-pin-label">New PIN</span>
-          <div class="otp" id="a-new-pin" role="group" aria-labelledby="new-pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 6">
-          </div>
+      <div id="a-gate-reset" hidden>
+        <div class="a-sect" id="a-sect-code">
+          <span class="otp-label gate-title">Enter 6-digit verification code</span>
+          <div class="otp" id="a-code" role="group" aria-label="Verification code"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Verification code digit 1"><input inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Verification code digit 2"><input inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Verification code digit 3"><input inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Verification code digit 4"><input inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Verification code digit 5"><input inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Verification code digit 6"></div>
+          <p id="a-code-msg" class="a-msg" role="alert"></p>
         </div>
-        <div class="otp-wrap">
-          <span class="otp-label" id="confirm-pin-label">Type it again</span>
-          <div class="otp" id="a-confirm-pin" role="group" aria-labelledby="confirm-pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 6">
-          </div>
+        <div class="a-sect">
+          <span class="otp-label gate-title">Enter new 6-digit PIN</span>
+          <div class="otp" id="a-new-pin" role="group" aria-label="New PIN"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 1"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 2"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 3"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 4"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 5"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 6"></div>
+          <p id="a-new-msg" class="a-msg" role="alert"></p>
         </div>
-        <button class="btn btn-solid" type="button" id="a-save-pin">Save PIN and open the job page</button>
-        <p class="form-note"><button class="link-btn" type="button" id="a-setpin-cancel">Cancel and sign out</button></p>
-        <p id="a-setpin-msg" class="a-msg" role="status"></p>
+        <div class="a-sect">
+          <span class="otp-label gate-title">Confirm new PIN</span>
+          <div class="otp" id="a-confirm-pin" role="group" aria-label="Confirm new PIN"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 1"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 2"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 3"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 4"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 5"><input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm new PIN digit 6"></div>
+          <p id="a-conf-msg" class="a-msg" role="alert"></p>
+        </div>
+        <p class="form-note"><button class="link-btn" type="button" id="a-back-reset">Back</button></p>
+      </div>
+
+      <div id="a-gate-done" class="a-done" hidden role="status">
+        <svg class="tick" viewBox="0 0 80 80" width="88" height="88" aria-hidden="true"><circle class="tick-ring" cx="40" cy="40" r="34"/><path class="tick-mark" d="M24 41l11 11 21-24"/></svg>
+        <h2>PIN changed successfully</h2>
       </div>
 
     </div>
@@ -148,20 +120,18 @@
 <div id="a-app" hidden>
   <section class="listing">
     <div class="wrap">
-      <div class="a-bar"><p class="meta">Signed in as <strong id="a-who"></strong></p><button class="btn btn-white btn-sm" type="button" id="a-out">Sign out</button></div>
 
       <div class="card admin-card">
-        <h2>1. Draft with AI</h2>
-        <p>Paste anything you have: a client email, a call note, a rough list. Include the title, location, contract type, pay if known, duties and must-have skills.</p>
-        <label for="a-notes">Rough notes
-          <textarea id="a-notes" placeholder="Example: Need a senior data engineer for a 6 month contract, remote in the US, Azure Databricks, PySpark, ADF, 8+ years, $70 to 80 per hour on C2C..."></textarea>
-        </label>
-        <button class="btn btn-solid" type="button" id="a-draft">Draft with AI</button>
+        <h2>Enter the Job Description</h2>
+        <p>Paste the job description below without contact details.</p>
+        <textarea id="a-notes" aria-label="Job description" placeholder="Paste the job description here"></textarea>
+        <button class="btn btn-solid" type="button" id="a-draft">Draft Job Post</button>
         <p id="a-draft-msg" class="a-msg" role="status"></p>
       </div>
 
       <div class="card admin-card">
-        <h2 id="form-title">New job</h2>
+        <h2 id="form-title">Job Post Preview</h2>
+        <p>Review and edit your job post before publishing.</p>
         <div id="f-confirm" class="a-confirm" hidden></div>
         <label for="f-title">Job title <input id="f-title" maxlength="120"></label>
         <div class="field-row">
@@ -174,25 +144,45 @@
         <label for="f-summary">Summary <textarea id="f-summary" maxlength="6000"></textarea></label>
         <label for="f-resp">Responsibilities (one per line) <textarea id="f-resp"></textarea></label>
         <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
-        <fieldset class="a-when">
-          <legend>Publishing</legend>
-          <label class="a-radio" id="keep-row" hidden><input type="radio" name="when" value="keep"> Keep as it is</label>
-          <label class="a-radio"><input type="radio" name="when" value="draft" checked> Save as draft (not visible)</label>
-          <label class="a-radio"><input type="radio" name="when" value="now"> Publish now</label>
-          <label class="a-radio"><input type="radio" name="when" value="later"> Schedule for <input id="f-when" type="datetime-local"></label>
-        </fieldset>
-        <label for="f-exp">Take it down after (optional) <input id="f-exp" type="date"></label>
-        <div class="a-acts">
-          <button class="btn btn-solid" type="button" id="f-save">Save job</button>
-          <button class="btn btn-white" type="button" id="f-clear">Clear form</button>
+        <div class="a-acts a-publish">
+          <button class="btn btn-solid" type="button" id="f-now">Publish Now</button>
+          <button class="btn btn-white" type="button" id="f-schedule" aria-expanded="false" aria-controls="f-sched"><svg class="a-cal" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</button>
+          <button class="btn btn-white" type="button" id="f-draft">Save as Draft</button>
+          <button class="btn btn-white" type="button" id="f-clear">Clear</button>
+        </div>
+        <div id="f-sched" class="a-sched" hidden>
+          <label for="f-when">Publish on <input id="f-when" type="datetime-local"></label>
+          <button class="btn btn-solid" type="button" id="f-sched-go">Confirm Schedule</button>
+        </div>
+        <div id="f-clear-ask" class="a-confirm a-ask" hidden role="alert">
+          <span>Clear everything you entered? Unsaved work will be lost.</span>
+          <span class="a-acts">
+            <button class="btn btn-solid btn-sm" type="button" id="f-clear-yes">Yes, clear</button>
+            <button class="btn btn-white btn-sm" type="button" id="f-clear-no">Keep editing</button>
+          </span>
         </div>
         <p id="f-msg" class="a-msg" role="status"></p>
       </div>
 
       <div class="card admin-card">
         <h2>Your jobs</h2>
+        <div class="a-tabs" role="tablist" aria-label="Your jobs">
+          <button type="button" role="tab" class="a-tab" data-tab="published" aria-selected="true">Published Jobs <span class="a-count"></span></button>
+          <button type="button" role="tab" class="a-tab" data-tab="draft" aria-selected="false">Saved Drafts <span class="a-count"></span></button>
+          <button type="button" role="tab" class="a-tab" data-tab="archived" aria-selected="false">Archived <span class="a-count"></span></button>
+        </div>
         <p id="a-jobs-msg" class="a-msg" role="status"></p>
-        <div id="a-jobs"></div>
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead><tr><th>Job</th><th>Location</th><th>Type</th><th>Dates</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="a-jobs"></tbody>
+          </table>
+        </div>
+        <div class="a-pager">
+          <button class="btn btn-white btn-sm" type="button" id="a-prev">Previous</button>
+          <span id="a-page" aria-live="polite"></span>
+          <button class="btn btn-white btn-sm" type="button" id="a-next">Next</button>
+        </div>
       </div>
     </div>
   </section>
@@ -202,7 +192,7 @@
 <footer class="site-foot">
   <div class="wrap foot">
     <div>
-      <img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies">
+      <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
       <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Erie, PA.</p>
     </div>
     <div>
@@ -213,7 +203,7 @@
     <div>
       <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
       <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
-      <p class="copy">© 2026 TriadaTechnologies. All rights reserved.</p>
+      <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
     </div>
   </div>
 </footer>

@@ -1,4 +1,4 @@
-"""Generates the six TriadaTechnologies pages. Run: python3 build.py"""
+"""Generates the six Triada Technologies pages. Run: python3 build.py"""
 import hashlib
 import html
 import json
@@ -22,7 +22,7 @@ EMAIL = "hr@triadatechnologies.com"
 
 SITE = "https://triadatechnologies.com"
 OG_IMAGE = SITE + "/assets/og-image.jpg"
-OG_ALT = "TriadaTechnologies, nationwide staffing based in Erie, PA"
+OG_ALT = "Triada Technologies, nationwide staffing based in Erie, PA"
 
 
 def head(title, desc, page, schema="", og_type="website", noindex=False):
@@ -39,7 +39,7 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <meta name="robots" content="{robots}">
 <meta name="theme-color" content="#FAFAFA">
 <link rel="canonical" href="{url}">
-<meta property="og:site_name" content="TriadaTechnologies">
+<meta property="og:site_name" content="Triada Technologies">
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="{og_type}">
 <meta property="og:title" content="{e(title)}">
@@ -81,7 +81,7 @@ ORG_ID = SITE + "/#organization"
 
 
 def org(with_phone=False):
-    o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "TriadaTechnologies",
+    o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "Triada Technologies",
          "url": SITE + "/", "logo": SITE + "/assets/logo.svg", "image": OG_IMAGE,
          "description": "Nationwide staffing and recruitment partner headquartered in Erie, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.",
          "email": EMAIL,
@@ -104,7 +104,7 @@ def header(active):
     )
     return f'''<header class="site">
   <div class="wrap bar">
-    <a class="brand" href="index.html" aria-label="TriadaTechnologies home"><img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies"></a>
+    <a class="brand" href="index.html" aria-label="Triada Technologies home"><img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"></a>
     <nav aria-label="Main">
       <ul>
 {links}
@@ -122,7 +122,7 @@ def header(active):
 FOOTER = f'''<footer class="site-foot">
   <div class="wrap foot">
     <div>
-      <img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies">
+      <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
       <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Erie, PA.</p>
     </div>
     <div>
@@ -133,15 +133,23 @@ FOOTER = f'''<footer class="site-foot">
     <div>
       <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
       <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
-      <p class="copy">© 2026 TriadaTechnologies. All rights reserved.</p>
+      <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
     </div>
   </div>
 </footer>
 '''
 
 
+INTRO_HEAD = ('<script>(function(){var d=document.documentElement;'
+              'if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
+              'd.classList.add("intro-on");setTimeout(function(){d.classList.remove("intro-on")},7000)})()</script>\n')
+
+
 def page(title, desc, page_name, body, script=False, schema="", og_type="website", noindex=False, extra=()):
-    s = (head(title, desc, page_name, schema, og_type, noindex) + header(page_name)
+    h = head(title, desc, page_name, schema, og_type, noindex)
+    if page_name == "index.html":
+        h = h.replace("</head>", INTRO_HEAD + "</head>", 1)
+    s = (h + header(page_name)
          + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER)
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
@@ -150,14 +158,37 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     return s + '</body>\n</html>\n'
 
 
+def insights_cta(heading, text):
+    """Closing call to action for the Insights pages: two clear next steps, in the same card style as the other pages."""
+    return f'''
+
+<section>
+  <div class="wrap">
+    <div class="cta-card">
+      <div class="copy">
+        <p class="eyebrow">Next step</p>
+        <h2>{heading}</h2>
+        <p>{text}</p>
+      </div>
+      <div class="cta-panel">
+        <p class="label">Where would you like to start?</p>
+        <a class="btn btn-solid" href="contact.html">Hire talent</a>
+        <a class="btn btn-white" href="jobs.html">Find work</a>
+      </div>
+    </div>
+  </div>
+</section>
+'''
+
+
 def cta_card():
     return f'''<section>
   <div class="wrap">
     <div class="cta-card">
       <div class="copy">
         <p class="eyebrow">Next step</p>
-        <h2>Bring us the role. We will bring back people who fit it.</h2>
-        <p>Share the job title, the main responsibilities, and your timeline. A recruiter from our team will review the details and reply during business hours with clear next steps, so you know exactly what happens next.</p>
+        <h2>Your next great hire starts here.</h2>
+        <p>Tell us about the role you need to fill, and we will find people who fit the work and your team. Share the job title, the main responsibilities, and your timeline, and a recruiter will reply during business hours with clear next steps.</p>
       </div>
       <div class="cta-panel">
         <p class="label">Email</p>
@@ -203,13 +234,25 @@ steps_html = "\n".join(
 # ---------- HOME ----------
 HOME_SCHEMA = ld({"@context": "https://schema.org", "@graph": [
     org(),
-    {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "TriadaTechnologies",
+    {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "Triada Technologies",
      "inLanguage": "en-US", "publisher": {"@id": ORG_ID}},
 ]})
 
-home = f'''<section class="hero-full hero-split" aria-label="Introduction">
+MARQUEE_ITEMS = [
+    ("IT and technology", "industry-it-technology"), ("Healthcare", "industry-healthcare-life-sciences"),
+    ("Finance and accounting", "industry-finance-accounting"), ("Engineering", "industry-engineering-construction"),
+    ("Administrative", "industry-administrative-clerical"), ("Manufacturing", "industry-manufacturing-industrial"),
+    ("Logistics", "industry-logistics-supply-chain"), ("Telecommunications", "industry-telecommunications"),
+    ("Retail and support", "industry-retail-customer-support"),
+]
+MARQUEE = "".join(f'<span><img src="assets/icons/{icon}.svg" alt="" width="44" height="44" decoding="async"><b>{name}</b></span>'
+                  for name, icon in MARQUEE_ITEMS)
+
+home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="opening-top"></div><div class="opening-bottom"></div><span class="opening-bar a"></span><span class="opening-bar b"></span></div>
+<span class="top-bar-mark" aria-hidden="true"></span>
+<section class="hero-full hero-split" aria-label="Introduction">
   <div class="hero-center">
-    <img class="hero-logo" src="assets/hero-logo.png" alt="TriadaTechnologies" width="1400" height="367">
+    <img class="hero-logo" src="assets/hero-logo.png" alt="Triada Technologies" width="1400" height="367">
     <h1>Creating value<br> for <span class="swap">everyone</span>.</h1>
     <p class="eyebrow">Nationwide staffing, based in Erie, PA</p>
   </div>
@@ -221,7 +264,7 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
 <section id="intro" class="intro">
   <div class="wrap hero-grid">
     <div>
-      <p class="lead">Creating value for every side of the hiring journey. TriadaTechnologies connects clients, vendors, and candidates across the United States through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
+      <p class="lead">Creating value for every side of the hiring journey. Triada Technologies connects clients, vendors, and candidates across the United States through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
       <div class="hero-actions">
         <a class="btn btn-white" href="contact.html">Hire talent</a>
         <a class="btn btn-white" href="jobs.html">Find work</a>
@@ -237,8 +280,8 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
 
 <div class="marquee" aria-hidden="true">
   <div class="marquee-track">
-    <span>IT and technology</span><span>Healthcare</span><span>Finance and accounting</span><span>Engineering</span><span>Administrative</span><span>Manufacturing</span><span>Logistics</span><span>Telecommunications</span><span>Retail and support</span>
-    <span>IT and technology</span><span>Healthcare</span><span>Finance and accounting</span><span>Engineering</span><span>Administrative</span><span>Manufacturing</span><span>Logistics</span><span>Telecommunications</span><span>Retail and support</span>
+    {MARQUEE}
+    {MARQUEE}
   </div>
 </div>
 
@@ -302,23 +345,23 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
 SERVICES_SCHEMA = ""
 
 FAQ_ITEMS = [
-    ("What staffing services does TriadaTechnologies offer?",
-     "TriadaTechnologies offers temporary, contract, contract-to-hire, direct-hire, and executive search placements, along with vendor management programs for ongoing workforce needs. Our primary focus is IT and technology staffing, and we also place professionals in healthcare, finance, engineering, administrative, manufacturing, logistics, telecommunications, and customer support roles."),
-    ("What IT and technology roles does TriadaTechnologies place?",
+    ("What staffing services does Triada Technologies offer?",
+     "Triada Technologies offers temporary, contract, contract-to-hire, direct-hire, and executive search placements, along with vendor management programs for ongoing workforce needs. Our primary focus is IT and technology staffing, and we also place professionals in healthcare, finance, engineering, administrative, manufacturing, logistics, telecommunications, and customer support roles."),
+    ("What IT and technology roles does Triada Technologies place?",
      "We place software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators, along with network technicians and telecom project coordinators. Each search starts with the technical skills, tools, and team environment the role requires, so the candidates we present match the work and not only the job title."),
-    ("Which industries does TriadaTechnologies serve?",
+    ("Which industries does Triada Technologies serve?",
      "IT and technology is our primary focus. We also serve healthcare and life sciences, finance and accounting, engineering and construction, administrative and clerical, manufacturing and industrial, logistics and supply chain, telecommunications, and retail and customer support. We tailor each search to the skills, credentials, and compliance standards of the industry."),
     ("What is the difference between contract, contract-to-hire, and direct-hire placement?",
      "Contract placement brings in a professional for a defined period or project, such as covering a skills gap or a spike in workload. Contract-to-hire starts as a contract and lets you evaluate the person in your own environment before offering a permanent role. Direct hire fills a permanent position from the first day. We help you choose the model that fits the role, your budget, and your timeline."),
-    ("How does TriadaTechnologies screen candidates?",
+    ("How does Triada Technologies screen candidates?",
      "Every candidate completes a skills review and a behavioral interview, and we verify background and credentials where the role requires it. For IT roles, the review covers the specific technical skills the position demands. We assess fit, communication, and reliability before presenting a short list, so you receive candidates who are ready for a hiring decision."),
     ("How long does it take to fill a role?",
      "The timeline depends on the seniority of the role, how specialized the skills are, the location, and how clearly the requirements are defined. Specialized technical roles, such as cybersecurity or cloud architecture, can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."),
-    ("Does TriadaTechnologies work outside Pennsylvania?",
-     "Yes. TriadaTechnologies is headquartered in Erie, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
+    ("Does Triada Technologies work outside Pennsylvania?",
+     "Yes. Triada Technologies is headquartered in Erie, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
     ("How much do staffing services cost?",
      "Cost depends on the engagement model, the role, the skills required, and the location. In the staffing industry, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."),
-    ("How do I start a search with TriadaTechnologies?",
+    ("How do I start a search with Triada Technologies?",
      f'Share the job title, the main responsibilities, the skills and experience level the role needs, and your timeline. A recruiter reviews the details and replies during business hours with clear next steps. Use our <a href="contact.html">contact page</a> or email {EMAIL} to begin.'),
 ]
 faq_html = "\n".join(
@@ -378,7 +421,7 @@ services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Questions</p>
-      <h2>Common questions about working with TriadaTechnologies</h2>
+      <h2>Common questions about working with Triada Technologies</h2>
     </div>
     <div class="faq-list">
 {faq_html}
@@ -393,7 +436,7 @@ about = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">About</p>
     <h1>Connecting clients, <em>vendors, and candidates.</em></h1>
-    <p class="lead">TriadaTechnologies is a multi-industry staffing and workforce solutions partner headquartered in Erie, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
+    <p class="lead">Triada Technologies is a multi-industry staffing and workforce solutions partner headquartered in Erie, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
   </div>
 </section>
 
@@ -404,7 +447,7 @@ about = f'''<section class="page-hero" style="border-top:0">
       <h2>A multi-industry staffing partner</h2>
     </div>
     <div>
-      <p class="body">TriadaTechnologies is a multi-industry recruitment and workforce solutions partner headquartered in Erie, Pennsylvania. We connect organizations across the United States with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
+      <p class="body">Triada Technologies is a multi-industry recruitment and workforce solutions partner headquartered in Erie, Pennsylvania. We connect organizations across the United States with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
       <p class="body">We work to bridge the gap between candidates, vendors, and client goals. Every engagement begins with understanding the work itself, so that the people we place can succeed in their roles and the organizations we serve can keep their momentum.</p>
       <p class="body">Our team focuses on quality, reliability, and speed in every partnership. We would rather be precise and honest with you than promise more than the role can deliver.</p>
     </div>
@@ -429,12 +472,10 @@ about = f'''<section class="page-hero" style="border-top:0">
 </section>
 
 <section>
-  <div class="wrap prose">
-    <div>
-      <p class="eyebrow">Vision</p>
+  <div class="wrap">
+    <p class="eyebrow">Vision</p>
+    <div class="prose prose-aligned">
       <h2>Where we are going</h2>
-    </div>
-    <div>
       <p class="body">To be the most trusted workforce solutions provider for employers and professionals across the United States, recognized for building high-performing teams and for fostering long-term relationships that outlast any single placement.</p>
     </div>
   </div>
@@ -465,11 +506,77 @@ jobs = '''<section class="page-hero" style="border-top:0">
       <div>
         <p class="eyebrow">Jobs</p>
         <h1>Open <em>roles.</em></h1>
-        <p class="lead">Current openings with our clients are listed here, each with a clear description of the responsibilities, skills, and location. If nothing matches yet, send us your resume and we will contact you when a suitable role opens.</p>
+        <p class="lead">Your next opportunity could be here. Upload your resume and discover your matches, without searching listing by listing. Prefer to browse? Current openings with our clients are listed below, each with a clear description of the responsibilities, skills, and location. If nothing fits yet, send us your resume and we will contact you when a suitable role opens.</p>
       </div>
-      <div class="admin-slot">
-        <a class="btn btn-solid" href="admin.html">Post a job</a>
-        <small>Admin only</small>
+      <div class="jobs-cta">
+        <button class="btn btn-solid" type="button" id="find-open">Find a Job</button>
+        <div class="admin-slot">
+          <a class="btn btn-solid" href="admin.html">Post a job</a>
+          <small>Admin only</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="find" id="find-section" hidden>
+  <div class="wrap">
+    <div class="find-card" id="find-panel" aria-live="polite">
+      <button type="button" class="link-btn find-close" id="find-close">Close</button>
+
+      <div class="find-step" data-step="upload">
+        <h2 tabindex="-1" data-focus>Find your best matches</h2>
+        <p class="find-lead">Upload your resume and we will match you with the latest openings at Triada Technologies.</p>
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload your resume. Drag and drop a file here, or press Enter to choose one.">
+          <input type="file" id="resume-file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+          <svg class="dz-icon" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><rect x="6" y="30" width="36" height="12" rx="6" fill="#1E3A8A"/><path d="M24 6v24" stroke="#14B8A6" stroke-width="5" stroke-linecap="round"/><path d="M14 16l10-10 10 10" fill="none" stroke="#14B8A6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="37" cy="36" r="2.5" fill="#FF6A00"/></svg>
+          <p class="dz-main">Drag and drop your resume here</p>
+          <p class="dz-sub">or <span class="dz-link">choose a file</span>. PDF, Word (.docx) or text, up to 5 MB.</p>
+          <div class="dz-file" id="dz-file" hidden>
+            <span class="dz-name"></span><span class="dz-size"></span>
+            <button type="button" class="link-btn dz-remove" id="dz-remove">Remove</button>
+          </div>
+        </div>
+        <p class="find-privacy">Your privacy matters. Your resume is used only for this search session and is never stored. Close your browser or refresh the page, and your session data will be cleared.</p>
+        <p class="find-error" id="find-error" role="alert" hidden></p>
+        <button class="btn btn-solid" type="button" id="match-btn" disabled>Match My Resume</button>
+      </div>
+
+      <div class="find-step find-center" data-step="checking" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <h2 tabindex="-1" data-focus>Checking your resume</h2>
+        <p class="find-lead">This only takes a moment.</p>
+      </div>
+
+      <div class="find-step find-center" data-step="valid" hidden>
+        <svg class="tick" viewBox="0 0 80 80" width="88" height="88" aria-hidden="true"><circle class="tick-ring" cx="40" cy="40" r="34"/><path class="tick-mark" d="M24 41l11 11 21-24"/></svg>
+        <h2 tabindex="-1" data-focus>Your resume looks good</h2>
+        <p class="find-lead">We could read it clearly.</p>
+      </div>
+
+      <div class="find-step find-center" data-step="matching" hidden>
+        <div class="match-loader" aria-hidden="true"><i></i><i></i></div>
+        <h2 tabindex="-1" data-focus>Finding Your Best Matches</h2>
+        <p class="find-lead">Matching your profile with the latest opportunities at Triada Technologies.</p>
+      </div>
+
+      <div class="find-step" data-step="results" hidden>
+        <h2 tabindex="-1" data-focus id="find-name"></h2>
+        <p class="find-lead" id="find-summary"></p>
+        <div class="job-row job-head has-match" aria-hidden="true"><span>Title</span><span>Location</span><span>Type</span><span>Posted</span><span>Match</span><span></span></div>
+        <div id="find-results" class="jobs-rows"></div>
+        <div class="find-actions"><button type="button" class="btn btn-white" data-again>Upload a different resume</button></div>
+      </div>
+
+      <div class="find-step find-center" data-step="none" hidden>
+        <svg class="none-mark" viewBox="0 0 728 77" width="120" height="13" aria-hidden="true"><g fill="#FF6A00"><path transform="translate(18 0)" d="M30 0H710L696 29H0C0 12 12 0 30 0Z"/><path transform="translate(0 48)" d="M16 0H710V14C710 23 703 29 692 29H0Z"/></g></svg>
+        <h2 tabindex="-1" data-focus id="find-none-name"></h2>
+        <p class="find-lead">We do not have an opening that closely fits your resume today, but new roles are added often. You can browse every current opening, check back soon, or send us your resume and a recruiter will reach out when a suitable role opens.</p>
+        <div class="find-actions">
+          <button type="button" class="btn btn-solid" data-browse>Browse all openings</button>
+          <a class="btn btn-white" href="contact.html">Send us your resume</a>
+          <button type="button" class="btn btn-white" data-again>Try another resume</button>
+        </div>
       </div>
     </div>
   </div>
@@ -480,16 +587,15 @@ jobs = '''<section class="page-hero" style="border-top:0">
     <p id="jobs-status" class="archive-empty">Loading open roles...</p>
     <noscript><p class="archive-empty">Turn on JavaScript to see the current openings, or send us your resume and we will reach out.</p></noscript>
     <div id="jobs-board" hidden>
-      <div class="toolbar">
+      <div class="toolbar toolbar-jobs">
         <label for="jq">Search
           <input id="jq" type="search" placeholder="Search by title or location" autocomplete="off">
         </label>
         <label for="jtype">Type
           <select id="jtype"><option value="">All types</option><option>Contract</option><option>Contract-to-hire</option><option>Direct hire</option><option>Temporary</option></select>
         </label>
-        <p id="jobs-count" class="meta"></p>
       </div>
-      <div class="job-row job-head" aria-hidden="true"><span>Title</span><span>Location</span><span>Type</span><span></span></div>
+      <div class="job-row job-head" aria-hidden="true"><span>Title</span><span>Location</span><span>Type</span><span>Posted</span><span></span></div>
       <div id="jobs-list" class="jobs-rows"></div>
       <p id="jobs-empty" class="archive-empty" hidden>No roles match your search.</p>
     </div>
@@ -519,12 +625,33 @@ job_detail = '''<section class="page-hero hero-carded" style="border-top:0">
   </div>
 </section>'''
 
-admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
+def otp_boxes(box_id, label, password=True, one_time=False):
+    kind = 'type="password" ' if password else ""
+    out = []
+    for n in range(1, 7):
+        extra = ' autocomplete="one-time-code"' if (one_time and n == 1) else ' autocomplete="off"'
+        out.append(f'<input {kind}inputmode="numeric"{extra} maxlength="1" aria-label="{label} digit {n}">')
+    return f'<div class="otp" id="{box_id}" role="group" aria-label="{label}">' + "".join(out) + "</div>"
+
+
+TICK = ('<svg class="tick" viewBox="0 0 80 80" width="88" height="88" aria-hidden="true">'
+        '<circle class="tick-ring" cx="40" cy="40" r="34"/><path class="tick-mark" d="M24 41l11 11 21-24"/></svg>')
+
+CAL = ('<svg class="a-cal" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" '
+       'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/>'
+       '<path d="M3 10h18M8 3v4M16 3v4"/></svg>')
+
+admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
-    <div class="hero-card">
+    <div class="hero-card admin-hero">
+      <button class="btn btn-white btn-sm a-signout" type="button" id="a-out" hidden>Sign out</button>
       <p class="eyebrow">Admin</p>
       <h1>Post and manage jobs.</h1>
-      <p class="lead">Paste rough notes about a role and let AI draft the listing. You always read, edit and approve it before it goes live.</p>
+      <ul class="a-tips">
+        <li>Paste the job description without contact details, then review the draft before it goes live.</li>
+        <li>Schedule publishes a job automatically at the time you choose.</li>
+        <li>Archive takes a job off the Jobs page. Delete removes it for good.</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -534,77 +661,44 @@ admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
     <div class="card admin-card">
 
       <div id="a-gate-pin">
-        <h2>Enter your PIN</h2>
-        <p>Enter the 6-digit admin PIN to open the job page.</p>
-        <div class="otp-wrap">
-          <span class="otp-label" id="pin-label">Admin PIN</span>
-          <div class="otp" id="a-pin" role="group" aria-labelledby="pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="PIN digit 6">
-          </div>
-        </div>
-        <button class="btn btn-solid" type="button" id="a-unlock">Unlock</button>
-        <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN? Email me a code</button></p>
-        <p id="a-pin-msg" class="a-msg" role="status"></p>
+        <h2>Enter PIN</h2>
+        {otp_boxes("a-pin", "PIN")}
+        <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN?</button></p>
       </div>
 
       <div id="a-gate-email" hidden>
-        <h2>Sign in with the email code</h2>
-        <p>Enter the admin email and we will send a one-time sign-in code. Type the code below. After that you will choose a new PIN. (If your email shows a link instead of a code, just click the link.)</p>
-        <label for="a-email">Admin email
+        <label for="a-email" class="gate-title">Enter admin email address
           <input id="a-email" type="email" autocomplete="email" placeholder="you@example.com">
         </label>
-        <button class="btn btn-solid" type="button" id="a-send">Email me a sign-in code</button>
-        <div id="a-code-row" hidden>
-          <div class="otp-wrap">
-            <span class="otp-label" id="otp-label">Sign-in code from your email</span>
-            <div class="otp" id="a-code" role="group" aria-labelledby="otp-label">
-              <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
-              <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
-            </div>
-          </div>
-          <button class="btn btn-solid" type="button" id="a-verify">Sign in</button>
-        </div>
-        <p class="form-note"><button class="link-btn" type="button" id="a-back-pin">Back to the PIN</button></p>
-        <p id="a-msg" class="a-msg" role="status"></p>
+        <p class="form-note">Don't have the admin email? Contact your administrator.</p>
+        <button class="btn btn-solid" type="button" id="a-send">Send Code</button>
+        <p id="a-msg" class="a-msg" role="alert"></p>
+        <p class="form-note"><button class="link-btn" type="button" id="a-back-pin">Back</button></p>
       </div>
 
-      <div id="a-gate-setpin" hidden>
-        <h2>Choose your PIN</h2>
-        <p>Choose a 6-digit PIN. You will use it each time you open this page.</p>
-        <div class="otp-wrap">
-          <span class="otp-label" id="new-pin-label">New PIN</span>
-          <div class="otp" id="a-new-pin" role="group" aria-labelledby="new-pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="New PIN digit 6">
-          </div>
+      <div id="a-gate-reset" hidden>
+        <div class="a-sect" id="a-sect-code">
+          <span class="otp-label gate-title">Enter 6-digit verification code</span>
+          {otp_boxes("a-code", "Verification code", password=False, one_time=True)}
+          <p id="a-code-msg" class="a-msg" role="alert"></p>
         </div>
-        <div class="otp-wrap">
-          <span class="otp-label" id="confirm-pin-label">Type it again</span>
-          <div class="otp" id="a-confirm-pin" role="group" aria-labelledby="confirm-pin-label">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 1">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 2">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 3">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 4">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 5">
-            <input type="password" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Confirm PIN digit 6">
-          </div>
+        <div class="a-sect">
+          <span class="otp-label gate-title">Enter new 6-digit PIN</span>
+          {otp_boxes("a-new-pin", "New PIN")}
+          <p id="a-new-msg" class="a-msg" role="alert"></p>
         </div>
-        <button class="btn btn-solid" type="button" id="a-save-pin">Save PIN and open the job page</button>
-        <p class="form-note"><button class="link-btn" type="button" id="a-setpin-cancel">Cancel and sign out</button></p>
-        <p id="a-setpin-msg" class="a-msg" role="status"></p>
+        <div class="a-sect">
+          <span class="otp-label gate-title">Confirm new PIN</span>
+          {otp_boxes("a-confirm-pin", "Confirm new PIN")}
+          <p id="a-conf-msg" class="a-msg" role="alert"></p>
+        </div>
+        <p class="form-note"><button class="link-btn" type="button" id="a-back-reset">Back</button></p>
+      </div>
+
+      <div id="a-gate-done" class="a-done" hidden role="status">
+        {TICK}
+        <h2>PIN changed successfully</h2>
       </div>
 
     </div>
@@ -614,20 +708,18 @@ admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
 <div id="a-app" hidden>
   <section class="listing">
     <div class="wrap">
-      <div class="a-bar"><p class="meta">Signed in as <strong id="a-who"></strong></p><button class="btn btn-white btn-sm" type="button" id="a-out">Sign out</button></div>
 
       <div class="card admin-card">
-        <h2>1. Draft with AI</h2>
-        <p>Paste anything you have: a client email, a call note, a rough list. Include the title, location, contract type, pay if known, duties and must-have skills.</p>
-        <label for="a-notes">Rough notes
-          <textarea id="a-notes" placeholder="Example: Need a senior data engineer for a 6 month contract, remote in the US, Azure Databricks, PySpark, ADF, 8+ years, $70 to 80 per hour on C2C..."></textarea>
-        </label>
-        <button class="btn btn-solid" type="button" id="a-draft">Draft with AI</button>
+        <h2>Enter the Job Description</h2>
+        <p>Paste the job description below without contact details.</p>
+        <textarea id="a-notes" aria-label="Job description" placeholder="Paste the job description here"></textarea>
+        <button class="btn btn-solid" type="button" id="a-draft">Draft Job Post</button>
         <p id="a-draft-msg" class="a-msg" role="status"></p>
       </div>
 
       <div class="card admin-card">
-        <h2 id="form-title">New job</h2>
+        <h2 id="form-title">Job Post Preview</h2>
+        <p>Review and edit your job post before publishing.</p>
         <div id="f-confirm" class="a-confirm" hidden></div>
         <label for="f-title">Job title <input id="f-title" maxlength="120"></label>
         <div class="field-row">
@@ -640,25 +732,45 @@ admin_page = '''<section class="page-hero hero-carded" style="border-top:0">
         <label for="f-summary">Summary <textarea id="f-summary" maxlength="6000"></textarea></label>
         <label for="f-resp">Responsibilities (one per line) <textarea id="f-resp"></textarea></label>
         <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
-        <fieldset class="a-when">
-          <legend>Publishing</legend>
-          <label class="a-radio" id="keep-row" hidden><input type="radio" name="when" value="keep"> Keep as it is</label>
-          <label class="a-radio"><input type="radio" name="when" value="draft" checked> Save as draft (not visible)</label>
-          <label class="a-radio"><input type="radio" name="when" value="now"> Publish now</label>
-          <label class="a-radio"><input type="radio" name="when" value="later"> Schedule for <input id="f-when" type="datetime-local"></label>
-        </fieldset>
-        <label for="f-exp">Take it down after (optional) <input id="f-exp" type="date"></label>
-        <div class="a-acts">
-          <button class="btn btn-solid" type="button" id="f-save">Save job</button>
-          <button class="btn btn-white" type="button" id="f-clear">Clear form</button>
+        <div class="a-acts a-publish">
+          <button class="btn btn-solid" type="button" id="f-now">Publish Now</button>
+          <button class="btn btn-white" type="button" id="f-schedule" aria-expanded="false" aria-controls="f-sched">{CAL}Schedule</button>
+          <button class="btn btn-white" type="button" id="f-draft">Save as Draft</button>
+          <button class="btn btn-white" type="button" id="f-clear">Clear</button>
+        </div>
+        <div id="f-sched" class="a-sched" hidden>
+          <label for="f-when">Publish on <input id="f-when" type="datetime-local"></label>
+          <button class="btn btn-solid" type="button" id="f-sched-go">Confirm Schedule</button>
+        </div>
+        <div id="f-clear-ask" class="a-confirm a-ask" hidden role="alert">
+          <span>Clear everything you entered? Unsaved work will be lost.</span>
+          <span class="a-acts">
+            <button class="btn btn-solid btn-sm" type="button" id="f-clear-yes">Yes, clear</button>
+            <button class="btn btn-white btn-sm" type="button" id="f-clear-no">Keep editing</button>
+          </span>
         </div>
         <p id="f-msg" class="a-msg" role="status"></p>
       </div>
 
       <div class="card admin-card">
         <h2>Your jobs</h2>
+        <div class="a-tabs" role="tablist" aria-label="Your jobs">
+          <button type="button" role="tab" class="a-tab" data-tab="published" aria-selected="true">Published Jobs <span class="a-count"></span></button>
+          <button type="button" role="tab" class="a-tab" data-tab="draft" aria-selected="false">Saved Drafts <span class="a-count"></span></button>
+          <button type="button" role="tab" class="a-tab" data-tab="archived" aria-selected="false">Archived <span class="a-count"></span></button>
+        </div>
         <p id="a-jobs-msg" class="a-msg" role="status"></p>
-        <div id="a-jobs"></div>
+        <div class="a-table-wrap">
+          <table class="a-table">
+            <thead><tr><th>Job</th><th>Location</th><th>Type</th><th>Dates</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="a-jobs"></tbody>
+          </table>
+        </div>
+        <div class="a-pager">
+          <button class="btn btn-white btn-sm" type="button" id="a-prev">Previous</button>
+          <span id="a-page" aria-live="polite"></span>
+          <button class="btn btn-white btn-sm" type="button" id="a-next">Next</button>
+        </div>
       </div>
     </div>
   </section>
@@ -783,7 +895,8 @@ def build_insights(posts, today):
     <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
     <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Show more</button></div>
   </div>
-</section>'''
+</section>''' + insights_cta("Ready to act on what you read?",
+                              "Whether you are building a team or planning your next role, we can help you turn these trends into a plan. Tell us what you are hiring for, or see the roles open now.")
 
 
 def build_archive(posts, today):
@@ -835,11 +948,12 @@ def build_post(p):
       <div class="card takeaways"><h3>Key takeaways</h3><ul>{take}</ul></div>
       <h2>Sources</h2>
       <ul class="sources">{srcs}</ul>
-      <p class="ai-note">This article was prepared with AI assistance from the sources listed above and published by TriadaTechnologies.</p>
+      <p class="ai-note">This article was prepared with AI assistance from the sources listed above and published by Triada Technologies.</p>
       <p><a class="btn btn-white" href="insights.html">All insights</a></p>
     </div>
   </div>
-</section>'''
+</section>''' + insights_cta("Put this insight to work.",
+                              "If this article raised questions about your own team or career, our recruiters are glad to talk it through. Share the role you are hiring for, or explore the roles open now.")
 
 
 def post_schema(p):
@@ -872,7 +986,7 @@ def page_schema(fname):
         return breadcrumb(("Services", fname)) + faq
     if fname == "about.html":
         return breadcrumb(("About", fname)) + ld({"@context": "https://schema.org", "@type": "AboutPage",
-                                                   "name": "About TriadaTechnologies", "url": f"{SITE}/{fname}", "about": {"@id": ORG_ID}})
+                                                   "name": "About Triada Technologies", "url": f"{SITE}/{fname}", "about": {"@id": ORG_ID}})
     if fname == "jobs.html":
         return breadcrumb(("Jobs", fname))
     if fname == "insights.html":
@@ -883,7 +997,7 @@ def page_schema(fname):
         return breadcrumb(("Insights", "insights.html"), ("Archive", fname))
     if fname == "contact.html":
         return breadcrumb(("Contact", fname)) + ld({"@context": "https://schema.org", "@type": "ContactPage",
-                                                     "name": "Contact TriadaTechnologies", "url": f"{SITE}/{fname}",
+                                                     "name": "Contact Triada Technologies", "url": f"{SITE}/{fname}",
                                                      "mainEntity": org(with_phone=True)})
     return ""
 
@@ -916,7 +1030,7 @@ def seo_files(posts, today, dates):
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + items + "</urlset>\n")
     with open("robots.txt", "w", encoding="utf-8") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
-    lines = ["# TriadaTechnologies", "",
+    lines = ["# Triada Technologies", "",
              "> Nationwide staffing and recruitment firm headquartered in Erie, PA, serving the United States. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.", "",
              "## Pages", ""]
     lines += [f"- [{label}]({SITE_URL}/{'' if n == 'index.html' else n})" for n, label in NAV]
@@ -939,7 +1053,7 @@ def retired_slugs():
 
 
 def redirect_page(target):
-    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>Moved | TriadaTechnologies</title>\n'
+    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><title>Moved | Triada Technologies</title>\n'
             f'<meta name="robots" content="noindex, follow">\n<link rel="canonical" href="{SITE}/{target}">\n'
             f'<meta http-equiv="refresh" content="0; url={target}"></head>\n'
             f'<body><p>This article has moved to the <a href="{target}">archive</a>.</p></body></html>\n')
@@ -957,6 +1071,7 @@ contact = f'''<section class="page-hero" style="border-top:0">
       <p class="eyebrow">Contact</p>
       <h1>Get in <em>touch.</em></h1>
       <p class="lead">Tell us what you are hiring for or what you are looking for, and a member of our team will respond.</p>
+      <span class="logo-bars" aria-hidden="true"></span>
       <dl>
         <div><dt>Phone</dt><dd><a href="{PHONE_HREF}">{PHONE}</a></dd></div>
         <div><dt>Email</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
@@ -1004,44 +1119,44 @@ contact = f'''<section class="page-hero" style="border-top:0">
 '''
 
 pages = [
-    ("index.html", "TriadaTechnologies | Staffing Services Across the USA",
-     "TriadaTechnologies is a nationwide staffing firm based in Erie, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
+    ("index.html", "Triada Technologies | Staffing Services Across the USA",
+     "Triada Technologies is a nationwide staffing firm based in Erie, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
      home, True, HOME_SCHEMA),
-    ("services.html", "Staffing Services | TriadaTechnologies",
-     "Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from TriadaTechnologies.",
+    ("services.html", "Staffing Services | Triada Technologies",
+     "Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from Triada Technologies.",
      services, True, ""),
-    ("about.html", "About TriadaTechnologies | Nationwide Staffing, Erie, PA",
-     "About TriadaTechnologies, a multi-industry staffing partner based in Erie, PA, connecting clients, vendors, and candidates across the USA.",
+    ("about.html", "About Triada Technologies | Nationwide Staffing, Erie, PA",
+     "About Triada Technologies, a multi-industry staffing partner based in Erie, PA, connecting clients, vendors, and candidates across the USA.",
      about, True, ""),
-    ("jobs.html", "Open Jobs | TriadaTechnologies",
-     "Current job openings with TriadaTechnologies clients across the USA, and how to submit your resume for temporary, contract, or direct-hire roles.",
+    ("jobs.html", "Open Jobs | Triada Technologies",
+     "Current job openings with Triada Technologies clients across the USA, and how to submit your resume for temporary, contract, or direct-hire roles.",
      jobs, True, ""),
-    ("insights.html", "Insights on Hiring | TriadaTechnologies",
-     "Sourced articles on U.S. technology hiring, in-demand skills, and workforce planning from TriadaTechnologies, a nationwide staffing firm.",
+    ("insights.html", "Insights on Hiring | Triada Technologies",
+     "Sourced articles on U.S. technology hiring, in-demand skills, and workforce planning from Triada Technologies, a nationwide staffing firm.",
      insights, True, ""),
-    ("insights-archive.html", "Insights Archive | TriadaTechnologies",
-     "Searchable list of earlier TriadaTechnologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
+    ("insights-archive.html", "Insights Archive | Triada Technologies",
+     "Searchable list of earlier Triada Technologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
      archive_page, True, ""),
-    ("contact.html", "Contact TriadaTechnologies | Nationwide Staffing",
-     f"Contact TriadaTechnologies, based in Erie, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
+    ("contact.html", "Contact Triada Technologies | Nationwide Staffing",
+     f"Contact Triada Technologies, based in Erie, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
      contact, True, ""),
 ]
 
 if __name__ == "__main__":
     outputs = {}
     for fname, title, desc, body, script, schema in pages:
-        extra = ("jobs-config.js", "jobs.js") if fname == "jobs.html" else ()
+        extra = ("jobs-config.js", "jobs.js", "find.js") if fname == "jobs.html" else ()
         outputs[fname] = page(title, desc, fname, body, script=script, schema=page_schema(fname), extra=extra)
-    outputs["job.html"] = page("Open role | TriadaTechnologies Jobs",
-                               "A current job opening with TriadaTechnologies, a nationwide U.S. staffing firm.", "job.html",
+    outputs["job.html"] = page("Open role | Triada Technologies Jobs",
+                               "A current job opening with Triada Technologies, a nationwide U.S. staffing firm.", "job.html",
                                job_detail, script=True, extra=("jobs-config.js", "jobs.js"))
-    private = {"admin.html": page("Admin | TriadaTechnologies", "Private admin page.", "admin.html", admin_page,
+    private = {"admin.html": page("Admin | Triada Technologies", "Private admin page.", "admin.html", admin_page,
                                   script=True, noindex=True, extra=("jobs-config.js", "admin.js"))}
     for p in POSTS:
         fname = f"insight-{p['slug']}.html"
-        outputs[fname] = page(p["title"] + " | TriadaTechnologies Insights", p["description"], fname,
+        outputs[fname] = page(p["title"] + " | Triada Technologies Insights", p["description"], fname,
                               build_post(p), script=True, schema=post_schema(p), og_type="article")
-    outputs["404.html"] = page("Page not found | TriadaTechnologies", "The page you are looking for does not exist.", "404.html",
+    outputs["404.html"] = page("Page not found | Triada Technologies", "The page you are looking for does not exist.", "404.html",
                                hero_card("404", "Page not found.", "The page you are looking for has moved or does not exist.")
                                + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="index.html">Go to home</a></div></section>',
                                script=True, noindex=True)

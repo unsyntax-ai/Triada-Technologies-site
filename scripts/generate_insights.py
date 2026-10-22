@@ -1,4 +1,4 @@
-"""Daily Insights writer for TriadaTechnologies.
+"""Daily Insights writer for Triada Technologies.
 
 What it does, in order:
   1. Reads the source pages listed in data/sources.json.
@@ -191,7 +191,7 @@ def parse_json(text):
 
 
 def article_prompt(source_blocks, recent_titles, topic_hint, fix=""):
-    return f"""You write for the Insights section of TriadaTechnologies, a nationwide staffing firm (headquartered in Erie, PA) serving employers and professionals across the United States.
+    return f"""You write for the Insights section of Triada Technologies, a nationwide staffing firm (headquartered in Erie, PA) serving employers and professionals across the United States.
 Write ONE original article (about 550 to 750 words) on a current trend in the technology job market,
 for hiring managers and job seekers anywhere in the United States. {topic_hint}
 
@@ -227,7 +227,7 @@ SOURCES:
 
 
 def art_prompt(post, recent_motifs):
-    return f"""Choose the illustration for an article on the TriadaTechnologies Insights page.
+    return f"""Choose the illustration for an article on the Triada Technologies Insights page.
 Each illustration stands for one idea. Pick the one whose idea fits the article best, then set its settings
 so the picture tells the article's story (for example a falling trend gets falling bar values).
 
