@@ -16,12 +16,13 @@ NAV = [
 
 PHONE = "+1 469 396 2108"
 PHONE_HREF = "tel:+14693962108"
+POSTAL_CODE = "16502"          # shown on the contact page only; elsewhere the address is just city and state
 EMAIL = "hr@triadatechnologies.com"
 
 
 SITE = "https://triadatechnologies.com"
 OG_IMAGE = SITE + "/assets/og-image.jpg"
-OG_ALT = "TriadaTechnologies, nationwide staffing based in Lansdale, PA"
+OG_ALT = "TriadaTechnologies, nationwide staffing based in Erie, PA"
 
 
 def head(title, desc, page, schema="", og_type="website", noindex=False):
@@ -82,13 +83,14 @@ ORG_ID = SITE + "/#organization"
 def org(with_phone=False):
     o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "TriadaTechnologies",
          "url": SITE + "/", "logo": SITE + "/assets/logo.svg", "image": OG_IMAGE,
-         "description": "Nationwide staffing and recruitment partner headquartered in Lansdale, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.",
+         "description": "Nationwide staffing and recruitment partner headquartered in Erie, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.",
          "email": EMAIL,
-         "address": {"@type": "PostalAddress", "addressLocality": "Lansdale", "addressRegion": "PA", "addressCountry": "US"},
+         "address": {"@type": "PostalAddress", "addressLocality": "Erie", "addressRegion": "PA", "addressCountry": "US"},
          "areaServed": {"@type": "Country", "name": "United States"},
          "knowsAbout": ["Contract staffing", "Contract-to-hire", "Direct hire placement", "Executive search", "Vendor management systems", "Technology hiring"]}
-    if with_phone:
+    if with_phone:                      # used on the contact page only, where the full address is shown
         o["telephone"] = PHONE
+        o["address"]["postalCode"] = POSTAL_CODE
     return o
 
 
@@ -121,10 +123,10 @@ FOOTER = f'''<footer class="site-foot">
   <div class="wrap foot">
     <div>
       <img src="assets/logo.svg" width="116" height="34" alt="TriadaTechnologies">
-      <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Lansdale, PA.</p>
+      <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Erie, PA.</p>
     </div>
     <div>
-      <p>Headquartered in Lansdale, PA</p>
+      <p>Headquartered in Erie, PA</p>
       <p><a href="mailto:{EMAIL}">{EMAIL}</a></p>
       <p><a href="contact.html">Contact page</a></p>
     </div>
@@ -209,7 +211,7 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
   <div class="hero-center">
     <img class="hero-logo" src="assets/hero-logo.png" alt="TriadaTechnologies" width="1400" height="367">
     <h1>Creating value<br> for <span class="swap">everyone</span>.</h1>
-    <p class="eyebrow">Nationwide staffing, based in Lansdale, PA</p>
+    <p class="eyebrow">Nationwide staffing, based in Erie, PA</p>
   </div>
   <figure class="hero-photo">
     <img class="hero-img" src="assets/hero-city.jpg" alt="A smiling professional celebrating at her laptop" width="2200" height="1261" fetchpriority="high" decoding="async">
@@ -313,7 +315,7 @@ FAQ_ITEMS = [
     ("How long does it take to fill a role?",
      "The timeline depends on the seniority of the role, how specialized the skills are, the location, and how clearly the requirements are defined. Specialized technical roles, such as cybersecurity or cloud architecture, can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."),
     ("Does TriadaTechnologies work outside Pennsylvania?",
-     "Yes. TriadaTechnologies is headquartered in Lansdale, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
+     "Yes. TriadaTechnologies is headquartered in Erie, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
     ("How much do staffing services cost?",
      "Cost depends on the engagement model, the role, the skills required, and the location. In the staffing industry, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."),
     ("How do I start a search with TriadaTechnologies?",
@@ -391,7 +393,7 @@ about = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <p class="eyebrow">About</p>
     <h1>Connecting clients, <em>vendors, and candidates.</em></h1>
-    <p class="lead">TriadaTechnologies is a multi-industry staffing and workforce solutions partner headquartered in Lansdale, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
+    <p class="lead">TriadaTechnologies is a multi-industry staffing and workforce solutions partner headquartered in Erie, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
   </div>
 </section>
 
@@ -402,7 +404,7 @@ about = f'''<section class="page-hero" style="border-top:0">
       <h2>A multi-industry staffing partner</h2>
     </div>
     <div>
-      <p class="body">TriadaTechnologies is a multi-industry recruitment and workforce solutions partner headquartered in Lansdale, Pennsylvania. We connect organizations across the United States with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
+      <p class="body">TriadaTechnologies is a multi-industry recruitment and workforce solutions partner headquartered in Erie, Pennsylvania. We connect organizations across the United States with skilled talent across technology, healthcare, finance, engineering, logistics, and more, with a focus on roles that are hard to fill and on teams that need dependable support.</p>
       <p class="body">We work to bridge the gap between candidates, vendors, and client goals. Every engagement begins with understanding the work itself, so that the people we place can succeed in their roles and the organizations we serve can keep their momentum.</p>
       <p class="body">Our team focuses on quality, reliability, and speed in every partnership. We would rather be precise and honest with you than promise more than the role can deliver.</p>
     </div>
@@ -915,7 +917,7 @@ def seo_files(posts, today, dates):
     with open("robots.txt", "w", encoding="utf-8") as f:
         f.write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
     lines = ["# TriadaTechnologies", "",
-             "> Nationwide staffing and recruitment firm headquartered in Lansdale, PA, serving the United States. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.", "",
+             "> Nationwide staffing and recruitment firm headquartered in Erie, PA, serving the United States. Temporary, contract, contract-to-hire, and direct-hire placement across IT, healthcare, finance, engineering, and more.", "",
              "## Pages", ""]
     lines += [f"- [{label}]({SITE_URL}/{'' if n == 'index.html' else n})" for n, label in NAV]
     if posts:
@@ -958,24 +960,28 @@ contact = f'''<section class="page-hero" style="border-top:0">
       <dl>
         <div><dt>Phone</dt><dd><a href="{PHONE_HREF}">{PHONE}</a></dd></div>
         <div><dt>Email</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
+        <div><dt>Address</dt><dd>Erie, PA {POSTAL_CODE}</dd></div>
       </dl>
     </div>
 
     <form id="contact-form" class="contact-form" novalidate>
       <div class="field-row">
         <label for="name">Full name
-          <input id="name" name="name" type="text" autocomplete="name" required>
+          <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required aria-required="true" aria-describedby="name-error">
+          <span class="field-error" id="name-error" hidden></span>
         </label>
         <label for="company">Company (optional)
-          <input id="company" name="company" type="text" autocomplete="organization">
+          <input id="company" name="company" type="text" autocomplete="organization" maxlength="100">
         </label>
       </div>
       <div class="field-row">
         <label for="email">Email
-          <input id="email" name="email" type="email" autocomplete="email" required>
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="120" required aria-required="true" aria-describedby="email-error">
+          <span class="field-error" id="email-error" hidden></span>
         </label>
-        <label for="phone">Phone
-          <input id="phone" name="phone" type="tel" autocomplete="tel">
+        <label for="phone">Phone (optional)
+          <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" aria-describedby="phone-error">
+          <span class="field-error" id="phone-error" hidden></span>
         </label>
       </div>
       <label for="reason">I am
@@ -986,7 +992,8 @@ contact = f'''<section class="page-hero" style="border-top:0">
         </select>
       </label>
       <label for="message">Message
-        <textarea id="message" name="message" required></textarea>
+        <textarea id="message" name="message" maxlength="2000" required aria-required="true" aria-describedby="message-error"></textarea>
+        <span class="field-error" id="message-error" hidden></span>
       </label>
       <div><button class="btn btn-solid" type="submit">Send message</button></div>
       <p class="form-note">This is a preview. The form is not connected yet, so nothing is sent.</p>
@@ -998,13 +1005,13 @@ contact = f'''<section class="page-hero" style="border-top:0">
 
 pages = [
     ("index.html", "TriadaTechnologies | Staffing Services Across the USA",
-     "TriadaTechnologies is a nationwide staffing firm based in Lansdale, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
+     "TriadaTechnologies is a nationwide staffing firm based in Erie, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
      home, True, HOME_SCHEMA),
     ("services.html", "Staffing Services | TriadaTechnologies",
      "Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from TriadaTechnologies.",
      services, True, ""),
-    ("about.html", "About TriadaTechnologies | Nationwide Staffing, Lansdale, PA",
-     "About TriadaTechnologies, a multi-industry staffing partner based in Lansdale, PA, connecting clients, vendors, and candidates across the USA.",
+    ("about.html", "About TriadaTechnologies | Nationwide Staffing, Erie, PA",
+     "About TriadaTechnologies, a multi-industry staffing partner based in Erie, PA, connecting clients, vendors, and candidates across the USA.",
      about, True, ""),
     ("jobs.html", "Open Jobs | TriadaTechnologies",
      "Current job openings with TriadaTechnologies clients across the USA, and how to submit your resume for temporary, contract, or direct-hire roles.",
@@ -1016,7 +1023,7 @@ pages = [
      "Searchable list of earlier TriadaTechnologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
      archive_page, True, ""),
     ("contact.html", "Contact TriadaTechnologies | Nationwide Staffing",
-     f"Contact TriadaTechnologies, based in Lansdale, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
+     f"Contact TriadaTechnologies, based in Erie, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
      contact, True, ""),
 ]
 

@@ -191,7 +191,7 @@ def parse_json(text):
 
 
 def article_prompt(source_blocks, recent_titles, topic_hint, fix=""):
-    return f"""You write for the Insights section of TriadaTechnologies, a nationwide staffing firm (headquartered in Lansdale, PA) serving employers and professionals across the United States.
+    return f"""You write for the Insights section of TriadaTechnologies, a nationwide staffing firm (headquartered in Erie, PA) serving employers and professionals across the United States.
 Write ONE original article (about 550 to 750 words) on a current trend in the technology job market,
 for hiring managers and job seekers anywhere in the United States. {topic_hint}
 

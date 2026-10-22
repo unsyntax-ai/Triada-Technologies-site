@@ -129,19 +129,61 @@
     render();
   }
 
-  // Contact form: preview only
+  // Contact form: tells the visitor exactly which entry is missing or not valid, right beside the field
   var form = document.getElementById('contact-form');
   if (form) {
+    var status = document.getElementById('form-status');
+    var rules = {
+      name: function (v) {
+        if (!v) return 'Enter your full name.';
+        if (v.length < 2) return 'That name looks too short. Enter your full name.';
+        if (!/[A-Za-zÀ-ɏ]/.test(v)) return 'Your name should include letters.';
+        return '';
+      },
+      email: function (v) {
+        if (!v) return 'Enter your email address.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Enter a valid email address, like name@company.com.';
+        return '';
+      },
+      phone: function (v) {
+        if (!v) return '';   // optional
+        if (!/^\+?[\d\s().-]+$/.test(v)) return 'Use digits, spaces and + ( ) - only, for example (814) 555-0123.';
+        var d = v.replace(/\D/g, '');
+        if (d.length < 10 || d.length > 15) return 'Enter the full phone number with area code, or leave this empty.';
+        return '';
+      },
+      message: function (v) {
+        if (!v) return 'Write a short message so we know how to help.';
+        if (v.length < 10) return 'Add a little more detail (at least 10 characters).';
+        if (v.length > 2000) return 'Shorten your message to 2000 characters or fewer.';
+        return '';
+      }
+    };
+    var show = function (field, text) {
+      var input = form.elements[field], err = document.getElementById(field + '-error');
+      if (text) { input.setAttribute('aria-invalid', 'true'); err.textContent = text; err.hidden = false; }
+      else { input.removeAttribute('aria-invalid'); err.textContent = ''; err.hidden = true; }
+      return !text;
+    };
+    var check = function (field) { return show(field, rules[field](form.elements[field].value.trim())); };
+    Object.keys(rules).forEach(function (field) {
+      var input = form.elements[field];
+      input.addEventListener('blur', function () { if (input.value.trim() || input.getAttribute('aria-invalid')) check(field); });
+      input.addEventListener('input', function () {
+        if (input.getAttribute('aria-invalid')) check(field);   // clears the message as soon as the entry is fixed
+        status.textContent = ''; status.className = '';
+      });
+    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var status = document.getElementById('form-status');
-      var name = document.getElementById('name').value.trim();
-      var email = document.getElementById('email').value.trim();
-      var message = document.getElementById('message').value.trim();
-      if (!name || !email || !message) {
-        status.textContent = 'Please fill in your name, email, and message.';
+      var bad = Object.keys(rules).filter(function (field) { return !check(field); });
+      if (bad.length) {
+        status.className = 'is-error';
+        status.textContent = bad.length === 1 ? 'Please fix the entry marked below.' : 'Please fix the ' + bad.length + ' entries marked below.';
+        form.elements[bad[0]].focus();
         return;
       }
+      status.className = 'is-ok';
       status.textContent = 'Preview only. The form is not connected yet, so nothing was sent.';
     });
   }
