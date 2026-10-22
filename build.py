@@ -693,8 +693,8 @@ def post_card(p):
     return f'''      <article class="card post-card" data-item data-date="{p['published']}" data-text="{hay}">
         <a class="post-art pal-{e(p['palette'])}" href="{url}" aria-hidden="true" tabindex="-1"><img src="{art_src(p)}" alt="" width="485" height="300" loading="lazy"></a>
         <div class="post-text">
-          <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
           <h3><a href="{url}">{e(p['title'])}</a></h3>
+          <p class="meta">{pretty(p['published'])} · {e(p['tag'])}</p>
         </div>
       </article>'''
 
@@ -767,7 +767,7 @@ def build_insights(posts, today):
 {cards}
     </div>
     <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
-    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Load more</button></div>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Show more</button></div>
   </div>
 </section>'''
 
@@ -785,7 +785,7 @@ def build_archive(posts, today):
 {chr(10).join(archive_row(p) for p in old)}
     </ul>
     <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
-    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Load more</button></div>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Show more</button></div>
     <p style="margin-top:32px"><a class="btn btn-white" href="insights.html">Back to Insights</a></p>'''
     return hero + f'''
 <section class="listing" data-page="20">
