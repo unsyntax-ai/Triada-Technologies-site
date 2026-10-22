@@ -116,13 +116,13 @@ def fetch_source(url, limit=7000):
 
 
 # ---------- Gemini ----------
-FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
+FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 _dead_models = set()
 
 
-# The whole job is allowed 15 minutes. Every AI call together gets this budget, so a slow or
+# The whole job is allowed 15 minutes. Every AI call together gets this budget (10 minutes), so a slow or
 # overloaded Gemini ends in a clear message instead of a job that is cut off with no reason.
-BUDGET_SECONDS = int(os.environ.get("INSIGHTS_BUDGET_SECONDS", "480"))
+BUDGET_SECONDS = int(os.environ.get("INSIGHTS_BUDGET_SECONDS", "600"))
 _deadline = time.monotonic() + BUDGET_SECONDS
 
 
@@ -143,36 +143,45 @@ def _call(prompt, model, key, as_json, temperature):
     return data["candidates"][0]["content"]["parts"][0]["text"]
 
 
+_seen = {}  # model -> what it last answered, kept across calls for the failure message
+
+
 def gemini(prompt, model, key, as_json=True, temperature=0.6):
-    """Ask Gemini. Retries busy and rate-limit errors with a short pause and falls back to
-    another model if the chosen one is missing or keeps failing. Gives up when the time budget is used."""
-    last = None
-    for m in [model] + [x for x in FALLBACK_MODELS if x != model]:
-        if m in _dead_models:
-            continue
-        for attempt in range(3):
+    """Ask Gemini. Busy ("503 overloaded") and rate-limit errors are usually about one model at one moment, so
+    this goes round the models one after another, waits a little longer after each round, and keeps going
+    until the time budget is used. A model that does not exist or rejects the request is skipped."""
+    models = [model] + [x for x in FALLBACK_MODELS if x != model]
+    seen = _seen
+    wait = 8
+    while time_left() > 15:
+        alive = [m for m in models if m not in _dead_models]
+        if not alive:
+            break
+        for m in alive:
             if time_left() < 15:
-                raise RuntimeError(f"Gemini did not answer within the {BUDGET_SECONDS // 60} minute time budget. Last error: {last}")
+                break
             try:
                 return _call(prompt, m, key, as_json, temperature)
             except urllib.error.HTTPError as e:
-                last = e
+                seen[m] = f"HTTP {e.code}"
                 detail = ""
                 try:
-                    detail = e.read().decode()[:300]
+                    detail = e.read().decode()[:200]
                 except Exception:
                     pass
                 print(f"Gemini {m}: HTTP {e.code} {detail}", file=sys.stderr)
                 if e.code in (400, 401, 403, 404):
-                    if e.code in (404, 400):
-                        _dead_models.add(m)  # wrong model name: try the next one
-                    break
-                time.sleep(min(4 * 2 ** attempt, max(0, time_left() - 15)))  # 429 / 5xx: wait and retry
+                    _dead_models.add(m)  # wrong name, no access or a request it cannot take: skip it from now on
             except Exception as e:  # network drops, timeouts, an answer in an unexpected shape
-                last = e
+                seen[m] = type(e).__name__
                 print(f"Gemini {m}: {type(e).__name__}: {e}", file=sys.stderr)
-                time.sleep(min(4 * 2 ** attempt, max(0, time_left() - 15)))
-    raise RuntimeError(f"All Gemini models failed: {last}")
+        pause = min(wait, max(0, time_left() - 15))
+        if pause:
+            print(f"Every Gemini model is busy or failing; waiting {pause:.0f}s before the next round.", file=sys.stderr)
+            time.sleep(pause)
+        wait = min(wait * 2, 90)
+    summary = ", ".join(f"{m}: {r}" for m, r in seen.items()) or "no model answered"
+    raise RuntimeError(f"All Gemini models failed within the {BUDGET_SECONDS // 60} minute time budget ({summary})")
 
 
 def parse_json(text):

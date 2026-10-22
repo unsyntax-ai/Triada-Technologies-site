@@ -2,12 +2,14 @@ name: Daily insight
 
 on:
   schedule:
-    # Four tries a day, at quiet minutes (UTC). GitHub sometimes delays or skips a scheduled run,
-    # so the later tries make sure the post still goes out. Once today's post exists, a run does nothing.
-    - cron: "41 11 * * *"
-    - cron: "17 13 * * *"
-    - cron: "53 15 * * *"
+    # Five tries a day, at quiet minutes (UTC), spread from the small hours to late evening.
+    # GitHub sometimes delays or skips a scheduled run, and Gemini is sometimes overloaded for a while,
+    # so later tries make sure the post still goes out. Once today's post exists, a run does nothing.
+    - cron: "23 4 * * *"
+    - cron: "47 9 * * *"
+    - cron: "11 14 * * *"
     - cron: "29 19 * * *"
+    - cron: "41 23 * * *"
   push:
     branches: [main]        # rebuild pages whenever files are uploaded, so the list never goes stale
   workflow_dispatch:          # lets you run it by hand from the Actions tab
@@ -60,5 +62,5 @@ jobs:
           exit 1
       - name: Make sure today's insight exists
         # fails (red) only after the last try of the day, or on a manual run, so a missing post is never silent
-        if: (github.event_name == 'workflow_dispatch' && !inputs.redo_art) || github.event.schedule == '29 19 * * *'
+        if: (github.event_name == 'workflow_dispatch' && !inputs.redo_art) || github.event.schedule == '41 23 * * *'
         run: python3 scripts/generate_insights.py --check
