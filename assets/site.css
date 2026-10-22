@@ -569,7 +569,7 @@ input[aria-invalid="true"]:focus, textarea[aria-invalid="true"]:focus { border-c
 .logo-bars { display: block; width: 96px; height: 10px; margin-top: var(--s-4); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 728 77'%3E%3Cg fill='%23FF6A00'%3E%3Cpath transform='translate(18 0)' d='M30 0H710L696 29H0C0 12 12 0 30 0Z'/%3E%3Cpath transform='translate(0 48)' d='M16 0H710V14C710 23 703 29 692 29H0Z'/%3E%3C/g%3E%3C/svg%3E") no-repeat left center / contain; }
 
 /* Home: the top bar reaches both screen edges (it cancels the page's side padding) */
-body:has(.hero-split) header.site { margin-left: calc(-1 * max(var(--s-3), env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(var(--s-3), env(safe-area-inset-right, 0px))); }
+header.site { margin-left: calc(-1 * max(var(--s-3), env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(var(--s-3), env(safe-area-inset-right, 0px))); }
 
 /* ---------- Home opening sequence ----------
    Plain background. Two orange bars from the logo cross from opposite sides, part vertically to reveal the page,
