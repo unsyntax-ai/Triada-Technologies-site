@@ -185,7 +185,7 @@ INDUSTRIES = [
     ("Retail and Customer Support", "Call center agents, customer service representatives, retail managers, and customer experience specialists who represent your brand every day."),
 ]
 industries_html = "\n".join(
-    f'      <div class="card">{ci("industry-" + t.lower().replace(" and ", "-").replace(" ", "-"))}<h3>{t}</h3><p>{d}</p></div>' for t, d in INDUSTRIES)
+    f'      <div class="card">{ci("industry-" + t.lower().replace(" and ", "-").replace(" ", "-"), "svg")}<h3>{t}</h3><p>{d}</p></div>' for t, d in INDUSTRIES)
 
 STEPS = [
     ("Consultation", "We confirm the requirements, the technical skills, the team culture, the working schedule, and the timeline. A clear brief makes every later step faster."),
@@ -300,15 +300,27 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
 SERVICES_SCHEMA = ""
 
 FAQ_ITEMS = [
-    ("What types of staffing do you offer?",
-     "We offer temporary, contract, contract-to-hire, direct hire, and executive search placements, along with vendor management programs for ongoing workforce needs."),
-    ("Do you work outside Pennsylvania?",
-     "Yes. We are headquartered in Lansdale, Pennsylvania, and we place temporary, contract, contract-to-hire, and direct-hire talent for employers across the United States, in many industries."),
-    ("How do I get started?",
-     f'Visit our <a href="contact.html">contact page</a> or email {EMAIL} with the role you need to fill, or with the roles you are looking for. A recruiter will reply during business hours.'),
+    ("What is IT staffing, and how does TriadaTechnologies provide it?",
+     "IT staffing is the recruiting and placement of technology professionals, such as software engineers, cloud and DevOps engineers, cybersecurity analysts, database administrators, and system administrators, into an employer's open roles. TriadaTechnologies, a staffing firm headquartered in Lansdale, PA, finds, screens, and presents IT candidates for temporary, contract, contract-to-hire, and direct-hire positions at employers across the United States."),
+    ("Which IT and technology roles does TriadaTechnologies place?",
+     "We place software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators, along with the network technicians and telecom project coordinators who keep connectivity running. Each search starts with the technical skills, tools, and team environment the role requires, so the candidates we present match the work and not only the job title."),
+    ("What is the difference between contract, contract-to-hire, and direct-hire IT staffing?",
+     "Contract IT staffing places a professional for a defined period or project, often to cover a skill gap or a spike in workload. Contract-to-hire starts as a contract and lets you evaluate the person in your own environment before offering a permanent role. Direct hire fills a permanent position from the first day. We help you choose the model that fits the role, your budget, and your timeline."),
+    ("How does TriadaTechnologies screen IT candidates before presenting them?",
+     "Every IT candidate completes a skills review and a behavioral interview, and we verify background and credentials where the role requires it. We assess technical fit, communication, and reliability first, so the short list you receive is ready for a hiring decision. After the start date, we stay in touch with you and the new hire so small concerns are resolved early."),
+    ("How long does it take to fill an IT role?",
+     "The timeline depends on the seniority of the role, the specific technologies involved, the location, and how clearly the requirements are defined. Specialized skills such as cybersecurity or cloud architecture can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."),
+    ("Does TriadaTechnologies place IT talent outside Pennsylvania?",
+     "Yes. TriadaTechnologies is headquartered in Lansdale, Pennsylvania, and places IT professionals for employers across the United States. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."),
+    ("How much does IT staffing cost?",
+     "Cost depends on the engagement model, the role, the skills required, and the location. In IT staffing, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."),
+    ("What information do I need to share to start an IT search?",
+     f'Share the job title, the main responsibilities, the technologies and experience level the role needs, the team and working environment, and your timeline. A recruiter reviews the details and replies during business hours with clear next steps. Use our <a href="contact.html">contact page</a> or email {EMAIL} to begin.'),
+    ("Can TriadaTechnologies support vendor management systems (VMS) and ongoing IT workforce needs?",
+     "Yes. Alongside individual placements, we support vendor management programs that keep ongoing workforce needs organized, compliant, and cost-aware. This suits employers that hire IT contractors regularly and want one consistent process across roles. Contact us to discuss how a VMS program would fit your hiring volume."),
 ]
 faq_html = "\n".join(
-    f'      <div class="card">\n        <h3>{q}</h3>\n        <p>{a}</p>\n      </div>' for q, a in FAQ_ITEMS)
+    f'      <details class="faq-item">\n        <summary><h3>{q}</h3><span class="faq-icon" aria-hidden="true"></span></summary>\n        <div class="faq-a"><p>{a}</p></div>\n      </details>' for q, a in FAQ_ITEMS)
 
 services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
@@ -364,9 +376,9 @@ services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Questions</p>
-      <h2>Common questions about staffing with us</h2>
+      <h2>Common questions about IT staffing</h2>
     </div>
-    <div class="faq">
+    <div class="faq-list">
 {faq_html}
     </div>
   </div>
@@ -909,6 +921,9 @@ def seo_files(posts, today, dates):
     if posts:
         lines += ["", "## Insights", ""]
         lines += [f"- [{p['title']}]({SITE_URL}/insight-{p['slug']}.html): {p['summary']} ({p['published']})" for p in posts]
+    lines += ["", "## IT staffing FAQ", ""]
+    for q, a in FAQ_ITEMS:
+        lines += [f"### {q}", plain(a), ""]
     with open("llms.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 

@@ -53,6 +53,23 @@
     });
   }
 
+  // FAQ accordion: a row opens downward and closes upward with a smooth height change
+  Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function (d) {
+    var sum = d.querySelector('summary'), body = d.querySelector('.faq-a'), anim = null;
+    sum.addEventListener('click', function (e) {
+      if (!d.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // plain open/close
+      e.preventDefault();
+      if (anim) anim.cancel();
+      var edge = d.offsetHeight - d.clientHeight, from = d.offsetHeight, opening = !d.open;
+      if (opening) d.open = true;
+      var to = sum.offsetHeight + (opening ? body.offsetHeight : 0) + edge;
+      d.style.overflow = 'hidden';
+      anim = d.animate({ height: [from + 'px', to + 'px'] }, { duration: 360, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      anim.onfinish = function () { if (!opening) d.open = false; anim = null; d.style.overflow = ''; };
+      anim.oncancel = function () { d.style.overflow = ''; };
+    });
+  });
+
   // Insights lists: search, date filter, sort, load more
   var list = document.getElementById('items');
   if (list) {
