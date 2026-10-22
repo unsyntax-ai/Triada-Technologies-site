@@ -259,15 +259,15 @@ home = f'''<section class="hero-full hero-split" aria-label="Introduction">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Services</p>
-      <h2>Three ways to bring talent <em>on board</em></h2>
+      <h2>Four ways to bring talent <em>on board</em></h2>
       <p class="lead">Choose the arrangement that matches your hiring need, budget, and timeline. We will help you decide which one fits the role best.</p>
     </div>
-    <div class="trio">
+    <div class="trio four">
       <div class="card">{ci("service-temporary")}<h3>Temporary and contract</h3><p>Short-term and project-based professionals who can start quickly and work to your schedule, for seasonal demand, special projects, and backfill coverage.</p></div>
       <div class="card">{ci("service-contract-to-hire")}<h3>Contract-to-hire</h3><p>Work with a candidate first, then decide whether to bring them on permanently. You see their work in your own environment before making a long-term commitment.</p></div>
       <div class="card">{ci("service-direct-hire")}<h3>Direct hire</h3><p>Permanent placements with a shortlist built around the role, your team, and your culture. We handle sourcing, screening, and coordination from first call to offer.</p></div>
+      <div class="card">{ci("service-executive")}<h3>Executive search</h3><p>Senior search for leadership roles, with a shortlist built around the role, your team, and the level of responsibility it carries.</p></div>
     </div>
-    <p style="margin-top:34px"><a class="btn btn-white" href="services.html">View services</a></p>
   </div>
 </section>
 
