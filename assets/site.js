@@ -82,19 +82,16 @@
     }).then(finish);
   }
 
-  // Home page only: scroll-linked motion (parallax hero, progress bar, stagger)
+  // Home page only: scroll-linked motion (parallax hero, stagger)
   var hero = document.querySelector('.hero-full');
   if (hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     root.classList.add('home-motion');
     document.body.classList.add('home-motion');
-    var bar = document.createElement('div'); bar.className = 'progress'; bar.setAttribute('aria-hidden', 'true'); document.body.appendChild(bar);
     var ticking = false;
     var step = function () {
       var y = window.scrollY, h = hero.offsetHeight || 1;
       var p = Math.min(1, Math.max(0, y / h));
       hero.style.setProperty('--p', p.toFixed(3));
-      var max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.setProperty('--sp', max > 0 ? Math.min(1, y / max).toFixed(4) : 0);
       ticking = false;
     };
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(step); } }, { passive: true });
