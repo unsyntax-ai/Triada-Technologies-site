@@ -711,3 +711,5 @@ html.intro-on.intro-reveal .hero-split .hero-photo { transition-delay: .2s; }
   .a-table .a-acts { flex-wrap: wrap; margin-top: 6px; }
   .a-tab { padding: 10px 10px; }
 }
+
+.find-step[data-step="upload"] .find-lead { max-width: none; }
