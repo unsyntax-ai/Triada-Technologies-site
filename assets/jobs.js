@@ -117,7 +117,7 @@
       box.textContent = '';
       box.appendChild(el('h1', null, 'This role is no longer open.'));
       box.appendChild(el('p', 'lead', 'It may have been filled or closed. See our current openings, or send us your resume and we will contact you when a match opens.'));
-      var back = el('a', 'btn btn-white', 'See open roles');
+      var back = el('a', 'btn btn-white', 'Back');
       back.href = 'jobs.html';
       box.appendChild(back);
     };
@@ -147,13 +147,15 @@
       section('What you will do', j.responsibilities);
       section('What we are looking for', j.requirements);
       var row = el('div', 'job-actions');
-      var ap = el('a', 'btn btn-solid', 'Apply for this role');
-      ap.href = applyLink(j);
-      var back = el('a', 'btn btn-white', 'All open roles');
+      var back = el('a', 'btn btn-white', 'Back');
       back.href = 'jobs.html';
-      row.appendChild(ap); row.appendChild(back);
+      row.appendChild(back);
       box.appendChild(row);
-      box.appendChild(el('p', 'meta', 'Apply by email with your resume and the role title in the subject line. Your details are used only to consider you for this and similar roles.'));
+      var contact = el('p', 'meta', 'Contact us: ');
+      var mail = el('a', null, T.apply); mail.href = applyLink(j);
+      var tel = el('a', null, T.phone); tel.href = T.phoneHref;
+      contact.appendChild(mail); contact.appendChild(document.createTextNode(' · ')); contact.appendChild(tel);
+      box.appendChild(contact);
 
       // Google job markup, added from the live data
       var remote = /remote/i.test(j.location);
