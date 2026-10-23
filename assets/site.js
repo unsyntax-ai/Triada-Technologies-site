@@ -68,28 +68,28 @@
     Promise.race([loaded, pause(2500)]).then(frame).then(function () {
       if (ended) return;
       return Promise.all([
-        move(barA, xy(-BW, 0), xy(0, 0), { duration: 1100, easing: slide }),
-        move(barB, xy(BW, 0), xy(0, 0), { duration: 1100, easing: slide })
+        move(barA, xy(-BW, 0), xy(0, 0), { duration: 650, easing: slide }),
+        move(barB, xy(BW, 0), xy(0, 0), { duration: 650, easing: slide })
       ]);
     }).then(function () {
-      return pause(150);
+      return pause(100);
     }).then(function () {
       if (ended) return;
       var up = -Math.round(H / 2 - gap / 2 - T);     // the upper bar rises until it touches the top edge
       var down = Math.round(H / 2 + gap / 2 + T) + 6;  // the lower bar leaves through the bottom
-      setTimeout(function () { root.classList.add('intro-reveal'); }, 400);
+      setTimeout(function () { root.classList.add('intro-reveal'); }, 250);
       return Promise.all([
-        move(barA, xy(0, 0), xy(0, up), { duration: 1200, easing: part }),
-        move(panelTop, xy(0, 0), xy(0, -Math.round(H / 2) - 6), { duration: 1200, easing: part }),
-        move(barB, xy(0, 0), xy(0, down), { duration: 1200, easing: part }),
-        move(panelBottom, xy(0, 0), xy(0, Math.round(H / 2) + 6), { duration: 1200, easing: part })
+        move(barA, xy(0, 0), xy(0, up), { duration: 750, easing: part }),
+        move(panelTop, xy(0, 0), xy(0, -Math.round(H / 2) - 6), { duration: 750, easing: part }),
+        move(barB, xy(0, 0), xy(0, down), { duration: 750, easing: part }),
+        move(panelBottom, xy(0, 0), xy(0, Math.round(H / 2) + 6), { duration: 750, easing: part })
       ]);
     }).then(function () {
       if (ended) return;
       var thin = 1 / T;                               // the upper bar thins to the permanent 1px line
-      return move(barA, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(1)' }, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(' + thin + ')' }, { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)' });
+      return move(barA, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(1)' }, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(' + thin + ')' }, { duration: 400, easing: 'cubic-bezier(.4,0,.2,1)' });
     }).then(function () {
-      return pause(150);
+      return pause(80);
     }).then(finish);
     var up2 = function () { return -Math.round(H / 2 - gap / 2 - T); };
   }
