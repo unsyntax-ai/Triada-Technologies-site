@@ -142,7 +142,7 @@ FOOTER = f'''<footer class="site-foot">
 
 INTRO_HEAD = ('<script>(function(){var d=document.documentElement;'
               'if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
-              'd.classList.add("intro-on");setTimeout(function(){d.classList.remove("intro-on")},7000)})()</script>\n')
+              'd.classList.add("intro-on");setTimeout(function(){d.classList.remove("intro-on")},9000)})()</script>\n')
 
 
 def page(title, desc, page_name, body, script=False, schema="", og_type="website", noindex=False, extra=()):

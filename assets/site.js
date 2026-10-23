@@ -29,16 +29,21 @@
   }
 
 
-  // Home opening sequence: plain background, two logo bars cross the screen from opposite sides, part vertically to
-  // reveal the page, the hero settles in, and the upper bar rests as a thin line at the top.
+  // Home opening sequence: plain background, two full-width logo bars slide in from opposite sides, part vertically to
+  // reveal the page, the hero settles in, and the upper bar thins to a line that stays at the top.
+  // Only transform and opacity are animated, and it waits for the page to finish loading so frames do not drop.
   var intro = document.getElementById('opening');
   if (intro && root.classList.contains('intro-on') && intro.animate) {
     var barA = intro.querySelector('.opening-bar.a'), barB = intro.querySelector('.opening-bar.b');
     var panelTop = intro.querySelector('.opening-top'), panelBottom = intro.querySelector('.opening-bottom');
-    var W = intro.clientWidth, H = intro.clientHeight, L = barA.offsetWidth, T = barA.offsetHeight;
-    var gap = Math.round(L * 0.0268);            // the gap between the two bars in the logo
-    barA.style.top = (H / 2 - gap / 2 - T) + 'px';
-    barB.style.top = (H / 2 + gap / 2) + 'px';
+    var W = intro.clientWidth, H = intro.clientHeight;
+    var BW = Math.round(W * 1.1), off = -Math.round(W * 0.05);   // a little wider than the screen so the bars' slanted ends sit off-screen
+    barA.style.width = barB.style.width = BW + 'px';
+    barA.style.left = barB.style.left = off + 'px';
+    var T = barA.offsetHeight;
+    var gap = Math.round(T * 0.66);              // the gap between the two bars in the logo
+    barA.style.top = Math.round(H / 2 - gap / 2 - T) + 'px';
+    barB.style.top = Math.round(H / 2 + gap / 2) + 'px';
     var running = [], ended = false;
     var move = function (el, from, to, opts) {
       var a = el.animate([from, to], Object.assign({ fill: 'both' }, opts));
@@ -46,7 +51,8 @@
       return a.finished;
     };
     var pause = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-    var xy = function (x, y) { return { transform: 'translate(' + x + 'px,' + y + 'px)' }; };
+    var frame = function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); };
+    var xy = function (x, y) { return { transform: 'translate3d(' + x + 'px,' + y + 'px,0)' }; };
     var finish = function () {
       if (ended) return;
       ended = true;
@@ -57,29 +63,35 @@
     intro.addEventListener('click', finish);
     window.addEventListener('keydown', finish, { once: true });
 
-    var cross = 'cubic-bezier(.65,0,.35,1)', part = 'cubic-bezier(.45,0,.15,1)';
-    Promise.all([
-      move(barA, xy(-L, 0), xy(W - L, 0), { duration: 1250, delay: 350, easing: cross }),
-      move(barB, xy(W, 0), xy(0, 0), { duration: 1250, delay: 350, easing: cross })
-    ]).then(function () {
-      return pause(250);
+    var slide = 'cubic-bezier(.65,0,.35,1)', part = 'cubic-bezier(.45,0,.15,1)';
+    var loaded = new Promise(function (r) { if (document.readyState === 'complete') r(); else window.addEventListener('load', r, { once: true }); });
+    Promise.race([loaded, pause(2500)]).then(frame).then(function () {
+      if (ended) return;
+      return Promise.all([
+        move(barA, xy(-BW, 0), xy(0, 0), { duration: 1100, easing: slide }),
+        move(barB, xy(BW, 0), xy(0, 0), { duration: 1100, easing: slide })
+      ]);
+    }).then(function () {
+      return pause(150);
     }).then(function () {
       if (ended) return;
-      var up = -(H / 2 - gap / 2 - T);               // the upper bar rises until it touches the top edge
-      var down = H - (H / 2 + gap / 2) + 6;          // the lower bar leaves through the bottom
-      setTimeout(function () { root.classList.add('intro-reveal'); }, 500);
+      var up = -Math.round(H / 2 - gap / 2 - T);     // the upper bar rises until it touches the top edge
+      var down = Math.round(H / 2 + gap / 2 + T) + 6;  // the lower bar leaves through the bottom
+      setTimeout(function () { root.classList.add('intro-reveal'); }, 400);
       return Promise.all([
-        move(barA, xy(W - L, 0), xy(W - L, up), { duration: 1250, easing: part }),
-        move(panelTop, { transform: 'translateY(0)' }, { transform: 'translateY(' + (-(H / 2) - 6) + 'px)' }, { duration: 1250, easing: part }),
-        move(barB, xy(0, 0), xy(0, down), { duration: 1250, easing: part }),
-        move(panelBottom, { transform: 'translateY(0)' }, { transform: 'translateY(' + (H / 2 + 6) + 'px)' }, { duration: 1250, easing: part })
+        move(barA, xy(0, 0), xy(0, up), { duration: 1200, easing: part }),
+        move(panelTop, xy(0, 0), xy(0, -Math.round(H / 2) - 6), { duration: 1200, easing: part }),
+        move(barB, xy(0, 0), xy(0, down), { duration: 1200, easing: part }),
+        move(panelBottom, xy(0, 0), xy(0, Math.round(H / 2) + 6), { duration: 1200, easing: part })
       ]);
     }).then(function () {
       if (ended) return;
-      return move(barA, { height: T + 'px' }, { height: '2px' }, { duration: 650, easing: 'cubic-bezier(.4,0,.2,1)' });
+      var thin = 2 / T;                               // the upper bar thins to the permanent 2px line
+      return move(barA, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(1)' }, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(' + thin + ')' }, { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)' });
     }).then(function () {
-      return pause(250);
+      return pause(150);
     }).then(finish);
+    var up2 = function () { return -Math.round(H / 2 - gap / 2 - T); };
   }
 
   // Home page only: scroll-linked motion (parallax hero, stagger)

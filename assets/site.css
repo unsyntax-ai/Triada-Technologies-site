@@ -574,17 +574,16 @@ header.site { margin-left: calc(-1 * max(var(--s-3), env(safe-area-inset-left, 0
    Plain background. Two orange bars from the logo cross from opposite sides, part vertically to reveal the page,
    the hero settles in, and the upper bar rests as a thin line at the top. Without script, or with reduced motion,
    none of this runs and the page simply shows. */
-:root { --bar-l: min(max(48vw, 220px), 560px); }
 .opening { display: none; }
 html.intro-on { overflow: hidden; scrollbar-gutter: stable; }
 html.intro-on .opening { display: block; position: fixed; inset: 0; z-index: 100; }
 .opening-top, .opening-bottom { position: absolute; left: 0; right: 0; height: 50%; background: var(--bg); will-change: transform; }
 .opening-top { top: 0; }
 .opening-bottom { bottom: 0; }
-.opening-bar { position: absolute; left: 0; width: var(--bar-l); height: calc(var(--bar-l) * .0408); background-size: 100% 100%; background-repeat: no-repeat; will-change: transform; }
-.opening-bar.a { transform: translateX(-120%); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 710 29' preserveAspectRatio='none'%3E%3Cpath fill='%23FF6A00' d='M30 0H710L696 29H0C0 12 12 0 30 0Z'/%3E%3C/svg%3E"); }
-.opening-bar.b { transform: translateX(100vw); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 710 29' preserveAspectRatio='none'%3E%3Cpath fill='%23FF6A00' d='M16 0H710V14C710 23 703 29 692 29H0Z'/%3E%3C/svg%3E"); }
-.top-bar-mark { position: fixed; top: 0; right: 0; width: var(--bar-l); height: 2px; background: var(--orange); z-index: 29; pointer-events: none; }
+.opening-bar { position: absolute; left: 0; width: 100%; height: clamp(22px, 4.08vw, 72px); transform-origin: 0 0; background-size: 100% 100%; background-repeat: no-repeat; will-change: transform; backface-visibility: hidden; }
+.opening-bar.a { transform: translate3d(-100%, 0, 0); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 710 29' preserveAspectRatio='none'%3E%3Cpath fill='%23FF6A00' d='M30 0H710L696 29H0C0 12 12 0 30 0Z'/%3E%3C/svg%3E"); }
+.opening-bar.b { transform: translate3d(100%, 0, 0); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 710 29' preserveAspectRatio='none'%3E%3Cpath fill='%23FF6A00' d='M16 0H710V14C710 23 703 29 692 29H0Z'/%3E%3C/svg%3E"); }
+.top-bar-mark { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--orange); z-index: 29; pointer-events: none; }
 html.intro-on .top-bar-mark { opacity: 0; }
 
 .hero-split .hero-center { animation: none; }
