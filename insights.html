@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Insights on Hiring | Triada Technologies</title>
 <meta name="description" content="Sourced articles on U.S. technology hiring, in-demand skills, and workforce planning from Triada Technologies, a nationwide staffing firm.">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -29,6 +29,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/mobile-base.css">
+<link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
+<script>(function(){try{if(sessionStorage.getItem("triada-view")!=="desktop")return;document.documentElement.classList.add("fd");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=1200, viewport-fit=cover");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}catch(e){}})()</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://triadatechnologies.com/"}, {"@type": "ListItem", "position": 2, "name": "Insights", "item": "https://triadatechnologies.com/insights.html"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Insights on hiring and the job market", "url": "https://triadatechnologies.com/insights.html", "isPartOf": {"@id": "https://triadatechnologies.com/#website"}, "publisher": {"@id": "https://triadatechnologies.com/#organization"}}</script>
 </head>
@@ -52,6 +55,7 @@
       <a class="btn btn-white" href="jobs.html">Find work</a>
       <a class="btn btn-white" href="contact.html">Hire talent</a>
     </div>
+    <button class="view-switch" type="button" aria-label="Switch to the desktop site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Desktop</span></button>
   </div>
 </header>
 
@@ -159,7 +163,16 @@
     </div>
   </div>
 </footer>
+<nav class="tabbar" aria-label="Primary">
+  <a href="index.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span>Home</a>
+  <a href="services.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Services</a>
+  <a href="jobs.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>Jobs</a>
+  <a href="insights.html" aria-current="page"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>Insights</a>
+  <a href="about.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>About</a>
+</nav>
+<button class="fd-pill" type="button" aria-label="Switch back to the mobile site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Mobile site</span></button>
 
 <script src="assets/site.js"></script>
+<script src="assets/mobile.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Staffing Services | Triada Technologies</title>
 <meta name="description" content="Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from Triada Technologies.">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -29,6 +29,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/mobile-base.css">
+<link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
+<script>(function(){try{if(sessionStorage.getItem("triada-view")!=="desktop")return;document.documentElement.classList.add("fd");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=1200, viewport-fit=cover");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}catch(e){}})()</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://triadatechnologies.com/"}, {"@type": "ListItem", "position": 2, "name": "Services", "item": "https://triadatechnologies.com/services.html"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What staffing services does Triada Technologies offer?", "acceptedAnswer": {"@type": "Answer", "text": "Triada Technologies offers temporary, contract, contract-to-hire, direct-hire, and executive search placements, along with vendor management programs for ongoing workforce needs. Our primary focus is IT and technology staffing, and we also place professionals in healthcare, finance, engineering, administrative, manufacturing, logistics, telecommunications, and customer support roles."}}, {"@type": "Question", "name": "What IT and technology roles does Triada Technologies place?", "acceptedAnswer": {"@type": "Answer", "text": "We place software engineers, cloud and DevOps architects, cybersecurity analysts, database administrators, and system administrators, along with network technicians and telecom project coordinators. Each search starts with the technical skills, tools, and team environment the role requires, so the candidates we present match the work and not only the job title."}}, {"@type": "Question", "name": "Which industries does Triada Technologies serve?", "acceptedAnswer": {"@type": "Answer", "text": "IT and technology is our primary focus. We also serve healthcare and life sciences, finance and accounting, engineering and construction, administrative and clerical, manufacturing and industrial, logistics and supply chain, telecommunications, and retail and customer support. We tailor each search to the skills, credentials, and compliance standards of the industry."}}, {"@type": "Question", "name": "What is the difference between contract, contract-to-hire, and direct-hire placement?", "acceptedAnswer": {"@type": "Answer", "text": "Contract placement brings in a professional for a defined period or project, such as covering a skills gap or a spike in workload. Contract-to-hire starts as a contract and lets you evaluate the person in your own environment before offering a permanent role. Direct hire fills a permanent position from the first day. We help you choose the model that fits the role, your budget, and your timeline."}}, {"@type": "Question", "name": "How does Triada Technologies screen candidates?", "acceptedAnswer": {"@type": "Answer", "text": "Every candidate completes a skills review and a behavioral interview, and we verify background and credentials where the role requires it. For IT roles, the review covers the specific technical skills the position demands. We assess fit, communication, and reliability before presenting a short list, so you receive candidates who are ready for a hiring decision."}}, {"@type": "Question", "name": "How long does it take to fill a role?", "acceptedAnswer": {"@type": "Answer", "text": "The timeline depends on the seniority of the role, how specialized the skills are, the location, and how clearly the requirements are defined. Specialized technical roles, such as cybersecurity or cloud architecture, can take longer to source than general support roles. We confirm the requirements and the timeline in the first consultation, so you know what to expect before sourcing begins."}}, {"@type": "Question", "name": "Does Triada Technologies work outside Pennsylvania?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Triada Technologies is headquartered in Erie, Pennsylvania, and places talent for employers across the United States, with a focus on IT and technology roles. For every role, we confirm the working environment, schedule, and location expectations, such as onsite, hybrid, or remote work, before we begin sourcing."}}, {"@type": "Question", "name": "How much do staffing services cost?", "acceptedAnswer": {"@type": "Answer", "text": "Cost depends on the engagement model, the role, the skills required, and the location. In the staffing industry, contract and temporary work is commonly billed at an hourly rate, and direct hire is commonly billed as a fee tied to the placed candidate's compensation. We confirm terms for your specific role after the initial consultation. Contact us with the position you need to fill."}}, {"@type": "Question", "name": "How do I start a search with Triada Technologies?", "acceptedAnswer": {"@type": "Answer", "text": "Share the job title, the main responsibilities, the skills and experience level the role needs, and your timeline. A recruiter reviews the details and replies during business hours with clear next steps. Use our contact page or email hr@triadatechnologies.com to begin."}}]}</script>
 </head>
@@ -52,6 +55,7 @@
       <a class="btn btn-white" href="jobs.html">Find work</a>
       <a class="btn btn-white" href="contact.html">Hire talent</a>
     </div>
+    <button class="view-switch" type="button" aria-label="Switch to the desktop site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Desktop</span></button>
   </div>
 </header>
 
@@ -183,6 +187,19 @@
   </div>
 </section>
 
+
+<section class="svc-contact" aria-labelledby="svc-contact-h">
+  <div class="wrap">
+    <p class="eyebrow">Contact</p>
+    <h2 id="svc-contact-h">Talk to a recruiter</h2>
+    <div class="sc-list">
+      <a class="sc-row" href="contact.html"><span class="sc-ic sc-msg" aria-hidden="true"></span><span class="sc-t"><b>Send a message</b><small>Open the contact form</small></span></a>
+      <a class="sc-row" href="tel:+14693962108"><span class="sc-ic sc-ph" aria-hidden="true"></span><span class="sc-t"><b>Call us</b><small>+1 469 396 2108</small></span></a>
+      <a class="sc-row" href="mailto:hr@triadatechnologies.com"><span class="sc-ic sc-ml" aria-hidden="true"></span><span class="sc-t"><b>Email us</b><small>hr@triadatechnologies.com</small></span></a>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="site-foot">
@@ -203,7 +220,16 @@
     </div>
   </div>
 </footer>
+<nav class="tabbar" aria-label="Primary">
+  <a href="index.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span>Home</a>
+  <a href="services.html" aria-current="page"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Services</a>
+  <a href="jobs.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>Jobs</a>
+  <a href="insights.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>Insights</a>
+  <a href="about.html"><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>About</a>
+</nav>
+<button class="fd-pill" type="button" aria-label="Switch back to the mobile site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Mobile site</span></button>
 
 <script src="assets/site.js"></script>
+<script src="assets/mobile.js"></script>
 </body>
 </html>

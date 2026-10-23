@@ -1,0 +1,16 @@
+/* Mobile-only parts that must stay invisible everywhere else.
+   This file is safe to load at every width: it only hides phone elements and styles the "Mobile site" pill.
+   The real phone layout lives in mobile.css (up to 700px wide). Desktop and tablet files are not edited. */
+.tabbar, .view-switch, .mobile-back, .side-switch, .quick, .pill-tag, .job-bar, .chips, .reason-seg, .svc-contact, .fd-pill { display: none; }
+
+/* Shown only after "Desktop" was chosen on a phone (this tab only). The page is laid out 1200px wide,
+   so the pill is scaled up by --fdk (set in mobile.js) to stay a normal finger-sized button. */
+html.fd .fd-pill {
+  display: inline-flex; align-items: center; gap: calc(var(--fdk, 1) * 8px);
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--fdk, 1) * 14px); height: calc(var(--fdk, 1) * 46px); padding: 0 calc(var(--fdk, 1) * 20px);
+  border: 0; border-radius: 999px; background: #1E3A8A; color: #fff; cursor: pointer;
+  font: 600 calc(var(--fdk, 1) * 15px) "Google Sans Flex", system-ui, sans-serif;
+  box-shadow: 0 calc(var(--fdk, 1) * 10px) calc(var(--fdk, 1) * 24px) calc(var(--fdk, 1) * -8px) rgba(15, 23, 42, .5);
+}
+html.fd .fd-pill svg { width: calc(var(--fdk, 1) * 20px); height: calc(var(--fdk, 1) * 20px); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

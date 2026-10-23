@@ -33,7 +33,7 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
 <meta name="robots" content="{robots}">
@@ -60,6 +60,9 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/mobile-base.css">
+<link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
+<script>(function(){{try{{if(sessionStorage.getItem("triada-view")!=="desktop")return;document.documentElement.classList.add("fd");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=1200, viewport-fit=cover");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
 {schema}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -95,6 +98,7 @@ def org(with_phone=False):
 
 
 def header(active):
+    page_name_for_back = active
     if active.startswith("insight"):
         active = "insights.html"
     links = "\n".join(
@@ -102,9 +106,15 @@ def header(active):
             href, ' aria-current="page"' if href == active else "", label)
         for href, label in NAV
     )
+    parent = {"job.html": ("jobs.html", "Jobs"), "insights-archive.html": ("insights.html", "Insights")}.get(
+        page_name_for_back, ("insights.html", "Insights") if page_name_for_back.startswith("insight-") else None)
+    back = ""
+    if parent:
+        back = (f'<a class="mobile-back" href="{parent[0]}" aria-label="Back to {parent[1]}"><svg viewBox="0 0 24 24" aria-hidden="true">'
+                '<path d="m15 6-6 6 6 6"/></svg></a>\n    ')
     return f'''<header class="site">
   <div class="wrap bar">
-    <a class="brand" href="index.html" aria-label="Triada Technologies home"><img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"></a>
+    {back}<a class="brand" href="index.html" aria-label="Triada Technologies home"><img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"></a>
     <nav aria-label="Main">
       <ul>
 {links}
@@ -114,8 +124,55 @@ def header(active):
       <a class="btn btn-white" href="jobs.html">Find work</a>
       <a class="btn btn-white" href="contact.html">Hire talent</a>
     </div>
+    <button class="view-switch" type="button" aria-label="Switch to the desktop site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Desktop</span></button>
   </div>
 </header>
+'''
+
+TABS = [
+    ("index.html", "Home", '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>'),
+    ("services.html", "Services", '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+    ("jobs.html", "Jobs", '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+    ("insights.html", "Insights", '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>'),
+    ("about.html", "About", '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+]
+
+
+def tabbar(active):
+    """Bottom tab bar, shown on phones only (hidden by CSS everywhere else)."""
+    if active.startswith("insight"):
+        active = "insights.html"
+    if active == "job.html":
+        active = "jobs.html"
+    links = "\n".join(
+        '  <a href="{}"{}><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true">{}</svg></span>{}</a>'.format(
+            href, ' aria-current="page"' if href == active else "", icon, label)
+        for href, label, icon in TABS
+    )
+    return f'<nav class="tabbar" aria-label="Primary">\n{links}\n</nav>\n'
+
+
+FD_PILL = (
+    '<button class="fd-pill" type="button" aria-label="Switch back to the mobile site"><svg viewBox="0 0 24 24" aria-hidden="true">'
+    '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Mobile site</span></button>\n'
+)
+
+
+def svc_contact():
+    """Phone-only contact block at the very end of the Services page (hidden by CSS everywhere else)."""
+    return f'''
+
+<section class="svc-contact" aria-labelledby="svc-contact-h">
+  <div class="wrap">
+    <p class="eyebrow">Contact</p>
+    <h2 id="svc-contact-h">Talk to a recruiter</h2>
+    <div class="sc-list">
+      <a class="sc-row" href="contact.html"><span class="sc-ic sc-msg" aria-hidden="true"></span><span class="sc-t"><b>Send a message</b><small>Open the contact form</small></span></a>
+      <a class="sc-row" href="{PHONE_HREF}"><span class="sc-ic sc-ph" aria-hidden="true"></span><span class="sc-t"><b>Call us</b><small>{PHONE}</small></span></a>
+      <a class="sc-row" href="mailto:{EMAIL}"><span class="sc-ic sc-ml" aria-hidden="true"></span><span class="sc-t"><b>Email us</b><small>{EMAIL}</small></span></a>
+    </div>
+  </div>
+</section>
 '''
 
 
@@ -154,9 +211,10 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     if page_name == "index.html":
         h = h.replace("</head>", INTRO_HEAD + "</head>", 1)
     s = (h + '<span class="top-bar-mark" aria-hidden="true"></span>\n' + header(page_name)
-         + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER)
+         + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER + tabbar(page_name) + FD_PILL)
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
+        s += '<script src="assets/mobile.js"></script>\n'
     for src in extra:
         s += f'<script src="assets/{src}"></script>\n'
     return s + '</body>\n</html>\n'
@@ -261,8 +319,25 @@ home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="open
   </div>
   <figure class="hero-photo">
     <img class="hero-img" src="assets/hero-city.jpg" alt="A smiling professional celebrating at her laptop" width="2200" height="1261" fetchpriority="high" decoding="async">
+    <span class="pill-tag"><i></i>Hiring across the USA</span>
   </figure>
 </section>
+
+<div class="quick" aria-label="Quick actions">
+  <a class="q-primary" href="contact.html">
+    <span class="q-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></svg></span>
+    <span class="q-t"><b>Request talent</b><small>Share the role, we reply with next steps</small></span>
+    <svg class="q-go" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+  </a>
+  <a class="q-card" href="jobs.html">
+    <span class="q-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+    <b>Find work</b><small>Browse open roles</small>
+  </a>
+  <a class="q-card" href="mailto:{EMAIL}">
+    <span class="q-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg></span>
+    <b>Talk to a recruiter</b><small>We reply in business hours</small>
+  </a>
+</div>
 
 <section id="intro" class="intro">
   <div class="wrap hero-grid">
@@ -325,14 +400,19 @@ home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="open
       <p class="eyebrow">Clients and candidates</p>
       <h2>Built for both sides of the <em>hiring journey</em></h2>
     </div>
-    <div class="duo">
-      <div class="card">
+    <div class="side-switch" role="group" aria-label="Choose your side" data-side="hire">
+      <span class="thumb" aria-hidden="true"></span>
+      <button type="button" aria-pressed="true" data-side="hire">I'm hiring</button>
+      <button type="button" aria-pressed="false" data-side="work">I want work</button>
+    </div>
+    <div class="duo" data-side="hire">
+      <div class="card" data-side="hire">
         {ci("for-clients")}
         <h3>For clients</h3>
         <p>Tell us what you need to staff. We will send a shortlist built around your team, your budget, your timeline, and the way your team works day to day. You stay in control of every decision, from interviews to offers.</p>
         <a class="btn btn-white" href="contact.html">Hire talent</a>
       </div>
-      <div class="card">
+      <div class="card" data-side="work">
         {ci("for-candidates")}
         <h3>For candidates</h3>
         <p>Share your resume and the roles you want. Our recruiters review your background, match you with openings that fit your skills, and keep you informed at every step. We will reach out when a matching opportunity comes up.</p>
@@ -432,7 +512,7 @@ services = f'''<section class="page-hero" style="border-top:0">
   </div>
 </section>
 
-{cta_card()}'''
+{cta_card()}{svc_contact()}'''
 
 # ---------- ABOUT ----------
 about = f'''<section class="page-hero" style="border-top:0">
