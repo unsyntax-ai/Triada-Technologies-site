@@ -142,6 +142,10 @@ FOOTER = f'''<footer class="site-foot">
 
 INTRO_HEAD = ('<script>(function(){var d=document.documentElement;'
               'if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
+              'var seen=false,nav=window.performance&&performance.getEntriesByType&&performance.getEntriesByType("navigation")[0];'
+              'try{seen=sessionStorage.getItem("triada-intro")==="1"}catch(e){}'
+              'if(seen&&!(nav&&nav.type==="reload"))return;'   # plays on the first visit of a browser session, and again on a reload
+              'try{sessionStorage.setItem("triada-intro","1")}catch(e){}'
               'd.classList.add("intro-on");setTimeout(function(){d.classList.remove("intro-on")},9000)})()</script>\n')
 
 
