@@ -153,7 +153,7 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     h = head(title, desc, page_name, schema, og_type, noindex)
     if page_name == "index.html":
         h = h.replace("</head>", INTRO_HEAD + "</head>", 1)
-    s = (h + header(page_name)
+    s = (h + '<span class="top-bar-mark" aria-hidden="true"></span>\n' + header(page_name)
          + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER)
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
@@ -253,7 +253,6 @@ MARQUEE = "".join(f'<span><img src="assets/icons/{icon}.svg" alt="" width="44" h
                   for name, icon in MARQUEE_ITEMS)
 
 home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="opening-top"></div><div class="opening-bottom"></div><span class="opening-bar a"></span><span class="opening-bar b"></span></div>
-<span class="top-bar-mark" aria-hidden="true"></span>
 <section class="hero-full hero-split" aria-label="Introduction">
   <div class="hero-center">
     <img class="hero-logo" src="assets/hero-logo.png" alt="Triada Technologies" width="1400" height="367">

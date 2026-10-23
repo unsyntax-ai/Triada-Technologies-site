@@ -86,7 +86,7 @@
       ]);
     }).then(function () {
       if (ended) return;
-      var thin = 2 / T;                               // the upper bar thins to the permanent 2px line
+      var thin = 1 / T;                               // the upper bar thins to the permanent 1px line
       return move(barA, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(1)' }, { transform: 'translate3d(0,' + up2() + 'px,0) scaleY(' + thin + ')' }, { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)' });
     }).then(function () {
       return pause(150);
