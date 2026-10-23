@@ -8,6 +8,14 @@
   --glass-line: rgba(255, 255, 255, .85);
 }
 
+/* ---------- page changes: the bars stay put and only the content fades, like switching screens in an app ---------- */
+@view-transition { navigation: auto; }
+header.site { view-transition-name: topbar; }
+.tabbar { view-transition-name: tabbar; }
+::view-transition-group(topbar), ::view-transition-group(tabbar) { animation-duration: 0s; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .16s; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+
 /* ---------- top bar: one row, liquid glass ---------- */
 header.site .wrap.bar,
 header.site.scrolled .wrap.bar {

@@ -22,6 +22,16 @@
   window.addEventListener('resize', sizePill);
   window.addEventListener('orientationchange', sizePill);
 
+  // ----- tapping the tab you are already on scrolls back to the top, like a native tab bar -----
+  var here = function (p) { var n = p.replace(/\/+$/, '').split('/').pop(); return n || 'index.html'; };
+  Array.prototype.forEach.call(document.querySelectorAll('.tabbar a'), function (a) {
+    a.addEventListener('click', function (e) {
+      if (!active() || here(a.pathname) !== here(location.pathname)) return;
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  });
+
   // ----- the tab bar steps aside while a field has the on-screen keyboard -----
   document.addEventListener('focusin', function (e) { if (active() && e.target.matches('input, textarea, select')) root.classList.add('kbd'); });
   document.addEventListener('focusout', function () { root.classList.remove('kbd'); });

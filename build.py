@@ -142,8 +142,8 @@ def tabbar(active):
     """Bottom tab bar, shown on phones only (hidden by CSS everywhere else)."""
     if active.startswith("insight"):
         active = "insights.html"
-    if active == "job.html":
-        active = "jobs.html"
+    # pages without a tab of their own stay under the tab people come from, so one tab is always selected
+    active = {"job.html": "jobs.html", "admin.html": "jobs.html", "contact.html": "services.html", "404.html": "index.html"}.get(active, active)
     links = "\n".join(
         '  <a href="{}"{}><span class="tab-ic"><svg viewBox="0 0 24 24" aria-hidden="true">{}</svg></span>{}</a>'.format(
             href, ' aria-current="page"' if href == active else "", icon, label)

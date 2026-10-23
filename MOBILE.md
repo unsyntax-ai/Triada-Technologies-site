@@ -28,6 +28,13 @@ Desktop and tablet (anything wider than 700px) must look and behave exactly as b
 4. Never change an existing class's meaning or the desktop breakpoints (`max-width: 700px / 800px / 900px` rules in `site.css`).
 5. If a shared file must change, run the regression below on desktop and mobile before accepting it.
 
+## Bottom tab bar behaviour (same on every page)
+- Same five tabs, position, size and look on every page. Exactly one tab is always selected (orange icon outline).
+- Pages without their own tab stay under the tab people come from: Contact and Services, a job and Admin under Jobs, articles and the archive under Insights, 404 under Home.
+- Tapping the selected tab scrolls to the top instead of reloading. Tapping another tab goes to that page.
+- Page changes keep the top and bottom bars still and only fade the content (browsers that support cross-document view transitions; others simply load the next page).
+- The bar steps aside while a form field has the keyboard, and during the home opening animation.
+
 ## Desktop / Mobile switch
 - The top bar shows "Desktop". Choosing it stores `triada-view=desktop` in `sessionStorage` (this tab only), swaps the viewport to 1200px wide, turns off `mobile.css`, and shows the normal desktop site with a "Mobile site" pill to go back.
 - Nothing is kept after the tab closes: no localStorage, no cookies, and the page entry is replaced rather than added to history.

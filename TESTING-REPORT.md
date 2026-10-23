@@ -53,6 +53,12 @@ Landscape phones wider than 700px (for example 844px) use the desktop layout by 
 - Phone-only: Insights thumbnails hidden from screen readers.
 - Phone-only: admin PIN boxes share the row width.
 
+## 4b. Bottom navigation consistency (latest change)
+- Audit: the bar's position, size and links were already identical on all 11 pages; three pages (Contact, 404, Admin) had no selected tab. Now every page has exactly one (Contact under Services, 404 under Home, Admin under Jobs).
+- Tapping the selected tab scrolls to the top without reloading (checked: stays on the page, scroll-to-top is called); tapping any other tab, including from Contact, navigates.
+- Page changes keep the bars still (cross-document view transitions, phone layout only). The test browser accepts the rule; the visual effect could not be watched here, so check it on a real phone.
+- Re-run after the change: 77 phone checks pass, 8-hop navigation walk passes, 121 desktop and tablet comparisons identical, phone controls (chips, switches, tiles, Apply bar) still build.
+
 ## 5. Not verified / open items
 1. **Real phone.** All testing was in a desktop browser with emulated sizes. The viewport swap of the Desktop switch, safe areas, iOS blur effects and the on-screen keyboard need a quick check on a real iPhone and Android phone.
 2. **Real backends.** Gemini writing a new post needs the secret key. Real admin sign-in, real job publishing and real AI job drafting need your PIN and live data. These were tested with a fake backend only, so the screens and logic are proven but not the live services. `admin.js` is unchanged.
