@@ -42,7 +42,7 @@ header.site .wrap.bar::before {
 }
 header.site .wrap.bar > * { position: relative; }
 header.site nav, header.site .header-cta { display: none; }
-.brand img { height: 28px; }
+.brand img { height: 34px; width: auto; }
 
 .view-switch {
   display: inline-flex; align-items: center; gap: 7px; flex: none; height: 40px; padding: 0 14px 0 11px; border: 0; border-radius: 999px; cursor: pointer;
@@ -310,6 +310,10 @@ html.kbd .job-bar { display: none; }
 .sc-t { display: flex; flex-direction: column; min-width: 0; }
 .sc-t b { font-size: 16px; font-weight: 600; }
 .sc-t small { font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+
+/* admin PIN boxes: share the row width so six boxes fit even on the narrowest phones */
+.otp { gap: 6px; }
+.otp input { flex: 1 1 0; width: auto; min-width: 0; max-width: 56px; }
 
 @media (prefers-reduced-motion: reduce) {
   .side-switch .thumb, .tabbar, .tab-ic, .view-switch { transition: none; }

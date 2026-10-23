@@ -1,53 +1,65 @@
 # Testing report: Triada mobile version
 
-Date: 2026-10-23. Build under test: local copy with the mobile changes (not merged, not deployed to production).
-Original used for comparison: production repo `main` at commit `5973cae`.
+Date: 2026-10-23. Build under test: the mobile changes in a local copy (not merged, not deployed to production).
+Original used for comparison: production `main` at commit `5973cae`.
 
 ## Verdict
-All automated and manual checks that could be run here passed. Desktop and tablet pages are unchanged. The items under "Not verified / open" need your decision or a real device.
+Every feature that can be exercised without real credentials or a real phone was tested and passed. Desktop and tablet are unchanged. Open items are listed in section 5.
 
 ## 1. Desktop and tablet stay unchanged (regression)
-Method: each page loaded side by side from the original and from the mobile build at the same width. Every element's tag, id, position, size, display, position and key styles (font size, colour, background, padding, margin, radius, shadow, blur) were compared.
+Method: each page loaded side by side from the original and from the mobile build at the same width. Every element's tag, id, position, size, display and position, plus font size, colour, background, padding, margin, radius, shadow and blur, were compared.
 
 | Result | Detail |
 | --- | --- |
-| Pages | Home, Services, About, Jobs, Insights, Insights archive, Contact, an article, a job page, 404 (10 page types) |
-| Widths | 701, 768, 820, 844x390, 932x430, 1024, 1180, 1366, 1440, 1920, 2560 (11 sizes) |
-| Comparisons | 110 |
-| Geometry identical | 110 / 110 (one early flake at 768 on the live-jobs page was clean on three re-runs) |
-| Styles identical | 110 / 110 |
-| Files not changed | `site.css`, `site.js`, `jobs.js`, `find.js`, `admin.js`, `jobs-config.js` |
-| Rotating word colour | Excluded from comparison because it animates over time |
+| Pages | Home, Services, About, Jobs, Insights, Insights archive, Contact, an article, a job page, 404, Admin (11) |
+| Sizes | 701, 768x1024, 820x1180, 844x390, 932x430, 1024, 1180x820, 1366, 1440, 1920, 2560 (11 sizes) |
+| Comparisons | 121 geometry and 121 style comparisons, all identical |
+| Admin page | Also identical at 701, 768, 1024 and 1440 after the final change |
+| Files not changed | `site.css`, `site.js`, `jobs.js`, `find.js`, `admin.js`, `jobs-config.js` (also byte-identical to production's live copies on the preview site) |
+| Excluded | The rotating word's colour (it animates), and the live-jobs timing (one early flake was clean on 3 re-runs) |
 
-## 2. Phone layout (360, 390, 430px; landscape 568, 667, 700px)
-Per page: bottom tab bar shown with 5 tabs and the correct active tab (orange icon outline), desktop menu hidden, Desktop switch visible, old contact button gone, no sideways overflow, no tap target under 38px, no broken images, every internal link answers 200, all email links point to the company address.
-- 10 page types x 3 phone widths: all passed (430px run on the 6 pages with the most logic).
-- Phone landscape (3 sizes x 10 pages = 30 checks): all passed. Note: landscape phones wider than 700px (for example 844px) get the desktop layout by design.
+## 2. Phone layout
+77 checks: 11 pages x 7 sizes (320, 360, 390, 430 portrait; 568x320, 667x375, 700x400 landscape).
+Each checks: tab bar with 5 tabs and the right active tab (orange icon outline), desktop menu hidden, Desktop switch visible, old contact button gone, logo 34px, no sideways overflow, every internal link answers 200 (21 distinct links), thumbnails hidden from screen readers.
+Result: all passed. (One real problem was found and fixed: admin PIN boxes overflowed at 320px. The original site overflowed there too.)
+Landscape phones wider than 700px (for example 844px) use the desktop layout by design.
 
-## 3. Functions
-| Area | Checked | Result |
+## 3. Feature checklist (every feature on the site)
+| Feature | How it was tested | Result |
 | --- | --- | --- |
-| Tabs and top bar | Every tab goes to its page; Contact no longer in the top bar; Desktop switch | Pass |
-| Home | Quick actions link to contact, jobs and email; hire/work switch shows one card; industry chip rail; swipe rows | Pass |
-| Services | 9 industry tiles open/close; 6-step timeline; swipe cards; Contact block is last; FAQ has 9 items | Pass (FAQ close not observable, see open items) |
-| Jobs | Live listings (8); search and highlight; empty state; type chips drive the real select; Find a Job | Pass |
-| Resume matcher | Text resume 88% match; real PDF 86% match; non-resume rejected; empty, unsupported and over-5MB files rejected; under-40-word resumes rejected (existing rule) | Pass |
-| Job page | Full content, Apply by email, Call, back button, sticky Apply bar | Pass |
-| Insights | Search, empty state, sort, date filter, archive, article pages with back button | Pass |
-| Contact | Empty and bad-value validation, error messages, "I am" switch drives the real field, valid submit shows the preview-only message (nothing is sent) | Pass |
-| Desktop switch | Switches to 1200px desktop layout in this tab; persists across pages; "Mobile site" pill returns; a new tab starts on mobile; nothing in localStorage or cookies | Pass |
-| Keyboard | Tab bar hides while a field is focused | Pass (emulated) |
-| Daily AI insight | Simulated new post builds into a full page with tab bar, appears in the list and sitemap; the generator's "today's post is published" check passes | Pass |
+| Top bar, logo, nav links, header buttons | Real navigation walk: 14 hops across tabs, quick actions, cards, back buttons, logo, footer | Pass |
+| Bottom tab bar, active tab, orange icon | All pages and sizes | Pass |
+| Desktop / Mobile site switch | Real tap. Switches to 1200px desktop layout, kept across all 10 public pages in that tab, "Mobile site" pill returns. Nothing in localStorage or cookies, a new tab starts on mobile, intro does not replay | Pass |
+| Home opening animation | Plays on a fresh tab, tab bar hidden during it, replays on reload, not on the view switch | Pass |
+| Home: quick actions, photo tag, hire/work switch, industry chips, swipe rows | Links, taps, scrolling | Pass |
+| Services: industry tiles, timeline, swipe cards, FAQ (9), Contact block last | Taps and DOM checks | Pass (FAQ close animation not observable, see 5) |
+| About: values rail, mission list | DOM and overflow | Pass |
+| Jobs: live list, search and highlight, empty state, type chips and filter | 8 live jobs | Pass |
+| Find a Job (resume matcher) | Text 88%, PDF 86%, Word (.docx) 86%; non-resume, empty, unsupported, over 5 MB and under 40 words rejected; no-match path; "Upload a different resume", "Browse all openings", "Send us your resume", Close | Pass |
+| Job page | Content, Apply by email, Call, back button, sticky Apply bar, live job data markup | Pass |
+| Insights: search, sort, month filter, load more | Scratch site with 18 live and 10 archived articles: 9 shown, load more shows all 18 | Pass |
+| Insights archive | Search, month filter, empty state, back button | Pass |
+| Article pages | Content, 3 source links, back button, Insights tab active | Pass |
+| Contact form | Empty, bad-value and valid cases; "I am" switch drives the real select; preview-only message (nothing sent) | Pass |
+| 404 page | Bad address, button, tab bar | Pass |
+| Admin sign-in screen | 6 PIN boxes, digits only, forgot-PIN screen, no network request made; no PIN or code was typed against the real backend | Pass |
+| Admin signed-in screens | Fake backend in a scratch copy (made-up PIN): wrong PIN message, sign-in, tabs and counts, paging, search, AI draft fill and "please check" list, clear confirm, save draft, publish now, scheduling calendar and time pop-up, edit, archive, restore, two-tap delete, sign-out | Pass |
+| Daily AI insight pipeline | Simulated new post builds into a full page with tab bar and Insights tab active, appears in the list and sitemap, "today's post is published" check passes | Pass |
+| Accessibility | Names on all buttons and links, image alt text, form labels, one h1, landmarks, language, tab bar label | Pass (a thumbnail link without a name on Insights was fixed for phones) |
+| Tap targets, keyboard behaviour | At least 38px; tab bar hides while a field has focus (emulated) | Pass |
 
-## 4. Not verified / open items
-1. **Real phone.** Everything ran in a desktop browser with emulated phone sizes. The viewport swap of the Desktop switch, safe areas, iOS blur effects and the on-screen keyboard behaviour need a quick check on a real iPhone and Android phone.
-2. **Gemini writing a new post** needs the secret key (not available here). Only the build after a post is written was tested.
-3. **Admin job drafting (AI)** is behind the admin sign-in and was not exercised. `admin.js` is unchanged. On phones the admin page also shows the tab bar.
-4. **FAQ closing animation** could not be observed in this test browser (animations are paused when the window is not focused). The original site behaves the same here and its code is unchanged.
-5. **Firefox**: industry tiles swap to icons with a CSS feature Firefox does not support; there they show the card artwork instead of the icon.
-6. **Landscape phones above 700px** use the desktop layout. Raising the breakpoint is possible but would change what tablets see.
-7. The preview site omits the admin page on purpose, so "Post a job" is a 404 there.
+## 4. Changes since the last report
+- Logo 28px to 34px on phones (same as desktop). Checked at 320px with back button and Desktop pill: no collisions.
+- Phone-only: Insights thumbnails hidden from screen readers.
+- Phone-only: admin PIN boxes share the row width.
 
-## 5. Production safety
-- Nothing was committed, pushed, merged or deployed to the production repository or its Pages settings.
-- The preview lives in a separate repository (`unsyntax-ai/Triada-mobile`), marked noindex.
+## 5. Not verified / open items
+1. **Real phone.** All testing was in a desktop browser with emulated sizes. The viewport swap of the Desktop switch, safe areas, iOS blur effects and the on-screen keyboard need a quick check on a real iPhone and Android phone.
+2. **Real backends.** Gemini writing a new post needs the secret key. Real admin sign-in, real job publishing and real AI job drafting need your PIN and live data. These were tested with a fake backend only, so the screens and logic are proven but not the live services. `admin.js` is unchanged.
+3. **FAQ closing animation** could not be observed (animations are paused when the test window is not focused). The original behaves the same here and its code is unchanged.
+4. **Firefox:** industry tiles show card artwork instead of icons (a CSS feature Firefox lacks).
+5. **Landscape phones above 700px** use the desktop layout by design. Raising the breakpoint would also change what tablets see.
+6. The public preview omits the admin page on purpose, so "Post a job" is a 404 there. On the real site it works as before.
+
+## 6. Production safety
+Nothing is merged. The `mobile` branch and the preview repository hold earlier builds; this report describes newer local changes that have not been pushed.

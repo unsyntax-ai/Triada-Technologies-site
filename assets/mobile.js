@@ -76,6 +76,8 @@
       reason.closest('label').classList.add('has-seg');
       reason.insertAdjacentElement('afterend', seg);
     }
+    // article thumbnails repeat the title link beside them and have no text: keep them out of the screen reader order
+    Array.prototype.forEach.call(document.querySelectorAll('a.post-art'), function (a) { a.setAttribute('aria-hidden', 'true'); a.tabIndex = -1; });
     // industry cards: tap to read the details
     Array.prototype.forEach.call(document.querySelectorAll('.industries .card'), function (c) {
       if (c.dataset.tile) return;
