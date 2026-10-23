@@ -92,6 +92,9 @@ async function unlock(pin: unknown) {
   if (!row) return reply({ state: "no_pin" });
   if (row.failed >= MAX_WRONG) return reply({ state: "locked" });
 
+  // the sign-in session is prepared while the PIN is being checked, so a correct PIN does not wait for it
+  const sessionReady = adminSession();
+  sessionReady.catch(() => {});
   const ok = same(await hashPin(pin, fromHex(row.salt)), row.hash);
   if (!ok) {
     const failed = row.failed + 1;
@@ -99,8 +102,8 @@ async function unlock(pin: unknown) {
     if (failed >= MAX_WRONG) return reply({ state: "locked" });
     return reply({ state: "wrong", attempts_left: MAX_WRONG - failed });
   }
-  await writeRow({ failed: 0 });
-  return reply({ state: "ok", session: await adminSession() });
+  if (row.failed > 0) await writeRow({ failed: 0 });
+  return reply({ state: "ok", session: await sessionReady });
 }
 
 async function setPin(req: Request, pin: unknown) {

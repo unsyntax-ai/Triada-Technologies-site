@@ -459,8 +459,9 @@
 
   function refresh() {
     var cutoff = new Date(Date.now() - KEEP_DAYS * 864e5).toISOString();
-    api('/rest/v1/jobs?status=eq.closed&updated_at=lt.' + encodeURIComponent(cutoff), { method: 'DELETE' }).catch(function () { /* the next visit tries again */ })
-      .then(function () { return api('/rest/v1/jobs?select=*&order=created_at.desc'); }).then(function (rows) {
+    // clearing out old archived jobs runs alongside loading the list, not before it
+    api('/rest/v1/jobs?status=eq.closed&updated_at=lt.' + encodeURIComponent(cutoff), { method: 'DELETE' }).catch(function () { /* the next visit tries again */ });
+    api('/rest/v1/jobs?select=*&order=created_at.desc').then(function (rows) {
       jobs = rows; renderList();
     }).catch(function (e) { msg('a-jobs-msg', e.message, 'bad'); });
   }
