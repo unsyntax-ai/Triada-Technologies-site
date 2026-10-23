@@ -734,14 +734,11 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
         <label for="f-req">Requirements (one per line) <textarea id="f-req"></textarea></label>
         <div class="a-acts a-publish">
           <button class="btn btn-solid" type="button" id="f-now">Publish Now</button>
-          <button class="btn btn-white" type="button" id="f-schedule" aria-expanded="false" aria-controls="f-sched">{CAL}Schedule</button>
+          <button class="btn btn-white" type="button" id="f-schedule" aria-haspopup="dialog">{CAL}Schedule</button>
           <button class="btn btn-white" type="button" id="f-draft">Save as Draft</button>
           <button class="btn btn-white" type="button" id="f-clear">Clear</button>
         </div>
-        <div id="f-sched" class="a-sched" hidden>
-          <label for="f-when">Publish on <input id="f-when" type="datetime-local"></label>
-          <button class="btn btn-solid" type="button" id="f-sched-go">Confirm Schedule</button>
-        </div>
+        <input id="f-when" type="hidden">
         <div id="f-clear-ask" class="a-confirm a-ask" hidden role="alert">
           <span>Clear everything you entered? Unsaved work will be lost.</span>
           <span class="a-acts">
@@ -754,15 +751,17 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
 
       <div class="card admin-card">
         <h2>Your jobs</h2>
+        <input id="a-search" type="search" placeholder="Search all jobs" aria-label="Search all jobs" autocomplete="off">
         <div class="a-tabs" role="tablist" aria-label="Your jobs">
           <button type="button" role="tab" class="a-tab" data-tab="published" aria-selected="true">Published Jobs <span class="a-count"></span></button>
           <button type="button" role="tab" class="a-tab" data-tab="draft" aria-selected="false">Saved Drafts <span class="a-count"></span></button>
           <button type="button" role="tab" class="a-tab" data-tab="archived" aria-selected="false">Archived <span class="a-count"></span></button>
         </div>
+        <p id="a-arch-note" class="form-note" hidden>Archived jobs are not shown on the website and are deleted permanently after 365 days.</p>
         <p id="a-jobs-msg" class="a-msg" role="status"></p>
         <div class="a-table-wrap">
           <table class="a-table">
-            <thead><tr><th>Job</th><th>Location</th><th>Type</th><th>Dates</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <thead><tr><th>Job</th><th>Location</th><th>Type</th><th>Posted</th><th><span class="sr-only">Actions</span></th></tr></thead>
             <tbody id="a-jobs"></tbody>
           </table>
         </div>
@@ -774,7 +773,34 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
       </div>
     </div>
   </section>
-</div>'''
+</div>
+<div id="f-sched" class="sched-back" hidden>
+  <div class="sched" role="dialog" aria-modal="true" aria-labelledby="sched-title">
+    <button type="button" class="sched-x" id="sched-close" aria-label="Close">&times;</button>
+    <h3 id="sched-title">Schedule job</h3>
+    <p class="sched-pick" id="sched-pick" aria-live="polite"></p>
+    <div id="sched-date">
+      <div class="cal-head">
+        <button type="button" class="cal-nav" id="cal-prev" aria-label="Previous month">&lsaquo;</button>
+        <strong id="cal-month"></strong>
+        <button type="button" class="cal-nav" id="cal-next" aria-label="Next month">&rsaquo;</button>
+      </div>
+      <div class="cal-grid cal-dow" aria-hidden="true"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+      <div class="cal-grid" id="cal-days"></div>
+    </div>
+    <div id="sched-time" hidden>
+      <div class="time-cols">
+        <div class="time-col" id="t-hour" role="group" aria-label="Hour"></div>
+        <div class="time-col" id="t-min" role="group" aria-label="Minutes"></div>
+        <div class="time-col" id="t-ap" role="group" aria-label="AM or PM"></div>
+      </div>
+      <button type="button" class="link-btn" id="sched-back">Change date</button>
+    </div>
+    <p id="sched-msg" class="a-msg bad" role="alert"></p>
+    <button class="btn btn-solid" type="button" id="sched-go" disabled>Confirm Schedule</button>
+  </div>
+</div>
+'''
 
 # ---------- INSIGHTS ----------
 import datetime as dt

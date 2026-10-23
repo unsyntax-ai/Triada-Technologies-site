@@ -10,6 +10,7 @@
   var jobs = [];
   var tab = 'published';   // jobs table tab: 'published' | 'draft' | 'archived'
   var page = 1;
+  var searchAll = true;    // while searching, show matches from every tab
   var PER_PAGE = 5;
   var KEEP_DAYS = 365;     // archived jobs are deleted for good after this many days
   var resetEmail = '';
@@ -300,7 +301,7 @@
   function hasContent() {
     return !!editing || ['a-notes', 'f-title', 'f-pay', 'f-summary', 'f-resp', 'f-req'].some(function (id) { return $(id).value.trim(); });
   }
-  function closePanels() { $('f-sched').hidden = true; $('f-schedule').setAttribute('aria-expanded', 'false'); $('f-clear-ask').hidden = true; }
+  function closePanels() { $('f-sched').hidden = true; $('f-clear-ask').hidden = true; }
   function clearForm() {
     editing = null;
     fill({});
@@ -314,7 +315,6 @@
 
   $('f-clear').addEventListener('click', function () {
     if (!hasContent()) { clearAll(); return; }
-    $('f-sched').hidden = true;
     $('f-clear-ask').hidden = false;
     $('f-clear-yes').focus();
   });
@@ -326,20 +326,88 @@
     return false;
   }
   $('f-schedule').addEventListener('click', function () {
-    var p = $('f-sched'), open = p.hidden;
-    if (open && needsText()) return;
+    if (needsText()) return;
     $('f-clear-ask').hidden = true;
-    p.hidden = !open;
-    this.setAttribute('aria-expanded', String(open));
-    if (open) {
-      msg('f-msg', '');
-      $('f-when').min = localInput(new Date().toISOString());
-      $('f-when').focus();
-      try { $('f-when').showPicker(); } catch (e) { /* the field still works by typing */ }
-    }
+    msg('f-msg', '');
+    openSched();
   });
-  $('f-sched-go').addEventListener('click', function () { submit('later'); });
   $('f-now').addEventListener('click', function () { submit('now'); });
+  // ----- schedule pop-up: pick a date, then hour, minutes and AM/PM -----
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var sch = null;   // { y, m, date, h, min, ap } while the pop-up is open
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  function pickText() {
+    if (!sch.date) return 'Pick a date';
+    var d = sch.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    return d + ' · ' + (sch.h || '--') + ':' + (sch.min === null ? '--' : two(sch.min)) + ' ' + (sch.ap || '--');
+  }
+  function schedUpdate() {
+    $('sched-pick').textContent = pickText();
+    $('sched-go').disabled = !(sch.date && sch.h && sch.min !== null && sch.ap);
+    msg('sched-msg', '');
+  }
+  function renderCal() {
+    var first = new Date(sch.y, sch.m, 1), days = new Date(sch.y, sch.m + 1, 0).getDate();
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    $('cal-month').textContent = MONTHS[sch.m] + ' ' + sch.y;
+    $('cal-prev').disabled = sch.y === today.getFullYear() && sch.m <= today.getMonth();
+    var box = $('cal-days'); box.textContent = '';
+    for (var i = 0; i < first.getDay(); i++) box.appendChild(document.createElement('span'));
+    for (var d = 1; d <= days; d++) {
+      (function (day) {
+        var dt = new Date(sch.y, sch.m, day);
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = day;
+        if (dt < today) b.disabled = true;
+        if (dt.getTime() === today.getTime()) b.classList.add('today');
+        if (sch.date && sch.date.getTime() === dt.getTime()) b.classList.add('on');
+        b.addEventListener('click', function () { sch.date = dt; schedUpdate(); $('sched-date').hidden = true; $('sched-time').hidden = false; });
+        box.appendChild(b);
+      })(d);
+    }
+  }
+  function timeCol(id, items, key) {
+    var col = $(id); col.textContent = '';
+    items.forEach(function (it) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = it.label;
+      if (sch[key] === it.value) b.classList.add('on');
+      b.addEventListener('click', function () {
+        sch[key] = it.value; schedUpdate();
+        Array.prototype.forEach.call(col.children, function (c) { c.classList.remove('on'); });
+        b.classList.add('on');
+      });
+      col.appendChild(b);
+    });
+  }
+  function renderTime() {
+    var h = [], m = [];
+    for (var i = 1; i <= 12; i++) h.push({ label: String(i), value: i });
+    for (var j = 0; j < 60; j += 5) m.push({ label: two(j), value: j });
+    timeCol('t-hour', h, 'h'); timeCol('t-min', m, 'min');
+    timeCol('t-ap', [{ label: 'AM', value: 'AM' }, { label: 'PM', value: 'PM' }], 'ap');
+  }
+  function openSched() {
+    var n = new Date();
+    sch = { y: n.getFullYear(), m: n.getMonth(), date: null, h: null, min: null, ap: null };
+    $('sched-date').hidden = false; $('sched-time').hidden = true;
+    renderCal(); renderTime(); schedUpdate();
+    $('f-sched').hidden = false;
+    $('cal-days').querySelector('button:not(:disabled)').focus();
+  }
+  function closeSched() { $('f-sched').hidden = true; sch = null; }
+  $('cal-prev').addEventListener('click', function () { sch.m--; if (sch.m < 0) { sch.m = 11; sch.y--; } renderCal(); });
+  $('cal-next').addEventListener('click', function () { sch.m++; if (sch.m > 11) { sch.m = 0; sch.y++; } renderCal(); });
+  $('sched-back').addEventListener('click', function () { $('sched-time').hidden = true; $('sched-date').hidden = false; renderCal(); });
+  $('sched-close').addEventListener('click', closeSched);
+  $('f-sched').addEventListener('click', function (e) { if (e.target === this) closeSched(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('f-sched').hidden) closeSched(); });
+  $('sched-go').addEventListener('click', function () {
+    var d = new Date(sch.date), h = sch.h % 12 + (sch.ap === 'PM' ? 12 : 0);
+    d.setHours(h, sch.min, 0, 0);
+    if (d <= Date.now()) { msg('sched-msg', 'Choose a time in the future.', 'bad'); return; }
+    $('f-when').value = d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate()) + 'T' + two(d.getHours()) + ':' + two(d.getMinutes());
+    closeSched();
+    submit('later');
+  });
   $('f-draft').addEventListener('click', function () { submit('draft'); });
 
   function submit(when) {
@@ -364,7 +432,7 @@
       if (start <= Date.now()) { msg('f-msg', 'Choose a date and time in the future.', 'bad'); return; }
       body.status = 'published'; body.publish_at = start.toISOString();
     }
-    var btns = ['f-now', 'f-sched-go', 'f-draft'].map($);
+    var btns = ['f-now', 'f-schedule', 'f-draft'].map($);
     btns.forEach(function (b) { b.disabled = true; });
     var req = editing
       ? api('/rest/v1/jobs?id=eq.' + editing.id, { method: 'PATCH', body: JSON.stringify(body), headers: { Prefer: 'return=representation' } })
@@ -405,32 +473,41 @@
     if (typeof node === 'string') td.textContent = node; else td.appendChild(node);
     return td;
   }
-  function dates(j) {
-    var st = state(j), out = [];
-    if (j.status === 'draft') out.push('Saved ' + fmt(j.updated_at || j.created_at));
-    else if (j.status === 'closed') {
-      var at = new Date(j.updated_at || j.created_at);
-      var gone = new Date(at.getTime() + KEEP_DAYS * 864e5).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      out.push('Archived ' + fmt(at), 'Deleted permanently on ' + gone);
-    }
-    else out.push((st === 'Scheduled' ? 'Starts ' : 'Live since ') + fmt(j.publish_at));
-    if (j.status === 'published' && j.expires_at) out.push('Ends ' + fmt(j.expires_at));
-    return out.join(' · ');
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  // "Just now", "1 hour ago", "23 hours ago", "2 days ago", "4 weeks ago"; a future start reads "In 2 days"
+  function ago(iso) {
+    var secs = (Date.now() - new Date(iso).getTime()) / 1000, future = secs < 0, v = Math.abs(secs), t;
+    if (v < 3600) return future ? 'In under an hour' : 'Just now';
+    if (v < 86400) t = plural(Math.floor(v / 3600), 'hour');
+    else if (v < 7 * 86400) t = plural(Math.floor(v / 86400), 'day');
+    else if (v < 30 * 86400) t = plural(Math.floor(v / (7 * 86400)), 'week');
+    else if (v < 365 * 86400) t = plural(Math.floor(v / (30 * 86400)), 'month');
+    else t = plural(Math.floor(v / (365 * 86400)), 'year');
+    return future ? 'In ' + t : t + ' ago';
   }
-  var EMPTY = { published: 'No published jobs yet.', draft: 'No saved drafts.', archived: 'No archived jobs.' };
+  function posted(j) { return ago(j.status === 'published' ? j.publish_at : (j.updated_at || j.created_at)); }
+  function haystack(j) {
+    return [j.title, j.location, j.employment_type, j.pay, j.summary, (j.responsibilities || []).join(' '), (j.requirements || []).join(' '), state(j), posted(j)]
+      .filter(Boolean).join(' ').toLowerCase();
+  }
+  var EMPTY = { published: 'No published jobs yet.', draft: 'No saved drafts.', archived: 'No archived jobs.', all: 'No jobs match your search.' };
   function renderList() {
+    var q = $('a-search').value.trim().toLowerCase(), words = q ? q.split(/\s+/) : [];
+    var found = words.length ? jobs.filter(function (j) { var h = haystack(j); return words.every(function (w) { return h.indexOf(w) >= 0; }); }) : jobs;
+    var view = words.length && searchAll ? 'all' : tab;   // a search looks through every tab until a tab is chosen
     var counts = { published: 0, draft: 0, archived: 0 };
-    jobs.forEach(function (j) { counts[tabOf(j)]++; });
+    found.forEach(function (j) { counts[tabOf(j)]++; });
+    $('a-arch-note').hidden = view !== 'archived';
     document.querySelectorAll('.a-tab').forEach(function (t) {
-      var on = t.dataset.tab === tab;
+      var on = t.dataset.tab === view;
       t.setAttribute('aria-selected', String(on));
       t.querySelector('.a-count').textContent = '(' + counts[t.dataset.tab] + ')';
     });
-    var list = jobs.filter(function (j) { return tabOf(j) === tab; });
+    var list = found.filter(function (j) { return view === 'all' || tabOf(j) === view; });
     var pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
     if (page > pages) page = pages;
     var box = $('a-jobs'); box.textContent = '';
-    msg('a-jobs-msg', list.length ? '' : EMPTY[tab], '');
+    msg('a-jobs-msg', list.length ? '' : EMPTY[words.length && view === 'all' ? 'all' : view], '');
     $('a-jobs').closest('.a-table-wrap').hidden = !list.length;
     list.slice((page - 1) * PER_PAGE, page * PER_PAGE).forEach(function (j) {
       var st = state(j);
@@ -451,7 +528,7 @@
       tr.appendChild(cell('Job', t));
       tr.appendChild(cell('Location', j.location || ''));
       tr.appendChild(cell('Type', j.employment_type || ''));
-      tr.appendChild(cell('Dates', dates(j)));
+      tr.appendChild(cell('Posted', posted(j)));
       tr.appendChild(cell('', acts));
       box.appendChild(tr);
     });
@@ -460,8 +537,9 @@
     $('a-next').disabled = page >= pages;
   }
   document.querySelectorAll('.a-tab').forEach(function (t) {
-    t.addEventListener('click', function () { tab = t.dataset.tab; page = 1; renderList(); });
+    t.addEventListener('click', function () { tab = t.dataset.tab; searchAll = false; page = 1; renderList(); });
   });
+  $('a-search').addEventListener('input', function () { searchAll = true; page = 1; renderList(); });
   $('a-prev').addEventListener('click', function () { page--; renderList(); });
   $('a-next').addEventListener('click', function () { page++; renderList(); });
 
