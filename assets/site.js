@@ -29,6 +29,30 @@
   }
 
 
+  // Share buttons (insight articles, job pages): the phone's share sheet where there is one, otherwise copy the link
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-share]') : null;
+    if (!b) return;
+    e.preventDefault();
+    var canon = document.querySelector('link[rel="canonical"]');
+    var url = (canon && canon.href) || location.href, label = b.querySelector('span');
+    var said = function (t) {
+      if (!label) return;
+      var was = label.getAttribute('data-was') || label.textContent;
+      label.setAttribute('data-was', was); label.textContent = t;
+      setTimeout(function () { label.textContent = was; }, 1800);
+    };
+    if (navigator.share) { navigator.share({ title: document.title, url: url }).catch(function () { /* cancelled */ }); return; }
+    var fallback = function () {
+      var t = document.createElement('textarea'); t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); said('Link copied'); } catch (err) { said('Copy the page address'); }
+      t.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { said('Link copied'); }, fallback);
+    else fallback();
+  });
+
   // Home opening sequence: plain background, two full-width logo bars slide in from opposite sides, part vertically to
   // reveal the page, the hero settles in, and the upper bar thins to a line that stays at the top.
   // Only transform and opacity are animated, and it waits for the page to finish loading so frames do not drop.

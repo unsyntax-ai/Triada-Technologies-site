@@ -738,3 +738,53 @@ html.intro-on.intro-reveal .hero-split .hero-photo { transition-delay: .15s; }
 .sched .btn { width: 100%; justify-content: center; }
 .sched .link-btn { justify-self: center; margin-top: var(--s-1); }
 .sched .a-msg { min-height: 0; margin: 0; text-align: center; }
+
+/* ---------- Spacing rhythm: one scale for every page ---------- */
+:root { --sec: clamp(40px, 5.2vw, 72px); }
+section { padding-block: var(--sec); }
+.intro { padding-top: var(--sec); }
+.page-hero, .page-hero.hero-carded { padding-top: clamp(36px, 4.6vw, 64px); padding-bottom: clamp(24px, 3vw, 40px); }
+.listing-first { padding-top: clamp(36px, 4.6vw, 64px); }
+@media (max-width: 700px) { section { padding-block: var(--sec); } }
+
+/* ---------- Share, back link, recruiter note ---------- */
+.share-btn { display: inline-flex; align-items: center; gap: 8px; }
+.share-row { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; }
+.back-link:hover { color: var(--accent-deep, var(--navy)); text-decoration: underline; text-underline-offset: 4px; }
+.recruiter-note { text-align: center; }
+.recruiter-note h3 { margin-bottom: var(--s-1); }
+.recruiter-note p { color: var(--muted); }
+.recruiter-note a { color: var(--navy); }
+
+/* ---------- Admin sign-in: PIN spacing, green on success, loading circle ---------- */
+#a-gate-pin h2 { margin-bottom: var(--s-3); }
+.otp.ok input, .otp.ok input:focus { border-color: #1F9D55; background: #F0FAF4; box-shadow: 0 0 0 1px #1F9D55; transition: border-color .2s ease, background-color .2s ease; }
+
+/* ---------- Insights heading without a card ---------- */
+.plain-head { margin-bottom: var(--s-4); max-width: 760px; }
+.plain-head .lead { max-width: 60ch; }
+.plain-head h1 { white-space: nowrap; }
+
+/* ---------- Admin PIN: instant, smooth feedback ---------- */
+.otp input { transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease, opacity .25s ease; }
+.otp input.filled { background: #FFF1E6; border-color: #F2B07A; }
+.otp.bad input, .otp.bad input:focus { border-color: #B42318; background: #FEF3F2; }
+.otp.ok input, .otp.ok input:focus { border-color: #34C759; background: #F2FCF5; box-shadow: 0 0 0 1px #34C759; }
+#a-gate-pin { position: relative; }
+#a-gate-pin .form-note, #a-gate-pin h2 { transition: opacity .3s ease; }
+#a-gate-pin.signing-in .form-note { opacity: 0; pointer-events: none; }
+.pin-orb { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; opacity: 0; pointer-events: none; }
+.pin-orb svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.pin-orb circle, .pin-orb path { fill: none; stroke: #34C759; stroke-linecap: round; stroke-linejoin: round; }
+.pin-orb .ring-track { stroke-width: 4; opacity: .16; }
+.pin-orb .ring-arc { stroke-width: 4; stroke-dasharray: 70 207; transform-origin: 50% 50%; animation: find-spin var(--spin, .95s) linear infinite; transition: opacity .25s ease; }
+.pin-orb .ring-full { stroke-width: 4; stroke-dasharray: 277; stroke-dashoffset: 277; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset var(--tick, .55s) cubic-bezier(.32, .72, 0, 1); }
+.pin-orb .check { stroke-width: 6; stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset var(--tick, .55s) cubic-bezier(.32, .72, 0, 1) var(--tick-delay, .34s); }
+.pin-orb.done .ring-arc { opacity: 0; }
+.pin-orb.done .ring-full, .pin-orb.done .check { stroke-dashoffset: 0; }
+.a-pin-slot { position: relative; min-height: 64px; display: flex; align-items: center; }
+.a-pin-slot .a-msg { margin: 0; }
+#a-app:not([hidden]) { animation: a-app-in .3s ease both; }
+@keyframes a-app-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #a-app:not([hidden]) { animation: none; } }

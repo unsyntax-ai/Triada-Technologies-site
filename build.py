@@ -162,6 +162,12 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     return s + '</body>\n</html>\n'
 
 
+SHARE_SVG = ('<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" '
+             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/>'
+             '<circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>')
+SHARE_BTN = f'<button type="button" class="btn btn-white share-btn" data-share>{SHARE_SVG}<span>Share</span></button>'
+
+
 def insights_cta(heading, text):
     """Closing call to action for the Insights pages: two clear next steps, in the same card style as the other pages."""
     return f'''
@@ -612,15 +618,12 @@ jobs = '''<section class="page-hero" style="border-top:0">
   </div>
 </section>
 
-<section>
+<section class="recruiter-note">
   <div class="wrap">
-    <div class="card" style="max-width:610px">
-      <h3>Submit your resume</h3>
-      <p>Include the job titles you are targeting, your core skills, and your preferred work arrangement, whether that is temporary, contract, contract-to-hire, or direct hire.</p>
-      <a class="btn btn-white" href="contact.html">Submit resume</a>
-    </div>
+    <h3>Contact the recruiter to discuss</h3>
+    <p><a href="mailto:%%EMAIL%%">%%EMAIL%%</a> &middot; <a href="%%PHONE_HREF%%">%%PHONE%%</a></p>
   </div>
-</section>'''
+</section>'''.replace("%%EMAIL%%", EMAIL).replace("%%PHONE_HREF%%", PHONE_HREF).replace("%%PHONE%%", PHONE)
 
 job_detail = '''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
@@ -666,7 +669,9 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
       <div id="a-gate-pin">
         <h2>Enter PIN</h2>
         {otp_boxes("a-pin", "PIN")}
-        <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        <div class="a-pin-slot">
+          <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        </div>
         <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN?</button></p>
       </div>
 
@@ -914,9 +919,14 @@ def build_insights(posts, today):
   </div>
 </section>'''
     cards = chr(10).join(post_card(p) for p in live)
-    return hero + f'''
-<section class="listing" data-page="9">
+    return f'''
+<section class="listing listing-first" data-page="9">
   <div class="wrap">
+    <div class="plain-head">
+      <p class="eyebrow">Insights</p>
+      <h1>Notes on <em>hiring</em>.</h1>
+      <p class="lead">Short, sourced articles on U.S. technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.</p>
+    </div>
 {toolbar(live, True)}
     <div class="posts" id="items">
 {cards}
@@ -978,7 +988,7 @@ def build_post(p):
       <h2>Sources</h2>
       <ul class="sources">{srcs}</ul>
       <p class="ai-note">This article was prepared with AI assistance from the sources listed above and published by Triada Technologies.</p>
-      <p><a class="btn btn-white" href="insights.html">All insights</a></p>
+      <p class="share-row">{SHARE_BTN}<a class="btn btn-white" href="insights.html">All insights</a></p>
     </div>
   </div>
 </section>''' + insights_cta("Put this insight to work.",

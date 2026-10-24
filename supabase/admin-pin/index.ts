@@ -135,6 +135,7 @@ if (g.Deno) {
     if (req.method !== "POST") return reply({ error: "Use POST." }, 405);
     try {
       const body = await req.json().catch(() => ({}));
+      if (body.action === "ping") return reply({ ok: true });   // warm-up from the admin page
       if (body.action === "unlock") return await unlock(body.pin);
       if (body.action === "set") return await setPin(req, body.pin);
       return reply({ error: "Unknown action." }, 400);

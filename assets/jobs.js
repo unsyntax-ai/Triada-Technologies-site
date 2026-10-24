@@ -133,7 +133,12 @@
       if (canon) canon.setAttribute('href', T.site + '/job.html?id=' + id);
 
       box.textContent = '';
-      box.appendChild(el('p', 'eyebrow', 'Open role'));
+      var crumb = el('p', 'eyebrow');
+      var up = el('a', 'back-link');
+      up.href = 'jobs.html';
+      up.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Open roles</span>';
+      crumb.appendChild(up);
+      box.appendChild(crumb);
       box.appendChild(el('h1', null, j.title));
       box.appendChild(el('p', 'meta', [j.location, j.employment_type, j.pay ? j.pay : null, 'Posted ' + pretty(j.publish_at)].filter(Boolean).join(' · ')));
       box.appendChild(el('p', 'lead', j.summary));
@@ -149,7 +154,11 @@
       var row = el('div', 'job-actions');
       var back = el('a', 'btn btn-white', 'Back');
       back.href = 'jobs.html';
-      row.appendChild(back);
+      var share = el('button', 'btn btn-white share-btn');
+      share.type = 'button';
+      share.setAttribute('data-share', '');
+      share.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span>Share</span>';
+      row.appendChild(back); row.appendChild(share);
       box.appendChild(row);
       var contact = el('p', 'meta', 'Contact us: ');
       var mail = el('a', null, T.apply); mail.href = applyLink(j);

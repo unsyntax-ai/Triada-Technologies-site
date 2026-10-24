@@ -5,6 +5,7 @@
   var session = null;     // admin session, kept in memory only: closing or reloading the page asks for the PIN again
   var unlocked = false;   // true only after the PIN was accepted on this visit (or a new PIN was just saved)
   var gate = 'pin';       // which sign-in panel shows: 'pin' | 'email' | 'reset' | 'done'
+  var jobsLoaded = false; // the jobs list has been fetched for this sign-in
   var busy = false;
   var editing = null;      // job being edited, or null for a new one
   var jobs = [];
@@ -21,7 +22,7 @@
   function save(s) { session = s; }
   function now() { return Math.floor(Date.now() / 1000); }
   function signOut() {
-    save(null); unlocked = false; gate = 'pin';
+    save(null); unlocked = false; jobsLoaded = false; gate = 'pin';
     ['a-pin', 'a-code', 'a-new-pin', 'a-confirm-pin'].forEach(function (id) { clearBoxes($(id)); });
     show();
   }
@@ -93,7 +94,7 @@
     $('a-gate-done').hidden = gate !== 'done';
     // after an email-link sign-in the code is already checked, so only the new PIN is asked for
     $('a-sect-code').hidden = !!load();
-    if (open) refresh(); else focusGate();
+    if (open) { if (!jobsLoaded) refresh(); } else focusGate();
   }
   function focusGate() {
     if (gate === 'pin') focusFirst($('a-pin'));
@@ -104,12 +105,13 @@
   // six single-digit boxes: type, paste, backspace and arrows work; completing the sixth calls onComplete
   function boxes(root) { return Array.prototype.slice.call(root.querySelectorAll('input')); }
   function code(root) { return boxes(root).map(function (b) { return b.value; }).join(''); }
-  function clearBoxes(root) { boxes(root).forEach(function (b) { b.value = ''; }); }
+  function clearBoxes(root) { boxes(root).forEach(function (b) { b.value = ''; b.classList.remove('filled'); }); }
   function focusFirst(root) { var b = boxes(root)[0]; if (b) b.focus(); }
   // red boxes and a message directly below them; typing again clears both
   function setErr(root, msgId, text) {
     root.dataset.msg = msgId;
-    root.classList.toggle('bad', !!text);
+    root.classList.remove('bad');
+    if (text) { void root.offsetWidth; root.classList.add('bad'); }   // restarts the shake on every wrong try
     msg(msgId, text, text ? 'bad' : '');
   }
   function wireBoxes(root, msgId, onComplete) {
@@ -119,12 +121,14 @@
       box.addEventListener('input', function () {
         var v = box.value.replace(/\D/g, '');
         box.value = v.slice(-1);
+        box.classList.toggle('filled', !!box.value);   // a typed digit turns its box light orange
         if (root.classList.contains('bad')) setErr(root, msgId, '');
+        root.classList.remove('ok');
         if (v && i < all.length - 1) all[i + 1].focus();
         if (all.every(function (b) { return b.value; })) onComplete();
       });
       box.addEventListener('keydown', function (e) {
-        if (e.key === 'Backspace' && !box.value && i > 0) { all[i - 1].focus(); all[i - 1].value = ''; }
+        if (e.key === 'Backspace' && !box.value && i > 0) { all[i - 1].focus(); all[i - 1].value = ''; all[i - 1].classList.remove('filled'); }
         else if (e.key === 'ArrowLeft' && i > 0) all[i - 1].focus();
         else if (e.key === 'ArrowRight' && i < all.length - 1) all[i + 1].focus();
         else if (e.key === 'Enter' && all.every(function (b) { return b.value; })) onComplete();
@@ -134,12 +138,74 @@
         if (!t) return;
         e.preventDefault();
         if (root.classList.contains('bad')) setErr(root, msgId, '');
-        t.split('').forEach(function (ch, k) { all[k].value = ch; });
+        t.split('').forEach(function (ch, k) { all[k].value = ch; all[k].classList.add('filled'); });
         all[Math.min(t.length, 5)].focus();
         if (t.length === 6) onComplete();
       });
       box.addEventListener('focus', function () { box.select(); });
     });
+  }
+
+  // opens the job page once its list is in; a round spinner shows only if that takes a moment
+  function openApp() {
+    refresh().then(function () { unlocked = true; show(); });
+  }
+
+  // a correct PIN: the boxes turn green, slide together into one circle, and a tick draws once the job page's data is in.
+  // The jobs load while this plays, so a fast load finishes quickly and a slow one waits on the circle.
+  function pinSuccess() {
+    var root = $('a-pin'), gateEl = $('a-gate-pin'), bs = boxes(root);
+    var started = Date.now(), loadedAt = 0, anims = [];
+    var loaded = refresh().then(function () { loadedAt = Date.now(); });
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+    var cleanup = function () {
+      anims.forEach(function (a) { try { a.cancel(); } catch (e) { /* ignore */ } });
+      if (orb.parentNode) orb.parentNode.removeChild(orb);
+      root.classList.remove('ok', 'checking'); gateEl.classList.remove('signing-in');
+      clearBoxes(root);
+    };
+    var orb = document.createElement('div'); orb.className = 'pin-orb'; orb.setAttribute('aria-hidden', 'true');
+    // Apple-style: a thin ring (an arc turns while loading, then the full ring draws) and a tick
+    orb.innerHTML = '<svg viewBox="0 0 100 100"><circle class="ring-track" cx="50" cy="50" r="44"/><circle class="ring-arc" cx="50" cy="50" r="44"/><circle class="ring-full" cx="50" cy="50" r="44"/><path class="check" d="M32 52l12 12 24-26"/></svg>';
+    gateEl.appendChild(orb);
+    var g = gateEl.getBoundingClientRect(), f0 = bs[0].getBoundingClientRect(), l0 = bs[bs.length - 1].getBoundingClientRect();
+    var cx = (f0.left + l0.right) / 2, cy = f0.top + f0.height / 2;   // the middle of the six boxes, not of the whole card
+    orb.style.left = (cx - g.left) + 'px'; orb.style.top = (cy - g.top) + 'px';
+    root.classList.remove('checking'); root.classList.add('ok'); gateEl.classList.add('signing-in');
+    var finish = function () { unlocked = true; show(); cleanup(); boxes(root).forEach(function (b) { b.readOnly = false; }); };
+    if (reduce) { loaded.then(finish); return; }
+    wait(160).then(function () {
+      bs.forEach(function (b) {
+        var r = b.getBoundingClientRect();
+        anims.push(b.animate([
+          { transform: 'translateX(0) scale(1)', opacity: 1, borderRadius: '14px' },
+          { transform: 'translateX(' + (cx - (r.left + r.width / 2)) + 'px) scale(.6)', opacity: 0, borderRadius: '50%' }
+        ], { duration: 400, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }));
+      });
+      anims.push(orb.animate([{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'scale(1)' }],
+        { duration: 300, delay: 200, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
+      return wait(480);
+    }).then(function () {
+      // the ring and tick follow the real loading time: quick load, one quick turn and a quick tick;
+      // slow load, a calm turn that lasts about two rounds, then a slower, relaxed tick
+      var early = !!loadedAt;                              // the data was already in when the circle formed
+      if (early) {
+        orb.style.setProperty('--spin', '.4s');
+        return wait(400).then(function () { return .28; });
+      }
+      return loaded.then(function () {
+        var took = loadedAt - started;
+        var more = Math.max(0, 1400 - (Date.now() - started - 640));   // keep turning for about two rounds in all
+        return wait(more).then(function () { return took > 2500 ? .8 : .55; });
+      });
+    }).then(function (tick) {
+      orb.style.setProperty('--tick', tick + 's');
+      orb.style.setProperty('--tick-delay', (tick * .62).toFixed(2) + 's');
+      orb.classList.add('done');
+      anims.push(orb.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: .5 }, { transform: 'scale(1)' }], { duration: 520, delay: Math.round(tick * 900), easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
+      return wait(Math.round(tick * 1700) + 200);
+    }).then(finish);
   }
 
   function goTo(next, text, kind) {
@@ -149,19 +215,24 @@
   }
 
   // ----- PIN -----
+  // wake the sign-in service and open the connection while the PIN is being typed
+  fetch(T.url + '/functions/v1/admin-pin', { method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ping' }) }).catch(function () { /* only a warm-up */ });
   function unlock() {
     var pin = code($('a-pin'));
     if (busy || pin.length !== 6) return;
     busy = true;
+    $('a-pin').classList.add('checking');        // the boxes stay light orange while the server checks the PIN
+    boxes($('a-pin')).forEach(function (b) { b.readOnly = true; });
     fetch(T.url + '/functions/v1/admin-pin', {
       method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'unlock', pin: pin })
     }).then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (d) {
-        clearBoxes($('a-pin'));
+        if (!(d.state === 'ok' && d.session)) clearBoxes($('a-pin'));
         if (d.state === 'ok' && d.session) {
           save({ access_token: d.session.access_token, refresh_token: d.session.refresh_token, expires_at: now() + (d.session.expires_in || 3600) });
-          unlocked = true; setErr($('a-pin'), 'a-pin-msg', ''); show();
+          setErr($('a-pin'), 'a-pin-msg', '');
+          pinSuccess();
         } else if (d.state === 'wrong') {
           setErr($('a-pin'), 'a-pin-msg', 'Wrong PIN. Please try again.');
           focusFirst($('a-pin'));
@@ -175,7 +246,13 @@
         }
       })
       .catch(function () { setErr($('a-pin'), 'a-pin-msg', 'Could not reach the sign-in service. Check your connection.'); focusFirst($('a-pin')); })
-      .then(function () { busy = false; });
+      .then(function () {
+        busy = false;
+        if ($('a-pin').classList.contains('ok')) return;     // the success animation takes over
+        $('a-pin').classList.remove('checking');
+        boxes($('a-pin')).forEach(function (b) { b.readOnly = false; });
+        if (gate === 'pin' && !unlocked) focusFirst($('a-pin'));
+      });
   }
   wireBoxes($('a-pin'), 'a-pin-msg', unlock);
   $('a-forgot').addEventListener('click', function () { msg('a-msg', ''); goTo('email'); });
@@ -229,7 +306,7 @@
       .then(function () {
         clearBoxes(cBox); clearBoxes(nBox); clearBoxes(fBox);
         gate = 'done'; show();
-        setTimeout(function () { unlocked = true; show(); }, 1900);
+        setTimeout(openApp, 1900);
       })
       .catch(function (e) {
         if (e.kind === 'code') { setErr(cBox, 'a-code-msg', e.message); clearBoxes(cBox); focusFirst(cBox); return; }
@@ -380,14 +457,14 @@
   }
   function renderTime() {
     var h = [], m = [];
-    for (var i = 1; i <= 12; i++) h.push({ label: String(i), value: i });
-    for (var j = 0; j < 60; j += 5) m.push({ label: two(j), value: j });
+    for (var i = 0; i < 12; i++) { var hv = (i + 5) % 12 + 1; h.push({ label: String(hv), value: hv }); }   // 6, 7 ... 12, 1 ... 5
+    for (var j = 0; j < 12; j++) { var mv = (j * 5 + 15) % 60; m.push({ label: two(mv), value: mv }); }   // 15, 20 ... 55, 00, 05, 10
     timeCol('t-hour', h, 'h'); timeCol('t-min', m, 'min');
     timeCol('t-ap', [{ label: 'AM', value: 'AM' }, { label: 'PM', value: 'PM' }], 'ap');
   }
   function openSched() {
     var n = new Date();
-    sch = { y: n.getFullYear(), m: n.getMonth(), date: null, h: null, min: null, ap: null };
+    sch = { y: n.getFullYear(), m: n.getMonth(), date: null, h: 6, min: 15, ap: null };   // the time lists start at 6 and :15
     $('sched-date').hidden = false; $('sched-time').hidden = true;
     renderCal(); renderTime(); schedUpdate();
     $('f-sched').hidden = false;
@@ -461,8 +538,8 @@
     var cutoff = new Date(Date.now() - KEEP_DAYS * 864e5).toISOString();
     // clearing out old archived jobs runs alongside loading the list, not before it
     api('/rest/v1/jobs?status=eq.closed&updated_at=lt.' + encodeURIComponent(cutoff), { method: 'DELETE' }).catch(function () { /* the next visit tries again */ });
-    api('/rest/v1/jobs?select=*&order=created_at.desc').then(function (rows) {
-      jobs = rows; renderList();
+    return api('/rest/v1/jobs?select=*&order=created_at.desc').then(function (rows) {
+      jobs = rows; jobsLoaded = true; renderList();
     }).catch(function (e) { msg('a-jobs-msg', e.message, 'bad'); });
   }
   function button(label, cls, fn) {
