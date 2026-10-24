@@ -214,8 +214,10 @@
   }
 
   // ----- PIN -----
+  // the PIN service runs next to the database (US East), not in the visitor's nearest region: its database trips are then quick
+  var PIN_HEADERS = { apikey: T.key, 'Content-Type': 'application/json', 'x-region': 'us-east-1' };
   // wake the sign-in service and open the connection while the PIN is being typed
-  fetch(T.url + '/functions/v1/admin-pin', { method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ping' }) }).catch(function () { /* only a warm-up */ });
+  fetch(T.url + '/functions/v1/admin-pin', { method: 'POST', headers: PIN_HEADERS, body: JSON.stringify({ action: 'ping' }) }).catch(function () { /* only a warm-up */ });
   function unlock() {
     var root = $('a-pin'), pin = code(root);
     if (busy || pin.length !== 6) return;
@@ -225,7 +227,7 @@
     var stage = pinStage();
     var merged = stage.merge();                    // the boxes start moving at once; the server answers meanwhile
     var answer = fetch(T.url + '/functions/v1/admin-pin', {
-      method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' },
+      method: 'POST', headers: PIN_HEADERS,
       body: JSON.stringify({ action: 'unlock', pin: pin })
     }).then(function (r) { return r.json().catch(function () { return {}; }); })
       .catch(function () { return { state: 'offline' }; });
@@ -296,7 +298,7 @@
     if (a !== b) { setErr(fBox, 'a-conf-msg', 'The PINs do not match. Please try again.'); clearBoxes(fBox); focusFirst(fBox); return; }
     busy = true;
     (needCode ? checkCode(entered) : Promise.resolve())
-      .then(function () { return api('/functions/v1/admin-pin', { method: 'POST', body: JSON.stringify({ action: 'set', pin: a }) }); })
+      .then(function () { return api('/functions/v1/admin-pin', { method: 'POST', headers: { 'x-region': 'us-east-1' }, body: JSON.stringify({ action: 'set', pin: a }) }); })
       .then(function () {
         clearBoxes(cBox); clearBoxes(nBox); clearBoxes(fBox);
         gate = 'done'; show();
