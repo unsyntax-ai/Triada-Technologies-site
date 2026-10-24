@@ -1,4 +1,4 @@
-/* TriadaTechnologies site: light theme, teal accent, calm but confident.
+﻿/* TriadaTechnologies site: light theme, teal accent, calm but confident.
    Nasalization is licensed and supplied by the client. */
 @font-face {
   font-family: "Nasalization";
@@ -166,7 +166,7 @@ body:has(.hero-full) header.site { position: fixed; top: 0; left: 0; right: 0; }
 .hero-full h1 { font-size: clamp(24px, 6.6vw, 92px); line-height: 1.05; color: #FFFFFF; white-space: nowrap; }
 .hero-full .eyebrow { color: #CFF7F1; margin: 0; }
 .scroll-cue { display: none; margin-top: var(--s-5); display: inline-flex; align-items: center; gap: var(--s-1); min-height: 44px; padding: 0 var(--s-3); border: 1px solid rgba(255,255,255,.55); border-radius: var(--r-pill); color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 500; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); background: rgba(255,255,255,.08); }
-.scroll-cue::after { content: "↓"; animation: bob 2.2s ease-in-out infinite; }
+.scroll-cue::after { content: "â†“"; animation: bob 2.2s ease-in-out infinite; }
 .scroll-cue:hover { background: rgba(255,255,255,.18); }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
@@ -759,7 +759,6 @@ section { padding-block: var(--sec); }
 
 /* ---------- Admin sign-in: PIN spacing, green on success, loading circle ---------- */
 #a-gate-pin h2 { margin-bottom: var(--s-3); }
-.otp.ok input, .otp.ok input:focus { border-color: #1F9D55; background: #F0FAF4; box-shadow: 0 0 0 1px #1F9D55; transition: border-color .2s ease, background-color .2s ease; }
 
 /* ---------- Insights heading without a card ---------- */
 .plain-head { margin-bottom: var(--s-4); max-width: 760px; }
@@ -770,19 +769,18 @@ section { padding-block: var(--sec); }
 .otp input { transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease, opacity .25s ease; }
 .otp input.filled { background: #FFF1E6; border-color: #F2B07A; }
 .otp.bad input, .otp.bad input:focus { border-color: #B42318; background: #FEF3F2; }
-.otp.ok input, .otp.ok input:focus { border-color: #34C759; background: #F2FCF5; box-shadow: 0 0 0 1px #34C759; }
 #a-gate-pin { position: relative; }
 #a-gate-pin .form-note, #a-gate-pin h2 { transition: opacity .3s ease; }
 #a-gate-pin.signing-in .form-note { opacity: 0; pointer-events: none; }
 .pin-orb { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; opacity: 0; pointer-events: none; }
 .pin-orb svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.pin-orb circle, .pin-orb path { fill: none; stroke: #34C759; stroke-linecap: round; stroke-linejoin: round; }
-.pin-orb .ring-track { stroke-width: 4; opacity: .16; }
-.pin-orb .ring-arc { stroke-width: 4; stroke-dasharray: 70 207; transform-origin: 50% 50%; animation: find-spin var(--spin, .95s) linear infinite; transition: opacity .25s ease; }
-.pin-orb .ring-full { stroke-width: 4; stroke-dasharray: 277; stroke-dashoffset: 277; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset var(--tick, .55s) cubic-bezier(.32, .72, 0, 1); }
-.pin-orb .check { stroke-width: 6; stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset var(--tick, .55s) cubic-bezier(.32, .72, 0, 1) var(--tick-delay, .34s); }
-.pin-orb.done .ring-arc { opacity: 0; }
-.pin-orb.done .ring-full, .pin-orb.done .check { stroke-dashoffset: 0; }
+.pin-orb circle, .pin-orb path { fill: none; stroke: #FF6A00; stroke-linecap: round; stroke-linejoin: round; transition: stroke .3s ease; }
+.pin-orb .ring-track { stroke-width: 4; opacity: 0; }
+.pin-orb .ring-arc { stroke-width: 4; stroke-dasharray: 232 45; transform-origin: 50% 50%; animation: find-spin var(--spin, .95s) linear infinite; transition: stroke .35s ease, stroke-dasharray .45s cubic-bezier(.32, .72, 0, 1); }
+.pin-orb .ring-full { display: none; }
+.pin-orb .check { stroke: #34C759; stroke-width: 6; stroke-dasharray: 60; stroke-dashoffset: 60; transition: stroke-dashoffset var(--tick, .55s) cubic-bezier(.32, .72, 0, 1) var(--tick-delay, .34s); }
+.pin-orb.ok .ring-arc { stroke: #34C759; stroke-dasharray: 277 0; }   /* the same ring turns green and closes its gap */
+.pin-orb.done .check { stroke-dashoffset: 0; }
 .a-pin-slot { position: relative; min-height: 64px; display: flex; align-items: center; }
 .a-pin-slot .a-msg { margin: 0; }
 #a-app:not([hidden]) { animation: a-app-in .3s ease both; }

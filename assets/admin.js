@@ -151,61 +151,60 @@
     refresh().then(function () { unlocked = true; show(); });
   }
 
-  // a correct PIN: the boxes turn green, slide together into one circle, and a tick draws once the job page's data is in.
-  // The jobs load while this plays, so a fast load finishes quickly and a slow one waits on the circle.
-  function pinSuccess() {
-    var root = $('a-pin'), gateEl = $('a-gate-pin'), bs = boxes(root);
-    var started = Date.now(), loadedAt = 0, anims = [];
-    var loaded = refresh().then(function () { loadedAt = Date.now(); });
+  // The PIN check as one continuous animation: after the last digit the boxes slide together into an orange circle that
+  // keeps turning while the server checks. A correct PIN turns it green and draws a tick; a wrong one opens it back
+  // out into red boxes.
+  function pinStage() {
+    var root = $('a-pin'), gateEl = $('a-gate-pin'), bs = boxes(root), anims = [];
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-    var cleanup = function () {
-      anims.forEach(function (a) { try { a.cancel(); } catch (e) { /* ignore */ } });
-      if (orb.parentNode) orb.parentNode.removeChild(orb);
-      root.classList.remove('ok', 'checking'); gateEl.classList.remove('signing-in');
-      clearBoxes(root);
-    };
     var orb = document.createElement('div'); orb.className = 'pin-orb'; orb.setAttribute('aria-hidden', 'true');
-    // Apple-style: a thin ring (an arc turns while loading, then the full ring draws) and a tick
     orb.innerHTML = '<svg viewBox="0 0 100 100"><circle class="ring-track" cx="50" cy="50" r="44"/><circle class="ring-arc" cx="50" cy="50" r="44"/><circle class="ring-full" cx="50" cy="50" r="44"/><path class="check" d="M32 52l12 12 24-26"/></svg>';
     gateEl.appendChild(orb);
     var g = gateEl.getBoundingClientRect(), f0 = bs[0].getBoundingClientRect(), l0 = bs[bs.length - 1].getBoundingClientRect();
     var cx = (f0.left + l0.right) / 2, cy = f0.top + f0.height / 2;   // the middle of the six boxes, not of the whole card
     orb.style.left = (cx - g.left) + 'px'; orb.style.top = (cy - g.top) + 'px';
-    root.classList.remove('checking'); root.classList.add('ok'); gateEl.classList.add('signing-in');
-    var finish = function () { unlocked = true; show(); cleanup(); boxes(root).forEach(function (b) { b.readOnly = false; }); };
-    if (reduce) { loaded.then(finish); return; }
-    wait(160).then(function () {
-      bs.forEach(function (b) {
-        var r = b.getBoundingClientRect();
-        anims.push(b.animate([
-          { transform: 'translateX(0) scale(1)', opacity: 1, borderRadius: '14px' },
-          { transform: 'translateX(' + (cx - (r.left + r.width / 2)) + 'px) scale(.6)', opacity: 0, borderRadius: '50%' }
-        ], { duration: 400, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }));
-      });
-      anims.push(orb.animate([{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'scale(1)' }],
-        { duration: 300, delay: 200, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
-      return wait(480);
-    }).then(function () {
-      // the ring and tick follow the real loading time: quick load, one quick turn and a quick tick;
-      // slow load, a calm turn that lasts about two rounds, then a slower, relaxed tick
-      var early = !!loadedAt;                              // the data was already in when the circle formed
-      if (early) {
-        orb.style.setProperty('--spin', '.4s');
-        return wait(400).then(function () { return .28; });
+    gateEl.classList.add('signing-in');
+    var squeezed = bs.map(function (b) {
+      var r = b.getBoundingClientRect();
+      return { transform: 'translateX(' + (cx - (r.left + r.width / 2)) + 'px) scale(.6)', opacity: 0, borderRadius: '50%' };
+    });
+    var open = { transform: 'none', opacity: 1, borderRadius: '14px' };
+    var stage = {
+      merge: function () {
+        if (reduce) { bs.forEach(function (b) { b.style.opacity = 0; }); orb.style.opacity = 1; return Promise.resolve(); }
+        bs.forEach(function (b, i) {
+          anims.push(b.animate([open, squeezed[i]], { duration: 400, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' }));
+        });
+        anims.push(orb.animate([{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'scale(1)' }],
+          { duration: 300, delay: 160, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
+        return wait(520);
+      },
+      // correct: the circle turns green and the tick draws
+      success: function () {
+        orb.style.setProperty('--tick', '.45s'); orb.style.setProperty('--tick-delay', '.28s');
+        orb.classList.add('ok', 'done');
+        if (!reduce) anims.push(orb.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: .5 }, { transform: 'scale(1)' }],
+          { duration: 520, delay: 380, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
+        return wait(reduce ? 300 : 1000);
+      },
+      // wrong: the circle opens back out into the six boxes
+      reverse: function () {
+        if (reduce) { stage.cleanup(); return Promise.resolve(); }
+        anims.push(orb.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }));
+        bs.forEach(function (b, i) {
+          anims.push(b.animate([squeezed[i], open], { duration: 380, delay: 90, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
+        });
+        return wait(520).then(stage.cleanup);
+      },
+      cleanup: function () {
+        anims.forEach(function (a) { try { a.cancel(); } catch (e) { /* ignore */ } });
+        if (orb.parentNode) orb.parentNode.removeChild(orb);
+        bs.forEach(function (b) { b.style.opacity = ''; b.readOnly = false; });
+        root.classList.remove('checking'); gateEl.classList.remove('signing-in');
       }
-      return loaded.then(function () {
-        var took = loadedAt - started;
-        var more = Math.max(0, 1400 - (Date.now() - started - 640));   // keep turning for about two rounds in all
-        return wait(more).then(function () { return took > 2500 ? .8 : .55; });
-      });
-    }).then(function (tick) {
-      orb.style.setProperty('--tick', tick + 's');
-      orb.style.setProperty('--tick-delay', (tick * .62).toFixed(2) + 's');
-      orb.classList.add('done');
-      anims.push(orb.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)', offset: .5 }, { transform: 'scale(1)' }], { duration: 520, delay: Math.round(tick * 900), easing: 'cubic-bezier(.32,.72,0,1)', fill: 'forwards' }));
-      return wait(Math.round(tick * 1700) + 200);
-    }).then(finish);
+    };
+    return stage;
   }
 
   function goTo(next, text, kind) {
@@ -218,41 +217,36 @@
   // wake the sign-in service and open the connection while the PIN is being typed
   fetch(T.url + '/functions/v1/admin-pin', { method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ping' }) }).catch(function () { /* only a warm-up */ });
   function unlock() {
-    var pin = code($('a-pin'));
+    var root = $('a-pin'), pin = code(root);
     if (busy || pin.length !== 6) return;
     busy = true;
-    $('a-pin').classList.add('checking');        // the boxes stay light orange while the server checks the PIN
-    boxes($('a-pin')).forEach(function (b) { b.readOnly = true; });
-    fetch(T.url + '/functions/v1/admin-pin', {
+    root.classList.add('checking');
+    boxes(root).forEach(function (b) { b.readOnly = true; });
+    var stage = pinStage();
+    var merged = stage.merge();                    // the boxes start moving at once; the server answers meanwhile
+    var answer = fetch(T.url + '/functions/v1/admin-pin', {
       method: 'POST', headers: { apikey: T.key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'unlock', pin: pin })
     }).then(function (r) { return r.json().catch(function () { return {}; }); })
-      .then(function (d) {
-        if (!(d.state === 'ok' && d.session)) clearBoxes($('a-pin'));
-        if (d.state === 'ok' && d.session) {
-          save({ access_token: d.session.access_token, refresh_token: d.session.refresh_token, expires_at: now() + (d.session.expires_in || 3600) });
-          setErr($('a-pin'), 'a-pin-msg', '');
-          pinSuccess();
-        } else if (d.state === 'wrong') {
-          setErr($('a-pin'), 'a-pin-msg', 'Wrong PIN. Please try again.');
-          focusFirst($('a-pin'));
-        } else if (d.state === 'locked') {
-          goTo('email', 'Too many wrong PINs. Request a code to set a new PIN.', 'bad');
-        } else if (d.state === 'no_pin') {
-          goTo('email', '', '');
-        } else {
-          setErr($('a-pin'), 'a-pin-msg', 'Could not check the PIN. Check your connection and try again.');
-          focusFirst($('a-pin'));
-        }
-      })
-      .catch(function () { setErr($('a-pin'), 'a-pin-msg', 'Could not reach the sign-in service. Check your connection.'); focusFirst($('a-pin')); })
-      .then(function () {
-        busy = false;
-        if ($('a-pin').classList.contains('ok')) return;     // the success animation takes over
-        $('a-pin').classList.remove('checking');
-        boxes($('a-pin')).forEach(function (b) { b.readOnly = false; });
-        if (gate === 'pin' && !unlocked) focusFirst($('a-pin'));
-      });
+      .catch(function () { return { state: 'offline' }; });
+    Promise.all([answer, merged]).then(function (x) {
+      var d = x[0];
+      if (d.state === 'ok' && d.session) {
+        save({ access_token: d.session.access_token, refresh_token: d.session.refresh_token, expires_at: now() + (d.session.expires_in || 3600) });
+        setErr(root, 'a-pin-msg', '');
+        var loaded = refresh();                    // the job list loads while the tick draws
+        return stage.success().then(function () { return loaded; }).then(function () {
+          unlocked = true; show(); stage.cleanup(); clearBoxes(root);
+        });
+      }
+      clearBoxes(root);
+      if (d.state === 'locked') { stage.cleanup(); goTo('email', 'Too many wrong PINs. Request a code to set a new PIN.', 'bad'); return; }
+      if (d.state === 'no_pin') { stage.cleanup(); goTo('email', '', ''); return; }
+      setErr(root, 'a-pin-msg', d.state === 'wrong' ? 'Wrong PIN. Please try again.'
+        : d.state === 'offline' ? 'Could not reach the sign-in service. Check your connection.'
+        : 'Could not check the PIN. Check your connection and try again.');
+      return stage.reverse().then(function () { if (gate === 'pin' && !unlocked) focusFirst(root); });
+    }).then(function () { busy = false; });
   }
   wireBoxes($('a-pin'), 'a-pin-msg', unlock);
   $('a-forgot').addEventListener('click', function () { msg('a-msg', ''); goTo('email'); });
