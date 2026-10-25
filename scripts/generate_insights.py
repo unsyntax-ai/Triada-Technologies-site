@@ -205,7 +205,12 @@ def fresh_enough(c, posts):
     return d is None or (today() - dt.date.fromisoformat(d)).days >= c["every_days"]
 
 
-def rank(cands, words, date):
+DEFAULT_STRONG = ["hiring", "hire", "jobs", "job market", "job posting", "labor", "workforce", "talent", "employer", "wage",
+                  "salary", "pay ", "career", "recruit", "staffing", "layoff", "unemployment", "openings", "graduate",
+                  "seasonal", "employment", "workers", "skills", "developer survey", "future of work"]
+
+
+def rank(cands, words, date, strong=DEFAULT_STRONG):
     """Best first: about hiring and work, recent, and a small daily shake so the pick is not always the same kind."""
     import random
     rnd = random.Random(date)
@@ -213,7 +218,9 @@ def rank(cands, words, date):
     for c in cands:
         text = (" " + c["title"] + " " + c.get("snippet", "") + " ").lower()
         hits = sum(1 for w in words if w in text)
-        if "boost" not in c and hits < 2:   # a feed article must clearly be about hiring, work or skills
+        # a feed article must clearly be about hiring, work, pay or skills: one strong word and two words in all.
+        # (Pure engineering stories mention "engineer" or "AI" often, but say nothing about the job market.)
+        if "boost" not in c and (hits < 2 or not any(w in text for w in strong)):
             continue
         age = (today() - dt.date.fromisoformat(c["date"])).days if c.get("date") else 20
         score = min(hits, 5) + max(0, 30 - age) / 10 + c.get("boost", 0) + rnd.random() * 1.2
@@ -234,7 +241,7 @@ def pick_angle(posts, angles, date):
 def choose_sources(cfg, posts, date):
     """-> (angle, [(candidate, title, text)]) with the main source first, or None if nothing readable."""
     words = [w.lower() for w in cfg.get("keywords", DEFAULT_KEYWORDS)]
-    ranked = rank([c for c in discover(cfg) if fresh_enough(c, posts)], words, date)
+    ranked = rank([c for c in discover(cfg) if fresh_enough(c, posts)], words, date, cfg.get("strong_keywords", DEFAULT_STRONG))
     chosen, queue = [], list(ranked)
     host = lambda c: urllib.parse.urlparse(c["url"]).netloc  # noqa: E731
     while queue and len(chosen) < 3:
@@ -592,7 +599,7 @@ def show_plan():
         cfg = json.load(f)
     existing, date = load_posts(), today().isoformat()
     words = [w.lower() for w in cfg.get("keywords", DEFAULT_KEYWORDS)]
-    ranked = rank([c for c in discover(cfg) if fresh_enough(c, existing)], words, date)
+    ranked = rank([c for c in discover(cfg) if fresh_enough(c, existing)], words, date, cfg.get("strong_keywords", DEFAULT_STRONG))
     print(f"{len(ranked)} fresh candidates today. Best first:")
     for c in ranked[:10]:
         print(f"  {c.get('date') or 'page      '}  {c['title'][:70]}  ({urllib.parse.urlparse(c['url']).netloc})")

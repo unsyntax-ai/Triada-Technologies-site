@@ -37,6 +37,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # always the newest files, not the snapshot from when the run was started, so runs started
+                      # close together can see each other's articles and never pick the same story twice
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
