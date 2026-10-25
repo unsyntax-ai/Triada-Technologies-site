@@ -33,6 +33,9 @@
       "every_days": 120
     }
   ],
+  "skip_urls": [
+    "https://stackoverflow.blog/2026/10/15/your-team-shouldnt-build-an-ai-context-layer/"
+  ],
   "keywords": ["job", "hiring", "hire", "labor", "workforce", "talent", "employer", "worker", "wage", "pay", "salary", "career", "skill", "recruit", "staffing", "contract", "temporary", "remote", "layoff", "unemployment", "openings", "developer", "engineer", "ai ", "survey", "demand", "graduate", "seasonal"],
   "angles": [
     "what this means for contract and contract-to-hire hiring",

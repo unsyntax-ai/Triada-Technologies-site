@@ -192,7 +192,8 @@ def discover(cfg):
                                   "snippet": ip.get("about", ""), "every_days": ip.get("every_days", 120), "boost": 0.5})
         except Exception as e:
             print("could not read", ip["url"], "-", e)
-    return cands
+    skip = set(cfg.get("skip_urls", []))   # stories that were used and later removed: never use them again
+    return [c for c in cands if c["url"] not in skip]
 
 
 def last_used(url, posts):
