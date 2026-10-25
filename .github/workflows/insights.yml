@@ -18,6 +18,10 @@ on:
         description: "Only redraw the illustrations of existing articles"
         type: boolean
         default: false
+      force:
+        description: "Write a new article even if today already has one (use to refresh today's insight)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -42,7 +46,7 @@ jobs:
         continue-on-error: true   # an early try that fails must not stop the site from building; a later try runs again
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }}
+        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }} ${{ inputs.force && '--force' || '' }}
       - name: Note if the insight failed
         if: steps.gen.outcome == 'failure'
         run: echo "::warning::Today's insight could not be written on this try. See the step above for the reason. A later scheduled try runs again."
