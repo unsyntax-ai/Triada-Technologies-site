@@ -275,6 +275,30 @@ def too_similar(post, existing):
 # ---------- Gemini ----------
 FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
 _dead_models = set()
+_available = None   # the models Google offers this key right now, newest first (looked up once per run)
+
+
+def available_models(key):
+    """The Gemini 'flash' models this key can use today, newest first, so retired names are never tried."""
+    try:
+        req = urllib.request.Request("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",
+                                     headers={"x-goog-api-key": key})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            data = json.load(r)
+    except Exception as e:
+        print("could not list Gemini models:", e, file=sys.stderr)
+        return []
+    names = []
+    for m in data.get("models", []):
+        name = m.get("name", "").split("/", 1)[-1]
+        if "generateContent" in m.get("supportedGenerationMethods", []) and "flash" in name \
+                and not re.search(r"image|tts|live|audio|embed|robotics|vision|exp|thinking", name):
+            names.append(name)
+
+    def version(n):
+        nums = re.findall(r"\d+(?:\.\d+)?", n)
+        return float(nums[0]) if nums else 0.0
+    return sorted(set(names), key=lambda n: (-version(n), "lite" in n, "preview" in n, n))
 
 
 # The whole job is allowed 15 minutes. Every AI call together gets this budget (10 minutes), so a slow or
@@ -295,7 +319,7 @@ def _call(prompt, model, key, as_json, temperature):
         body["generationConfig"]["responseMimeType"] = "application/json"
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
                                  headers={"Content-Type": "application/json", "x-goog-api-key": key})
-    with urllib.request.urlopen(req, timeout=max(10, min(90, time_left()))) as r:
+    with urllib.request.urlopen(req, timeout=max(10, min(150, time_left()))) as r:
         data = json.load(r)
     return data["candidates"][0]["content"]["parts"][0]["text"]
 
@@ -307,7 +331,12 @@ def gemini(prompt, model, key, as_json=True, temperature=0.6):
     """Ask Gemini. Busy ("503 overloaded") and rate-limit errors are usually about one model at one moment, so
     this goes round the models one after another, waits a little longer after each round, and keeps going
     until the time budget is used. A model that does not exist or rejects the request is skipped."""
-    models = [model] + [x for x in FALLBACK_MODELS if x != model]
+    global _available
+    if _available is None:
+        _available = available_models(key)
+        print("Gemini models available to this key:", ", ".join(_available[:8]) or "(could not be listed)", file=sys.stderr)
+    pool = _available or FALLBACK_MODELS   # the live list when Google answers; the built-in names only as a last resort
+    models = ([model] if not _available or model in _available else []) + [x for x in pool if x != model]
     seen = _seen
     wait = 8
     while time_left() > 15:
