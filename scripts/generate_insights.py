@@ -386,7 +386,7 @@ def parse_json(text):
 
 def article_prompt(source_blocks, recent_titles, topic_hint, fix="", angle="", main_title=""):
     return f"""You write for the Insights section of Triada Technologies, a nationwide staffing firm (headquartered in Erie, PA) serving employers and professionals across the United States.
-Write ONE original article (about 550 to 750 words) for the staffing industry, for hiring managers and job seekers anywhere in the United States. {topic_hint}
+Write ONE original article (550 to 750 words) for the staffing industry, for hiring managers and job seekers anywhere in the United States. {topic_hint}
 
 Today's article is built on the MAIN SOURCE, the first one below ("{main_title}"). Its specific story, findings and facts
 are the heart of the article, and the title must name what is new in it. The other sources only add supporting facts.
@@ -395,7 +395,8 @@ Today's angle: {angle or "what this means for employers and candidates"}. Make t
 Rules:
 - Use only facts found in the SOURCES below. Never invent numbers, quotes, companies or dates.
 - If the sources do not support a claim, leave it out.
-- Put everything in your own words. Do not copy sentences.
+- Put everything in your own words. Never reuse a stretch of 8 or more words in a row from the sources, including official wording and sentences that report a statistic: restate each figure in a new sentence of your own.
+- Length: 550 to 750 words in the sections together, never fewer than 520.
 - Plain, warm, professional tone. No hype. Do not use em dashes or the word "delve".
 - Do not repeat these recent articles, their titles or their ideas, and do not start the title like any of them: {json.dumps(recent_titles)}.
 - Give the article its own specific title, not a generic "Navigating ... trends" one.
@@ -470,14 +471,17 @@ def norm_words(text):
     return re.findall(r"[a-z0-9']+", text.lower())
 
 
-def too_close_to_source(article_text, source_texts, run=10):
-    """True if the article repeats `run` or more words in a row from any source."""
+def too_close_to_source(article_text, source_texts, run=12):
+    """The first stretch of `run` or more words that the article repeats word for word from a source, or None."""
     grams = set()
     for t in source_texts:
         w = norm_words(t)
         grams.update(tuple(w[i:i + run]) for i in range(len(w) - run + 1))
     w = norm_words(article_text)
-    return any(tuple(w[i:i + run]) in grams for i in range(len(w) - run + 1))
+    for i in range(len(w) - run + 1):
+        if tuple(w[i:i + run]) in grams:
+            return " ".join(w[i:i + run])
+    return None
 
 
 def unsupported_numbers(article_text, source_texts):
@@ -514,8 +518,9 @@ def validate(post, allowed_urls, source_texts=()):
                     [t for s in post["sections"] for t in [s["heading"]] + s["paragraphs"]] + post["takeaways"])
     if re.search(r"https?://|www\.|@\w+\.\w+", full):
         return "contains a link or email address"
-    if source_texts and too_close_to_source(full, source_texts):
-        return "copies a long run of words from a source"
+    copied = too_close_to_source(full, source_texts) if source_texts else None
+    if copied:
+        return f'copies a run of words from a source word for word ("{copied}"); rewrite that part completely in new words and a new sentence structure'
     if source_texts:
         bad = unsupported_numbers(full, source_texts)
         if bad:
@@ -658,7 +663,7 @@ def run(args):
         allowed = set(src_titles)
         recent = [p["title"] for p in sorted(existing, key=lambda p: p["published"])[-14:]]
         post, why = None, ""
-        for attempt in range(5):
+        for attempt in range(6):
             try:
                 fix = why if why and not why.startswith("request failed") else ""
                 candidate = parse_json(gemini(article_prompt("\n\n".join(blocks), recent, cfg.get("focus", ""), fix, angle, chosen[0][1]), model, key, temperature=0.8))
