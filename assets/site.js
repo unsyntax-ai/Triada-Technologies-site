@@ -2,6 +2,13 @@
   var root = document.documentElement;
   root.classList.add('js');
 
+  // The home page is shown as https://triadatechnologies.com/ , not .../index.html (an old link or bookmark gets tidied)
+  try {
+    if (/\/index\.html$/.test(location.pathname) && window.history && history.replaceState) {
+      history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
+    }
+  } catch (e) { /* the address stays as it was */ }
+
   // Top bar: frosted and transparent once the page is scrolled
   var header = document.querySelector('header.site');
   function onScroll() {

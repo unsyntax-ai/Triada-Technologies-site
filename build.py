@@ -25,6 +25,7 @@ SITE = "https://triadatechnologies.com"
 OG_IMAGE = SITE + "/assets/og-image.jpg"            # the home picture, also the default
 OG_BY_PAGE = {"services.html": "og-services.jpg", "about.html": "og-about.jpg", "jobs.html": "og-jobs.jpg", "job.html": "og-jobs.jpg",
               "contact.html": "og-contact.jpg", "insights.html": "og-insights.jpg", "insights-archive.html": "og-insights.jpg"}
+HOME_LINK = "./"   # a link to the folder, not to index.html, so the address bar shows https://triadatechnologies.com/
 LOGO_SQUARE = SITE + "/assets/favicon-512.png"        # Google shows the logo in a square, so it gets the square mark
 
 
@@ -117,12 +118,12 @@ def header(active):
         active = "insights.html"
     links = "\n".join(
         '        <li><a href="{}"{}>{}</a></li>'.format(
-            href, ' aria-current="page"' if href == active else "", label)
+            HOME_LINK if href == "index.html" else href, ' aria-current="page"' if href == active else "", label)
         for href, label in NAV
     )
     return f'''<header class="site">
   <div class="wrap bar">
-    <a class="brand" href="index.html" aria-label="Triada Technologies home"><img class="logo-base" src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"><img class="logo-hover" src="assets/logo-color.svg" width="116" height="34" alt="" aria-hidden="true"></a>
+    <a class="brand" href="{HOME_LINK}" aria-label="Triada Technologies home"><img class="logo-base" src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"><img class="logo-hover" src="assets/logo-color.svg" width="116" height="34" alt="" aria-hidden="true"></a>
     <nav aria-label="Main">
       <ul>
 {links}
@@ -1217,7 +1218,7 @@ if __name__ == "__main__":
                               build_post(p), script=True, schema=post_schema(p), og_type="article")
     outputs["404.html"] = page("Page not found | Triada Technologies", "The page you are looking for does not exist.", "404.html",
                                hero_card("404", "Page not found.", "The page you are looking for has moved or does not exist.")
-                               + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="index.html">Go to home</a></div></section>',
+                               + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="./">Go to home</a></div></section>',
                                script=True, noindex=True)
     for name, text in {**outputs, **private}.items():
         with open(name, "w", encoding="utf-8") as f:
