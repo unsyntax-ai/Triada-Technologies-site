@@ -13,6 +13,7 @@
 
 ## Insights
 
+- [Contract Strategies as Computer Programmer Roles Decline 7 Percent](https://triadatechnologies.com/insight-contract-strategies-as-computer-programmer-roles-decline-7-percent.html): As computer programmer positions contract by 7 percent, employers and candidates are turning to flexible staffing models to sustain core software development. (2026-10-30)
 - [Computer Systems Analysts Face 8% Growth and New Skill Demands](https://triadatechnologies.com/insight-computer-systems-analysts-face-8-growth-and-new-skill-demands.html): Computer systems analyst employment is expanding by 8 percent over the coming decade. As hiring settles into a measured pace, candidates and employers must align on specific technical skill bundles. (2026-10-29)
 - [Computer Support Jobs Drop 3% as Annual Openings Reach 48,700](https://triadatechnologies.com/insight-computer-support-jobs-drop-3-as-annual-openings-reach-48-700.html): Despite projected employment declines in tech support, consistent turnover creates ongoing demand for temporary, contract, and flexible staffing solutions across the United States. (2026-10-28)
 - [Artificial Intelligence Standardization in the 2026 Developer Survey](https://triadatechnologies.com/insight-artificial-intelligence-standardization-in-the-2026-developer-survey.html): Data from the 2026 developer survey reveals high daily AI usage, persistent security and trust challenges, and new priorities for U.S. technical staffing. (2026-10-27)
