@@ -13,6 +13,7 @@
 
 ## Insights
 
+- [September 2026 JOLTS: Quiet Hiring Meets AI Infrastructure Spending](https://triadatechnologies.com/insight-september-2026-jolts-quiet-hiring-meets-ai-infrastructure-spending.html): While September 2026 JOLTS data shows quiet labor turnover and 7.5 million job openings, heavy investments in AI infrastructure are driving new workforce strategy priorities across the United States. (2026-11-04)
 - [Database Architect and Administrator Hiring at $126,760 Median Pay](https://triadatechnologies.com/insight-database-architect-and-administrator-hiring-at-126-760-median-pay.html): Federal projections show steady growth and 7,300 annual openings for database roles. Discover the key skills required and how flexible staffing strategies help employers and candidates adapt. (2026-11-03)
 - [Managing Staffing for $109,470 Tech Median Pay and Role Growth](https://triadatechnologies.com/insight-managing-staffing-for-109-470-tech-median-pay-and-role-growth.html): With 280,000 annual openings and a median wage of $109,470, tech leaders must balance direct-hire, contract, and contract-to-hire staffing across expanding specialized roles. (2026-11-02)
 - [Network Architect Pay Hits $134,050 Amid 8 Percent Role Growth](https://triadatechnologies.com/insight-network-architect-pay-hits-134-050-amid-8-percent-role-growth.html): As network architect wages reach a median of $134,050 per year, organizations are calibrating compensation plans and contract models to secure experienced technical talent. (2026-11-01)
