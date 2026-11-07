@@ -1,0 +1,47 @@
+name: Publish site
+
+# One site, four branches:  main = the live website, dev = /dev/, mobile-main = /mobile/, mobile-dev = /mobile-dev/.
+# Any push to one of the four branches republishes everything. The daily insight job writes with the built-in token,
+# which does not start other workflows, so this one also starts when that job finishes.
+on:
+  push:
+    branches: [main, dev, mobile-main, mobile-dev]
+  workflow_run:
+    workflows: ["Daily insight"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, path: checkouts/main }
+      - uses: actions/checkout@v4
+        continue-on-error: true       # a branch that does not exist yet is simply skipped
+        with: { ref: dev, path: checkouts/dev }
+      - uses: actions/checkout@v4
+        continue-on-error: true
+        with: { ref: mobile-main, path: checkouts/mobile-main }
+      - uses: actions/checkout@v4
+        continue-on-error: true
+        with: { ref: mobile-dev, path: checkouts/mobile-dev }
+      - name: Assemble the site
+        run: python3 checkouts/main/scripts/assemble_site.py checkouts _site
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+      - id: deployment
+        uses: actions/deploy-pages@v4
