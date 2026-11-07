@@ -277,7 +277,7 @@
       },
       message: function (v) {
         if (!v) return 'Write a short message so we know how to help.';
-        if (v.length < 60) return 'Please add a little more detail (at least 60 characters) so we can help.';
+        if (v.length < 60) return 'Please add at least 60 characters so we can help.';
         if (v.length > 999) return 'Shorten your message to 999 characters or fewer.';
         return '';
       }
