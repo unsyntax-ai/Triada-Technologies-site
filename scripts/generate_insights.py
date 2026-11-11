@@ -261,6 +261,24 @@ def choose_sources(cfg, posts, date):
             if len(chosen) == 1:
                 queue.sort(key=lambda x: host(x) == host(c))   # support comes from other sites first (the sort is stable)
     if not chosen:
+        # Nothing fresh today. Rather than skip the day, go back to the reference pages (data and profile pages that
+        # change slowly), oldest use first and at least 21 days since the last article on them. The angle rotates,
+        # and the "too similar" check later still refuses a repeat, so the insight keeps coming every day.
+        print("No fresh story today: reusing the reference page that has rested longest.")
+        pool = [c for c in discover(cfg) if "boost" in c and (last_used(c["url"], posts) is None
+                or (today() - dt.date.fromisoformat(last_used(c["url"], posts))).days >= 21)]
+        pool.sort(key=lambda c: last_used(c["url"], posts) or "0000-00-00")
+        for c in pool:
+            try:
+                title, text = fetch_source(c["url"], 9000 if not chosen else 4500)
+            except Exception as e:
+                print("could not read", c["url"], "-", e)
+                continue
+            if len(text) > 600:
+                chosen.append((c, title, text))
+            if len(chosen) == 3:
+                break
+    if not chosen:
         return None
     return pick_angle(posts, cfg.get("angles", DEFAULT_ANGLES), date), chosen
 
