@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "modern technology workforce data visualization",
   "art": {
-    "motif": "search",
-    "params": {
-      "pick": 3
-    }
+    "motif": "gauge",
+    "params": {},
+    "tint": "lilac"
   },
   "sections": [
     {

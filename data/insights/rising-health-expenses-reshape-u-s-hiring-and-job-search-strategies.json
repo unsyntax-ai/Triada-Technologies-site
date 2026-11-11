@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "professional reviewing benefits document at desk",
   "art": {
-    "motif": "balance",
-    "params": {
-      "heavier": "left"
-    }
+    "motif": "compass",
+    "params": {},
+    "tint": "mist"
   },
   "sections": [
     {

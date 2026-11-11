@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "IT support specialists discussing flexible workforce planning",
   "art": {
-    "motif": "compass",
-    "params": {
-      "heading": 210
-    }
+    "motif": "balance",
+    "params": {},
+    "tint": "teal"
   },
   "sections": [
     {

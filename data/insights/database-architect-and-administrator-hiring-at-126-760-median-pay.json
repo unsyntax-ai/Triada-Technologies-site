@@ -10,16 +10,9 @@
   "has_art": true,
   "topic": "database administrators analyzing computer server hardware",
   "art": {
-    "motif": "bars",
-    "params": {
-      "values": [
-        40,
-        55,
-        68,
-        82,
-        95
-      ]
-    }
+    "motif": "servers",
+    "params": {},
+    "tint": "mist"
   },
   "sections": [
     {

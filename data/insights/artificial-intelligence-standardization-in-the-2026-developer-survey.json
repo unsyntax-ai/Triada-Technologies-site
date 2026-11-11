@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Developers working with AI code verification tools",
   "art": {
-    "motif": "gauge",
-    "params": {
-      "level": 85
-    }
+    "motif": "shield",
+    "params": {},
+    "tint": "lilac"
   },
   "sections": [
     {

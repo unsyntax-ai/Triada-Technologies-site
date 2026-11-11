@@ -467,8 +467,21 @@ Return JSON with exactly these keys:
 """
 
 
-def pick_art(post, recent_motifs, model=None, key=None):
-    """Ask the AI which illustration fits the post; fall back to matching words if it gives no usable answer."""
+def pick_tint(title, recent_tints):
+    """A background colour that is not one of the last two used, chosen from the title so it is stable."""
+    order = illustrations.TINT_ORDER
+    start = sum(ord(ch) for ch in title) % len(order)
+    for i in range(len(order)):
+        t = order[(start + i) % len(order)]
+        if t not in recent_tints[-2:]:
+            return t
+    return order[start]
+
+
+def pick_art(post, recent_motifs, model=None, key=None, recent_tints=()):
+    """Ask the AI which illustration fits the post; fall back to matching words if it gives no usable answer.
+    A picture used in any of the last posts is never chosen again, so neighbouring articles never look alike."""
+    tint = pick_tint(post["title"], list(recent_tints))
     if key:
         for _ in range(2):
             try:
@@ -476,16 +489,16 @@ def pick_art(post, recent_motifs, model=None, key=None):
             except Exception as e:
                 print("illustration choice failed:", e)
                 continue
-            if isinstance(ans, dict) and ans.get("motif") in illustrations.MOTIFS:
+            if isinstance(ans, dict) and ans.get("motif") in illustrations.MOTIFS and ans["motif"] not in recent_motifs:
                 params = ans.get("params") if isinstance(ans.get("params"), dict) else {}
-                return {"motif": ans["motif"], "params": params}
+                return {"motif": ans["motif"], "params": params, "tint": tint}
     words = " ".join([post["title"], post.get("summary", ""), post.get("topic", "")])
-    return {"motif": illustrations.guess(words, recent_motifs), "params": {}}
+    return {"motif": illustrations.guess(words, recent_motifs), "params": {}, "tint": tint}
 
 
 def save_art(slug, art):
     with open(os.path.join(ART_DIR, slug + ".svg"), "w", encoding="utf-8") as f:
-        f.write(illustrations.draw(art["motif"], art["params"]))
+        f.write(illustrations.draw(art["motif"], art["params"], art.get("tint")))
 
 
 # ---------- post validation ----------
@@ -584,11 +597,16 @@ def mock_post(n):
     }
 
 
-def recent_motifs(posts, n=3):
+def recent_motifs(posts, n=9):
+    """The pictures of the last n posts. With 21 pictures, none comes back within nine posts."""
     return [p["art"]["motif"] for p in sorted(posts, key=lambda p: p["published"])[-n:] if p.get("art")]
 
 
-def redo_art(ask_ai):
+def recent_tints(posts, n=2):
+    return [p["art"].get("tint", "") for p in sorted(posts, key=lambda p: p["published"])[-n:] if p.get("art")]
+
+
+def redo_art(ask_ai, reshuffle=False):
     """Redraw every post's illustration. With ask_ai, the AI chooses again; otherwise each post keeps
     its saved choice (or gets one from its words), so this also works with no key."""
     key = model = None
@@ -601,8 +619,8 @@ def redo_art(ask_ai):
             model = os.environ.get("GEMINI_MODEL") or json.load(f).get("model", "gemini-3.8-flash")
     done = []
     for p in sorted(load_posts(), key=lambda p: p["published"]):
-        if ask_ai or not p.get("art"):
-            p["art"] = pick_art(p, recent_motifs(done), model, key)
+        if ask_ai or reshuffle or not p.get("art"):
+            p["art"] = pick_art(p, recent_motifs(done), model, key, recent_tints(done))
         save_art(p["slug"], p["art"])
         p["has_art"] = True
         with open(os.path.join(DATA_DIR, p["slug"] + ".json"), "w", encoding="utf-8") as f:
@@ -646,8 +664,8 @@ def run(args):
     os.makedirs(ART_DIR, exist_ok=True)
     if args.check:
         return check_today()
-    if args.redo_art or args.redraw:
-        return redo_art(ask_ai=args.redo_art)
+    if args.redo_art or args.redraw or args.reshuffle:
+        return redo_art(ask_ai=args.redo_art, reshuffle=args.reshuffle)
     if args.plan:
         return show_plan()
     prune_old()
@@ -659,7 +677,7 @@ def run(args):
 
     if args.mock:
         post = mock_post(len(existing) + 1)
-        art = pick_art(post, recent_motifs(existing))
+        art = pick_art(post, recent_motifs(existing), recent_tints=recent_tints(existing))
         allowed = {"https://example.com/source"}
         src_titles = {"https://example.com/source": "Example source"}
     else:
@@ -708,7 +726,7 @@ def run(args):
             return 1
         post["used_sources"] = list(dict.fromkeys([main_url] + post["used_sources"]))   # the main source always counts as used
         post["angle"], post["primary_source"] = angle, main_url
-        art = pick_art(post, recent_motifs(existing), model, key)
+        art = pick_art(post, recent_motifs(existing), model, key, recent_tints(existing))
 
     slug = slugify(post["title"])
     if any(p["slug"] == slug for p in existing):
@@ -732,6 +750,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--mock", action="store_true", help="make a sample post with no network")
     ap.add_argument("--redo-art", action="store_true", help="let the AI choose every post's illustration again, no new article")
+    ap.add_argument("--reshuffle", action="store_true", help="choose every post's illustration again from its words so neighbouring posts never share a picture, no key needed")
     ap.add_argument("--redraw", action="store_true", help="redraw every post's illustration from its saved choice, no key needed")
     ap.add_argument("--force", action="store_true", help="allow a second post on the same day")
     ap.add_argument("--check", action="store_true", help="exit with an error unless today's insight is published")

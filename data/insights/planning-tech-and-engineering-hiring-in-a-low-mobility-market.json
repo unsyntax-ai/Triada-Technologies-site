@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Engineers reviewing data center blueprints",
   "art": {
-    "motif": "balance",
-    "params": {
-      "heavier": "even"
-    }
+    "motif": "database",
+    "params": {},
+    "tint": "teal"
   },
   "sections": [
     {

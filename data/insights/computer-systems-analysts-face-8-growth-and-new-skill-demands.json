@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "systems analyst reviewing enterprise data",
   "art": {
-    "motif": "blocks",
-    "params": {
-      "layers": 4
-    }
+    "motif": "ladder",
+    "params": {},
+    "tint": "sky"
   },
   "sections": [
     {

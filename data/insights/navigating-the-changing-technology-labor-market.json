@@ -59,15 +59,8 @@
     }
   ],
   "art": {
-    "motif": "bars",
-    "params": {
-      "values": [
-        38,
-        57,
-        46,
-        76,
-        100
-      ]
-    }
+    "motif": "compass",
+    "params": {},
+    "tint": "sand"
   }
 }

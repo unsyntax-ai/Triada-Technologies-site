@@ -11,9 +11,8 @@
   "topic": "Computer network planning and infrastructure",
   "art": {
     "motif": "gauge",
-    "params": {
-      "level": 84
-    }
+    "params": {},
+    "tint": "sky"
   },
   "sections": [
     {

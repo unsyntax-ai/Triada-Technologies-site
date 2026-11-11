@@ -63,9 +63,8 @@
     }
   ],
   "art": {
-    "motif": "compass",
-    "params": {
-      "heading": 38
-    }
+    "motif": "code",
+    "params": {},
+    "tint": "sky"
   }
 }

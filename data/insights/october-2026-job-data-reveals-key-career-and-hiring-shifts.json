@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "career planning during labor market shifts",
   "art": {
-    "motif": "compass",
-    "params": {
-      "heading": 45
-    }
+    "motif": "search",
+    "params": {},
+    "tint": "mist"
   },
   "sections": [
     {

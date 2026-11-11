@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Technology workforce data and planning",
   "art": {
-    "motif": "compass",
-    "params": {
-      "heading": 45
-    }
+    "motif": "bars",
+    "params": {},
+    "tint": "lilac"
   },
   "sections": [
     {

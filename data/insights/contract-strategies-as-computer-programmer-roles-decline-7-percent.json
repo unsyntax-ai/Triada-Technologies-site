@@ -10,8 +10,9 @@
   "has_art": true,
   "topic": "software development and contract staffing",
   "art": {
-    "motif": "bars",
-    "params": {}
+    "motif": "code",
+    "params": {},
+    "tint": "lilac"
   },
   "sections": [
     {

@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Graphs showing productivity versus compensation growth",
   "art": {
-    "motif": "gauge",
-    "params": {
-      "level": 85
-    }
+    "motif": "laptop",
+    "params": {},
+    "tint": "lilac"
   },
   "sections": [
     {

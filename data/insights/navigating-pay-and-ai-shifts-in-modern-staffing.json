@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Digital compensation charts and hiring analytics on a screen",
   "art": {
-    "motif": "compass",
-    "params": {
-      "heading": 45
-    }
+    "motif": "chip",
+    "params": {},
+    "tint": "mist"
   },
   "sections": [
     {

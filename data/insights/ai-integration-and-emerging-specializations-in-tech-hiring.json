@@ -11,9 +11,8 @@
   "topic": "technical architecture diagrams on digital screen",
   "art": {
     "motif": "blocks",
-    "params": {
-      "layers": 4
-    }
+    "params": {},
+    "tint": "sky"
   },
   "sections": [
     {

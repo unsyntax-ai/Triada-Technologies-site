@@ -10,10 +10,9 @@
   "has_art": true,
   "topic": "Data center buildouts and tech charts",
   "art": {
-    "motif": "balance",
-    "params": {
-      "heavier": "even"
-    }
+    "motif": "network",
+    "params": {},
+    "tint": "sky"
   },
   "sections": [
     {
