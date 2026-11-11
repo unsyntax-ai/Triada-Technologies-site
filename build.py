@@ -81,7 +81,7 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/mobile-base.css">
 <link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
-<script>(function(){{try{{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
+<script>(function(){{try{{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}}catch(e){{}}try{{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
 {schema}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -168,7 +168,9 @@ def tabbar(active):
             href, ' aria-current="page"' if href == active else "", icon, label)
         for href, label, icon in TABS
     )
-    return f'<nav class="tabbar" aria-label="Primary">\n{links}\n</nav>\n'
+    idx = next((i for i, t in enumerate(TABS) if t[0] == active), 0)
+    # the glass lens is part of the page, placed behind the selected tab by CSS (--i), so it is right from the first paint
+    return f'<nav class="tabbar" aria-label="Primary" style="--i:{idx}">\n  <span class="tab-lens" aria-hidden="true"></span>\n{links}\n</nav>\n'
 
 
 FD_PILL = (

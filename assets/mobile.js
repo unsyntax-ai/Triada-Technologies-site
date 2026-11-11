@@ -16,64 +16,81 @@
   Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () { setView('classic'); }); });
   Array.prototype.forEach.call(document.querySelectorAll('.classic-pill'), function (b) { b.addEventListener('click', function () { setView('app'); }); });
 
-  // ----- tab bar: a liquid-glass lens glides from the selected tab to the one you tap, then the page changes.
-  // Tapping the tab you are already on scrolls back to the top. Without animation support or with reduced motion
-  // the lens just sits behind the selected tab and taps navigate straight away. -----
+  // ----- tab bar: a liquid-glass lens flows from the selected tab to the one you tap. The glide starts on the page you tap
+  // and CONTINUES on the next page (the start time is passed along for a moment), so it reads as one movement, not a jump.
+  // Its leading edge runs ahead and the trailing edge follows, so it stretches like a drop. Tapping the tab you are on
+  // scrolls to the top. With reduced motion (or no animation support) taps simply navigate. -----
   var here = function (p) { var n = p.replace(/\/+$/, '').split('/').pop(); return n || 'index.html'; };
   var bar = document.querySelector('.tabbar');
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   if (bar) {
-    var lens = document.createElement('span');
-    lens.className = 'tab-lens'; lens.setAttribute('aria-hidden', 'true');
-    bar.insertBefore(lens, bar.firstChild); bar.classList.add('has-lens');
+    var lens = bar.querySelector('.tab-lens');
     var tabs = Array.prototype.slice.call(bar.querySelectorAll('a'));
-    var cur = bar.querySelector('a[aria-current]');
-    var busy = false, goTimer = 0;
-    var geom = function (a) { return { x: a.offsetLeft + 6, w: Math.max(0, a.offsetWidth - 12) }; };
-    var place = function (a) {
-      if (!a) { lens.style.display = 'none'; return; }
-      var g = geom(a);
-      lens.style.display = ''; lens.style.width = g.w + 'px'; lens.style.transform = 'translateX(' + g.x + 'px)';
+    var curIdx = 0, KEYL = 'triada-lens', DUR = 520;
+    tabs.forEach(function (t, i) { if (t.hasAttribute('aria-current')) curIdx = i; });
+    var edges = function (i) { var t = tabs[i]; return { l: t.offsetLeft + 1, r: t.offsetLeft + t.offsetWidth - 1 }; };
+    var bez = function (x1, y1, x2, y2) {   // CSS cubic-bezier as a function of time, for building the two edge paths
+      var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      var X = function (t) { return ((ax * t + bx) * t + cx) * t; }, Y = function (t) { return ((ay * t + by) * t + cy) * t; };
+      var dX = function (t) { return (3 * ax * t + 2 * bx) * t + cx; };
+      return function (x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        var t = x;
+        for (var i = 0; i < 8; i++) { var e = X(t) - x; if (Math.abs(e) < 1e-5) break; var d = dX(t); if (Math.abs(d) < 1e-6) break; t -= e / d; }
+        return Y(t);
+      };
     };
-    var reset = function () {
-      clearTimeout(goTimer); busy = false;
-      bar.classList.remove('moving'); tabs.forEach(function (t) { t.classList.remove('is-target'); });
-      lens.getAnimations && lens.getAnimations().forEach(function (an) { an.cancel(); });
-      place(cur);
+    var lead = bez(.12, .85, .25, 1.14), trail = bez(.42, 0, .2, 1);
+    var glide = function (from, to, elapsed) {
+      if (!lens || !lens.animate || from === to) return null;
+      var A = edges(from), B = edges(to), right = B.l > A.l, N = 30, frames = [];
+      for (var i = 0; i <= N; i++) {
+        var t = i / N, fast = lead(t), slow = trail(Math.max(0, (t - .1) / .9));
+        var l = A.l + (B.l - A.l) * (right ? slow : fast);
+        var r = A.r + (B.r - A.r) * (right ? fast : slow);
+        l = Math.max(3, l); r = Math.min(bar.clientWidth - 3, r);   // the overshoot never pokes past the screen edge
+        frames.push({ left: l + 'px', width: Math.max(8, r - l) + 'px', transform: 'scaleY(' + (1 - .07 * Math.sin(Math.PI * t)).toFixed(3) + ')', offset: t });
+      }
+      var an = lens.animate(frames, { duration: DUR, easing: 'linear', fill: 'both' });
+      if (elapsed) an.currentTime = elapsed;
+      an.onfinish = function () { an.cancel(); };   // hands the lens back to the CSS resting position, which is the same spot
+      return an;
     };
-    place(cur);
-    window.addEventListener('resize', function () { if (!busy) place(cur); });
-    window.addEventListener('orientationchange', function () { if (!busy) place(cur); });
-    if (phone.addEventListener) phone.addEventListener('change', function () { if (!busy) place(cur); });
-    window.addEventListener('pageshow', function (e) { if (e.persisted) reset(); });   // back button: the page comes back as it was left
+    var settle = function () {
+      bar.classList.remove('moving');
+      tabs.forEach(function (t) { t.classList.remove('is-target'); });
+      if (lens && lens.getAnimations) lens.getAnimations().forEach(function (an) { an.cancel(); });
+      try { sessionStorage.removeItem(KEYL); } catch (e) { /* ignore */ }
+    };
 
-    var glide = function (from, to, done) {
-      var f = geom(from), t = geom(to), dx = t.x - f.x, dir = dx < 0 ? -1 : 1;
-      // squash and stretch: it lengthens while it travels, overshoots a touch, then settles
-      var an = lens.animate([
-        { transform: 'translateX(' + f.x + 'px) scale(1,1)', offset: 0, easing: 'cubic-bezier(.3,.6,.3,1)' },
-        { transform: 'translateX(' + (f.x + dx * .55) + 'px) scale(1.2,.9)', offset: .45, easing: 'cubic-bezier(.3,.6,.3,1)' },
-        { transform: 'translateX(' + (t.x + dir * 5) + 'px) scale(1.04,.98)', offset: .85, easing: 'ease-out' },
-        { transform: 'translateX(' + t.x + 'px) scale(1,1)', offset: 1 }
-      ], { duration: 440, fill: 'forwards' });
-      an.onfinish = function () { place(to); an.cancel(); if (done) done(); };
-    };
+    // arriving from another tab: pick the glide up where the previous page left it
+    try {
+      var rec = JSON.parse(sessionStorage.getItem(KEYL) || 'null');
+      sessionStorage.removeItem(KEYL);
+      if (rec && !reduced() && rec.t === curIdx) {
+        var el = Date.now() - rec.t0;
+        if (el >= 0 && el < DUR - 40) glide(rec.f, rec.t, el);
+      }
+    } catch (e) { /* ignore */ }
+    root.classList.remove('lens-wait');
+    window.addEventListener('pageshow', function (e) { if (e.persisted) settle(); });   // back button: the page comes back as it was left
 
-    tabs.forEach(function (a) {
+    tabs.forEach(function (a, idx) {
       a.addEventListener('click', function (e) {
         if (!active() || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         var samePage = here(a.pathname) === here(location.pathname);
-        if (a === cur && samePage) {                       // the tab you are on: back to the top
+        if (idx === curIdx && samePage) {                       // the tab you are on: back to the top
           e.preventDefault();
           window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
-          if (!reduced() && lens.animate) lens.animate([{ transform: lens.style.transform + ' scale(1,1)' }, { transform: lens.style.transform + ' scale(1.08,.94)' }, { transform: lens.style.transform + ' scale(1,1)' }], { duration: 260, easing: 'ease-out' });
+          if (!reduced() && lens && lens.animate) lens.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.94)' }, { transform: 'scale(1,1)' }], { duration: 260, easing: 'ease-out' });
           return;
         }
-        if (a === cur || !cur || reduced() || !lens.animate || busy) return;   // a different page under the same tab, or no animation: plain navigation
-        e.preventDefault(); busy = true;
-        bar.classList.add('moving'); a.classList.add('is-target');
-        glide(cur, a);
-        goTimer = setTimeout(function () { location.href = a.href; }, 280);
+        if (idx === curIdx || reduced() || !lens || !lens.animate) return;   // same tab on another page, or no animation: plain navigation
+        try { sessionStorage.setItem(KEYL, JSON.stringify({ f: curIdx, t: idx, t0: Date.now() })); } catch (err) { return; }
+        bar.classList.add('moving');
+        a.classList.add('is-target');
+        glide(curIdx, idx, 0);       // starts now; the link then navigates normally and the next page continues it
       });
     });
   }

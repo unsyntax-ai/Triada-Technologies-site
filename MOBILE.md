@@ -31,7 +31,8 @@ Desktop and tablet (anything wider than 700px) must look and behave exactly as b
 ## Bottom tab bar behaviour (same on every page)
 - Same five tabs, position, size and look on every page. Exactly one tab is always selected (orange icon outline).
 - Pages without their own tab stay under the tab people come from: Contact and Services, a job and Admin under Jobs, articles and the archive under Insights, 404 under Home.
-- A frosted "liquid glass" lens sits behind the selected tab. Tapping another tab makes it glide there (it stretches while it travels, overshoots slightly, then settles) and then the page changes. With reduced motion, or if animation is unavailable, taps just navigate.
+- A frosted "liquid glass" lens (a 44px-high rounded rectangle, wider than tall, with Apple-style continuous 22px corners) sits behind the selected tab. It is in the page HTML and CSS places it (`--i` = selected tab), so it is right from the first paint.
+- Tapping another tab makes it flow there: its leading edge runs ahead and the trailing edge follows, so it stretches like a drop, overshoots slightly and settles. The glide starts on the page you tap and CONTINUES on the next page (the start time is passed along in `sessionStorage` for about half a second), so it is one movement rather than a jump. Navigation is never delayed or blocked. With reduced motion, taps just navigate.
 - Tapping the selected tab scrolls to the top instead of reloading, with a small pulse of the lens. Tapping another tab goes to that page.
 - Page changes keep the top and bottom bars still and only fade the content (browsers that support cross-document view transitions; others simply load the next page).
 - The bar steps aside while a form field has the keyboard, and during the home opening animation.
