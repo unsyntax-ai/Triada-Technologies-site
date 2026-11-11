@@ -10,7 +10,7 @@
   "has_art": true,
   "topic": "database administrators analyzing computer server hardware",
   "art": {
-    "motif": "servers",
+    "motif": "network",
     "params": {},
     "tint": "mist"
   },

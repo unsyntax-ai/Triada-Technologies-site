@@ -597,9 +597,13 @@ def mock_post(n):
     }
 
 
-def recent_motifs(posts, n=9):
-    """The pictures of the last n posts. With 21 pictures, none comes back within nine posts."""
-    return [p["art"]["motif"] for p in sorted(posts, key=lambda p: p["published"])[-n:] if p.get("art")]
+def recent_motifs(posts, ref=None, days=30):
+    """The pictures of the posts that are still live (published within the last `days`, the same 30 days a post stays on
+    the Insights page before it is archived). A picture is never repeated while its post is live; once the post is
+    archived the picture can be used again."""
+    ref = dt.date.fromisoformat(ref) if ref else today()
+    return [p["art"]["motif"] for p in posts
+            if p.get("art") and 0 <= (ref - dt.date.fromisoformat(p["published"])).days <= days]
 
 
 def recent_tints(posts, n=2):
@@ -620,7 +624,7 @@ def redo_art(ask_ai, reshuffle=False):
     done = []
     for p in sorted(load_posts(), key=lambda p: p["published"]):
         if ask_ai or reshuffle or not p.get("art"):
-            p["art"] = pick_art(p, recent_motifs(done), model, key, recent_tints(done))
+            p["art"] = pick_art(p, recent_motifs(done, p["published"]), model, key, recent_tints(done))
         save_art(p["slug"], p["art"])
         p["has_art"] = True
         with open(os.path.join(DATA_DIR, p["slug"] + ".json"), "w", encoding="utf-8") as f:
