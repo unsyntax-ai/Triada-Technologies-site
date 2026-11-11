@@ -1,10 +1,14 @@
 {
   "model": "gemini-3.8-flash",
-  "focus": "Write for the staffing industry in the United States: what is changing in hiring and in the labor market, and what it means for employers planning their teams and for professionals planning their next role. Cover contract, contract-to-hire, direct-hire and temporary work, skills in demand, pay and workforce planning, using the main source's own specific story.",
+  "focus": "Write for the IT (information technology) staffing industry in the United States: what is changing in hiring for software, cloud, data, AI, cybersecurity, network and IT support roles, and what it means for employers planning their technology teams and for IT professionals planning their next role. Cover contract, contract-to-hire, direct-hire and temporary IT work, skills in demand, pay and workforce planning, using the main source's own specific story. Stay on technology jobs and technology teams.",
   "feeds": [
     "https://hiringlab.indeed.com/feed/",
     "https://stackoverflow.blog/feed/",
-    "https://www.ere.net/feed/"
+    "https://www.informationweek.com/rss.xml",
+    "https://www.computerworld.com/index.rss",
+    "https://spectrum.ieee.org/feeds/feed.rss",
+    "https://www.ere.net/feed/",
+    "https://americanstaffing.net/feed/"
   ],
   "pages": [
     {
@@ -24,6 +28,210 @@
       "title": "BLS JOLTS: job openings, hires and quits",
       "about": "Monthly U.S. job openings, hires and separations from the Bureau of Labor Statistics",
       "every_days": 28
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1211.00",
+      "title": "Computer Systems Analysts: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer Systems Analysts: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151211.htm",
+      "title": "Computer Systems Analysts: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer Systems Analysts: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1212.00",
+      "title": "Information Security Analysts: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Information Security Analysts: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151212.htm",
+      "title": "Information Security Analysts: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Information Security Analysts: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1221.00",
+      "title": "Computer and Information Research Scientists: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer and Information Research Scientists: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151221.htm",
+      "title": "Computer and Information Research Scientists: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer and Information Research Scientists: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1231.00",
+      "title": "Computer Network Support Specialists: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer Network Support Specialists: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151231.htm",
+      "title": "Computer Network Support Specialists: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer Network Support Specialists: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1232.00",
+      "title": "Computer User Support Specialists: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer User Support Specialists: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151232.htm",
+      "title": "Computer User Support Specialists: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer User Support Specialists: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1241.00",
+      "title": "Computer Network Architects: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer Network Architects: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151241.htm",
+      "title": "Computer Network Architects: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer Network Architects: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1242.00",
+      "title": "Database Administrators: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Database Administrators: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151242.htm",
+      "title": "Database Administrators: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Database Administrators: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1243.00",
+      "title": "Database Architects: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Database Architects: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151243.htm",
+      "title": "Database Architects: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Database Architects: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1244.00",
+      "title": "Network and Computer Systems Administrators: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Network and Computer Systems Administrators: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151244.htm",
+      "title": "Network and Computer Systems Administrators: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Network and Computer Systems Administrators: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1251.00",
+      "title": "Computer Programmers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer Programmers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151251.htm",
+      "title": "Computer Programmers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer Programmers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "title": "Software Developers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Software Developers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151252.htm",
+      "title": "Software Developers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Software Developers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1253.00",
+      "title": "Software Quality Assurance Analysts and Testers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Software Quality Assurance Analysts and Testers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151253.htm",
+      "title": "Software Quality Assurance Analysts and Testers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Software Quality Assurance Analysts and Testers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1254.00",
+      "title": "Web Developers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Web Developers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151254.htm",
+      "title": "Web Developers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Web Developers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "title": "Web and Digital Interface Designers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Web and Digital Interface Designers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes151255.htm",
+      "title": "Web and Digital Interface Designers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Web and Digital Interface Designers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/15-2051.00",
+      "title": "Data Scientists: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Data Scientists: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes152051.htm",
+      "title": "Data Scientists: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Data Scientists: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "title": "Computer and Information Systems Managers: skills and technologies employers ask for (O*NET)",
+      "about": "O*NET occupation profile for Computer and Information Systems Managers: tasks, the technology skills and tools employers list, knowledge areas and wages in the United States",
+      "every_days": 90
+    },
+    {
+      "url": "https://www.bls.gov/oes/current/oes113021.htm",
+      "title": "Computer and Information Systems Managers: employment and pay by state and industry (BLS)",
+      "about": "Bureau of Labor Statistics wage and employment data for Computer and Information Systems Managers: pay by percentile, by state and by industry",
+      "every_days": 90
+    },
+    {
+      "url": "https://survey.stackoverflow.co/2025/",
+      "title": "Stack Overflow Developer Survey: what developers use, earn and want",
+      "about": "Annual survey of developers: languages, tools, AI use, pay and how they work",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.cyberseek.org/heatmap.html",
+      "title": "CyberSeek: cybersecurity job openings and workforce supply by state",
+      "about": "Interactive data on cybersecurity job openings, talent supply and common roles in the United States",
+      "every_days": 60
     }
   ],
   "index_pages": [
@@ -31,60 +239,6 @@
       "url": "https://www.bls.gov/ooh/computer-and-information-technology/home.htm",
       "link_prefix": "/ooh/computer-and-information-technology/",
       "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. technology occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/healthcare/home.htm",
-      "link_prefix": "/ooh/healthcare/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. healthcare occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/business-and-financial/home.htm",
-      "link_prefix": "/ooh/business-and-financial/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. business and finance occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/architecture-and-engineering/home.htm",
-      "link_prefix": "/ooh/architecture-and-engineering/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. engineering occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/construction-and-extraction/home.htm",
-      "link_prefix": "/ooh/construction-and-extraction/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. construction and skilled-trades occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/office-and-administrative-support/home.htm",
-      "link_prefix": "/ooh/office-and-administrative-support/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. administrative and office-support occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/production/home.htm",
-      "link_prefix": "/ooh/production/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. manufacturing and production occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/transportation-and-material-moving/home.htm",
-      "link_prefix": "/ooh/transportation-and-material-moving/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. logistics and transportation occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/sales/home.htm",
-      "link_prefix": "/ooh/sales/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. sales and customer-facing occupation",
-      "every_days": 120
-    },
-    {
-      "url": "https://www.bls.gov/ooh/math/home.htm",
-      "link_prefix": "/ooh/math/",
-      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. mathematics and data occupation",
       "every_days": 120
     }
   ],
@@ -136,5 +290,30 @@
     "https://www.comptia.org/en-us/resources/research/tech-jobs-report/",
     "https://stackoverflow.blog/",
     "https://www.bls.gov/ooh/computer-and-information-technology/home.htm"
+  ],
+  "must_have_any": [
+    "software",
+    "tech ",
+    "technology",
+    "cyber",
+    "cloud",
+    "developer",
+    "programmer",
+    "data ",
+    "engineer",
+    "network",
+    "devops",
+    "machine learning",
+    " ai ",
+    "artificial intelligence",
+    " it ",
+    "information technology",
+    "computer",
+    "coding",
+    "digital",
+    "automation",
+    "generative",
+    "semiconductor",
+    "security"
   ]
 }
