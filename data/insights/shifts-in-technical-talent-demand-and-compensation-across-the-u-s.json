@@ -10,16 +10,9 @@
   "has_art": true,
   "topic": "technical professionals analyzing data dashboards",
   "art": {
-    "motif": "bars",
-    "params": {
-      "values": [
-        48,
-        55,
-        62,
-        70,
-        84
-      ]
-    }
+    "motif": "search",
+    "params": {},
+    "tint": "sand"
   },
   "sections": [
     {

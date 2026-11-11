@@ -18,10 +18,24 @@ PHONE = "+1 469 396 2108"
 PHONE_HREF = "tel:+14693962108"
 POSTAL_CODE = "16502"          # shown on the contact page only; elsewhere the address is just city and state
 EMAIL = "hr@triadatechnologies.com"
+LINKEDIN = "https://www.linkedin.com/company/triada-technologies/"
 
 
 SITE = "https://triadatechnologies.com"
-OG_IMAGE = SITE + "/assets/og-image.jpg"
+OG_IMAGE = SITE + "/assets/og-image.jpg"            # the home picture, also the default
+OG_BY_PAGE = {"services.html": "og-services.jpg", "about.html": "og-about.jpg", "jobs.html": "og-jobs.jpg", "job.html": "og-jobs.jpg",
+              "contact.html": "og-contact.jpg", "insights.html": "og-insights.jpg", "insights-archive.html": "og-insights.jpg"}
+HOME_LINK = "./"   # a link to the folder, not to index.html, so the address bar shows https://triadatechnologies.com/
+LOGO_SQUARE = SITE + "/assets/favicon-512.png"        # Google shows the logo in a square, so it gets the square mark
+
+
+def og_image(page_name):
+    """The picture shown when this page is shared: its own one, the Insights one for every article, else the home one."""
+    if page_name in OG_BY_PAGE:
+        return SITE + "/assets/" + OG_BY_PAGE[page_name]
+    if page_name.startswith("insight-"):
+        return SITE + "/assets/og-insights.jpg"
+    return OG_IMAGE
 OG_ALT = "Triada Technologies, nationwide staffing based in Erie, PA"
 
 
@@ -29,6 +43,7 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
     url = SITE + "/" + ("" if page == "index.html" else page)
     e = html.escape
     robots = "noindex, follow" if noindex else "index, follow, max-image-preview:large"
+    og = og_image(page)
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -45,24 +60,28 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{url}">
-<meta property="og:image" content="{OG_IMAGE}">
+<meta property="og:image" content="{og}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{OG_ALT}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{e(title)}">
 <meta name="twitter:description" content="{e(desc)}">
-<meta name="twitter:image" content="{OG_IMAGE}">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="twitter:image" content="{og}">
+<link rel="icon" href="favicon.ico?v=3" sizes="48x48">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=3">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png?v=3">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png?v=3">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/mobile-base.css">
 <link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
-<script>(function(){{try{{if(sessionStorage.getItem("triada-view")!=="desktop")return;document.documentElement.classList.add("fd");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=1200, viewport-fit=cover");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
+<script>(function(){{try{{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
 {schema}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -85,9 +104,9 @@ ORG_ID = SITE + "/#organization"
 
 def org(with_phone=False):
     o = {"@type": ["Organization", "EmploymentAgency"], "@id": ORG_ID, "name": "Triada Technologies",
-         "url": SITE + "/", "logo": SITE + "/assets/logo.svg", "image": OG_IMAGE,
+         "url": SITE + "/", "logo": {"@type": "ImageObject", "url": LOGO_SQUARE, "width": 512, "height": 512}, "image": OG_IMAGE,
          "description": "Nationwide staffing and recruitment partner headquartered in Erie, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.",
-         "email": EMAIL,
+         "email": EMAIL, "sameAs": [LINKEDIN],
          "address": {"@type": "PostalAddress", "addressLocality": "Erie", "addressRegion": "PA", "addressCountry": "US"},
          "areaServed": {"@type": "Country", "name": "United States"},
          "knowsAbout": ["Contract staffing", "Contract-to-hire", "Direct hire placement", "Executive search", "Vendor management systems", "Technology hiring"]}
@@ -103,7 +122,7 @@ def header(active):
         active = "insights.html"
     links = "\n".join(
         '        <li><a href="{}"{}>{}</a></li>'.format(
-            href, ' aria-current="page"' if href == active else "", label)
+            HOME_LINK if href == "index.html" else href, ' aria-current="page"' if href == active else "", label)
         for href, label in NAV
     )
     parent = {"job.html": ("jobs.html", "Jobs"), "insights-archive.html": ("insights.html", "Insights")}.get(
@@ -114,7 +133,7 @@ def header(active):
                 '<path d="m15 6-6 6 6 6"/></svg></a>\n    ')
     return f'''<header class="site">
   <div class="wrap bar">
-    {back}<a class="brand" href="index.html" aria-label="Triada Technologies home"><img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"></a>
+    {back}<a class="brand" href="{HOME_LINK}" aria-label="Triada Technologies home"><img class="logo-base" src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"><img class="logo-hover" src="assets/logo-color.svg" width="116" height="34" alt="" aria-hidden="true"></a>
     <nav aria-label="Main">
       <ul>
 {links}
@@ -124,7 +143,7 @@ def header(active):
       <a class="btn btn-white" href="jobs.html">Find work</a>
       <a class="btn btn-white" href="contact.html">Hire talent</a>
     </div>
-    <button class="view-switch" type="button" aria-label="Switch to the desktop site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>Desktop</span></button>
+    <button class="view-switch" type="button" aria-label="Switch to the classic mobile site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 20V9"/></svg><span>Classic</span></button>
   </div>
 </header>
 '''
@@ -153,8 +172,8 @@ def tabbar(active):
 
 
 FD_PILL = (
-    '<button class="fd-pill" type="button" aria-label="Switch back to the mobile site"><svg viewBox="0 0 24 24" aria-hidden="true">'
-    '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Mobile site</span></button>\n'
+    '<button class="classic-pill" type="button" aria-label="Switch back to the app view"><svg viewBox="0 0 24 24" aria-hidden="true">'
+    '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>App view</span></button>' + chr(10)
 )
 
 
@@ -178,19 +197,28 @@ def svc_contact():
 
 FOOTER = f'''<footer class="site-foot">
   <div class="wrap foot">
-    <div>
+    <div class="foot-brand">
       <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
-      <p style="margin-top:13px">Nationwide staffing and recruitment, headquartered in Erie, PA.</p>
-    </div>
-    <div>
-      <p>Headquartered in Erie, PA</p>
-      <p><a href="mailto:{EMAIL}">{EMAIL}</a></p>
-      <p><a href="contact.html">Contact page</a></p>
-    </div>
-    <div>
-      <p><a href="services.html">Services</a> · <a href="jobs.html">Jobs</a> · <a href="insights.html">Insights</a></p>
-      <p><a href="about.html">About</a> · <a href="contact.html">Contact</a></p>
+      <p class="foot-tag">Creating value for everyone.</p>
       <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
+    </div>
+    <div class="foot-col">
+      <h2>Explore</h2>
+      <ul>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="jobs.html">Jobs</a></li>
+        <li><a href="insights.html">Insights</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h2>Get in touch</h2>
+      <ul>
+        <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
+        <li>Erie, PA {POSTAL_CODE}</li>
+        <li><a href="{LINKEDIN}" target="_blank" rel="me noopener">Triada Technologies on LinkedIn</a></li>
+      </ul>
     </div>
   </div>
 </footer>
@@ -218,6 +246,12 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     for src in extra:
         s += f'<script src="assets/{src}"></script>\n'
     return s + '</body>\n</html>\n'
+
+
+SHARE_SVG = ('<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" '
+             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/>'
+             '<circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>')
+SHARE_BTN = f'<button type="button" class="btn btn-white share-btn" data-share>{SHARE_SVG}<span>Share</span></button>'
 
 
 def insights_cta(heading, text):
@@ -314,7 +348,8 @@ home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="open
 <section class="hero-full hero-split" aria-label="Introduction">
   <div class="hero-center">
     <img class="hero-logo" src="assets/hero-logo.png" alt="Triada Technologies" width="1400" height="367">
-    <h1>Creating value<br> for <span class="swap">everyone</span>.</h1>
+    <h1><span class="ln"><span>Creating value</span></span> <span class="ln"><span>for <span class="swap">everyone</span>.</span></span></h1>
+    <p class="hero-lead">We connect clients, vendors, and candidates across the United States through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
     <p class="eyebrow">Nationwide staffing, based in Erie, PA</p>
   </div>
   <figure class="hero-photo">
@@ -339,20 +374,15 @@ home = f'''<div class="opening" id="opening" aria-hidden="true"><div class="open
   </a>
 </div>
 
-<section id="intro" class="intro">
-  <div class="wrap hero-grid">
-    <div>
-      <p class="lead">Creating value for every side of the hiring journey. Triada Technologies connects clients, vendors, and candidates across the United States through temporary, contract, contract-to-hire, and direct-hire staffing. We keep the process clear, the screening careful, and every placement built to last.</p>
-      <div class="hero-actions">
-        <a class="btn btn-white" href="contact.html">Hire talent</a>
-        <a class="btn btn-white" href="jobs.html">Find work</a>
-      </div>
+<section class="cta-band" aria-label="Why hiring speed matters">
+  <img class="cta-band-img" src="assets/cta-band.jpg" alt="" width="2000" height="1335" loading="lazy" decoding="async" onerror="this.remove()">
+  <div class="cta-band-inner">
+    <strong>Every open seat slows down the work your team was hired to do.</strong>
+    <p>Projects stall, deadlines slip, and the people already carrying the load start to feel the strain. We find candidates who match the role and the team, screen them with care, and bring them in ready to contribute. Once the seat is filled, your team can return to its best work, with the steady confidence that progress is moving again.</p>
+    <div class="hero-actions">
+      <a class="btn btn-white" href="contact.html">Hire talent</a>
+      <a class="btn btn-white" href="jobs.html">Find work</a>
     </div>
-    <aside class="hook" aria-label="Why hiring speed matters">
-      <p class="eyebrow">The real cost of waiting</p>
-      <strong>Every open seat slows down the work your team was hired to do.</strong>
-      <p>Projects stall, deadlines slip, and the people already carrying the load start to feel the strain. We find candidates who match the role and the team, screen them with care, and bring them in ready to contribute. Once the seat is filled, your team can return to its best work, with the steady confidence that progress is moving again.</p>
-    </aside>
   </div>
 </section>
 
@@ -452,8 +482,7 @@ faq_html = "\n".join(
 
 services = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
-    <p class="eyebrow">Services</p>
-    <h1>Staffing for <em>every stage</em> of hiring.</h1>
+    <h1 class="pt">Staffing for <em>every stage</em> of hiring.</h1>
     <p class="lead">Temporary, contract, contract-to-hire, direct placement, and executive search, with vetted talent across nine industries, for employers nationwide. We shape each engagement around your schedule, your budget, and the level of responsibility the role carries.</p>
   </div>
 </section>
@@ -517,8 +546,7 @@ services = f'''<section class="page-hero" style="border-top:0">
 # ---------- ABOUT ----------
 about = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap">
-    <p class="eyebrow">About</p>
-    <h1>Connecting clients, <em>vendors, and candidates.</em></h1>
+    <h1 class="pt">Connecting clients, <em>vendors, and candidates.</em></h1>
     <p class="lead">Triada Technologies is a multi-industry staffing and workforce solutions partner headquartered in Erie, Pennsylvania, serving employers and professionals across the United States. We build smart, long-term relationships that help organizations grow and help professionals move their careers forward.</p>
   </div>
 </section>
@@ -587,8 +615,7 @@ jobs = '''<section class="page-hero" style="border-top:0">
   <div class="wrap">
     <div class="page-hero-row">
       <div>
-        <p class="eyebrow">Jobs</p>
-        <h1>Open <em>roles.</em></h1>
+        <h1 class="pt">Open <em>roles.</em></h1>
         <p class="lead">Your next opportunity could be here. Upload your resume and discover your matches, without searching listing by listing. Prefer to browse? Current openings with our clients are listed below, each with a clear description of the responsibilities, skills, and location. If nothing fits yet, send us your resume and we will contact you when a suitable role opens.</p>
       </div>
       <div class="jobs-cta">
@@ -692,15 +719,12 @@ jobs = '''<section class="page-hero" style="border-top:0">
   </div>
 </section>
 
-<section>
+<section class="recruiter-note">
   <div class="wrap">
-    <div class="card" style="max-width:610px">
-      <h3>Submit your resume</h3>
-      <p>Include the job titles you are targeting, your core skills, and your preferred work arrangement, whether that is temporary, contract, contract-to-hire, or direct hire.</p>
-      <a class="btn btn-white" href="contact.html">Submit resume</a>
-    </div>
+    <h3>Contact the recruiter to discuss</h3>
+    <p><a href="mailto:%%EMAIL%%">%%EMAIL%%</a> &middot; <a href="%%PHONE_HREF%%">%%PHONE%%</a></p>
   </div>
-</section>'''
+</section>'''.replace("%%EMAIL%%", EMAIL).replace("%%PHONE_HREF%%", PHONE_HREF).replace("%%PHONE%%", PHONE)
 
 job_detail = '''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
@@ -746,7 +770,9 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
       <div id="a-gate-pin">
         <h2>Enter PIN</h2>
         {otp_boxes("a-pin", "PIN")}
-        <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        <div class="a-pin-slot">
+          <p id="a-pin-msg" class="a-msg" role="alert"></p>
+        </div>
         <p class="form-note"><button class="link-btn" type="button" id="a-forgot">Forgot PIN?</button></p>
       </div>
 
@@ -960,11 +986,12 @@ def toolbar(posts, archive_button):
 
 
 def hero_card(eyebrow, title_html, lead):
+    h1_class = '' if eyebrow else ' class="pt"'
     return f'''<section class="page-hero hero-carded" style="border-top:0">
   <div class="wrap">
     <div class="hero-card">
-      <p class="eyebrow">{eyebrow}</p>
-      <h1>{title_html}</h1>
+      {f'<p class="eyebrow">{eyebrow}</p>' if eyebrow else ''}
+      <h1{h1_class}>{title_html}</h1>
       <p class="lead">{lead}</p>
     </div>
   </div>
@@ -975,7 +1002,7 @@ def hero_card(eyebrow, title_html, lead):
 def build_insights(posts, today):
     live = [p for p in posts if (today - dt.date.fromisoformat(p["published"])).days <= LIVE_DAYS]
     old = [p for p in posts if p not in live]
-    hero = hero_card("Insights", "Notes on <em>hiring</em> and the job market.",
+    hero = hero_card("", "Job market <em>insights</em>",
                      "Short, sourced articles on U.S. technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.")
     if not live and not old:
         return hero + '''
@@ -994,9 +1021,13 @@ def build_insights(posts, today):
   </div>
 </section>'''
     cards = chr(10).join(post_card(p) for p in live)
-    return hero + f'''
-<section class="listing" data-page="9">
+    return f'''
+<section class="listing listing-first" data-page="9">
   <div class="wrap">
+    <div class="plain-head">
+      <h1 class="pt">Job market <em>insights</em></h1>
+      <p class="lead">Short, sourced articles on U.S. technology hiring, in-demand skills, and workforce planning, for clients planning their teams and candidates planning their next role.</p>
+    </div>
 {toolbar(live, True)}
     <div class="posts" id="items">
 {cards}
@@ -1058,7 +1089,7 @@ def build_post(p):
       <h2>Sources</h2>
       <ul class="sources">{srcs}</ul>
       <p class="ai-note">This article was prepared with AI assistance from the sources listed above and published by Triada Technologies.</p>
-      <p><a class="btn btn-white" href="insights.html">All insights</a></p>
+      <p class="share-row">{SHARE_BTN}<a class="btn btn-white" href="insights.html">All insights</a></p>
     </div>
   </div>
 </section>''' + insights_cta("Put this insight to work.",
@@ -1177,14 +1208,14 @@ archive_page = build_archive(POSTS, TODAY)
 contact = f'''<section class="page-hero" style="border-top:0">
   <div class="wrap contact-grid">
     <div class="details">
-      <p class="eyebrow">Contact</p>
-      <h1>Get in <em>touch.</em></h1>
+      <h1 class="pt">Get in <em>touch.</em></h1>
       <p class="lead">Tell us what you are hiring for or what you are looking for, and a member of our team will respond.</p>
       <span class="logo-bars" aria-hidden="true"></span>
       <dl>
         <div><dt>Phone</dt><dd><a href="{PHONE_HREF}">{PHONE}</a></dd></div>
         <div><dt>Email</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
         <div><dt>Address</dt><dd>Erie, PA {POSTAL_CODE}</dd></div>
+        <div><dt>LinkedIn</dt><dd><a href="{LINKEDIN}" target="_blank" rel="me noopener">Triada Technologies</a></dd></div>
       </dl>
     </div>
 
@@ -1216,8 +1247,8 @@ contact = f'''<section class="page-hero" style="border-top:0">
         </select>
       </label>
       <label for="message">Message
-        <textarea id="message" name="message" maxlength="2000" required aria-required="true" aria-describedby="message-error"></textarea>
-        <span class="field-error" id="message-error" hidden></span>
+        <textarea id="message" name="message" maxlength="999" required aria-required="true" aria-describedby="message-error" placeholder="Please write at least 60 characters so we know how to help."></textarea>
+        <span class="msg-foot"><span class="field-error" id="message-error" hidden></span><span class="char-count" id="message-count">0 / 999</span></span>
       </label>
       <div><button class="btn btn-solid" type="submit">Send message</button></div>
       <p class="form-note">This is a preview. The form is not connected yet, so nothing is sent.</p>
@@ -1231,22 +1262,22 @@ pages = [
     ("index.html", "Triada Technologies | Staffing Services Across the USA",
      "Triada Technologies is a nationwide staffing firm based in Erie, PA, placing temporary, contract, contract-to-hire, and direct-hire talent across the USA.",
      home, True, HOME_SCHEMA),
-    ("services.html", "Staffing Services | Triada Technologies",
+    ("services.html", "Services | Triada Technologies",
      "Temporary, contract, contract-to-hire, direct hire, and executive search staffing across nine industries, nationwide, from Triada Technologies.",
      services, True, ""),
-    ("about.html", "About Triada Technologies | Nationwide Staffing, Erie, PA",
+    ("about.html", "About | Triada Technologies",
      "About Triada Technologies, a multi-industry staffing partner based in Erie, PA, connecting clients, vendors, and candidates across the USA.",
      about, True, ""),
-    ("jobs.html", "Open Jobs | Triada Technologies",
-     "Current job openings with Triada Technologies clients across the USA, and how to submit your resume for temporary, contract, or direct-hire roles.",
+    ("jobs.html", "Jobs | Triada Technologies",
+     "Browse current openings with Triada Technologies clients across the USA and upload your resume to see your best matches.",
      jobs, True, ""),
-    ("insights.html", "Insights on Hiring | Triada Technologies",
+    ("insights.html", "Insights | Triada Technologies",
      "Sourced articles on U.S. technology hiring, in-demand skills, and workforce planning from Triada Technologies, a nationwide staffing firm.",
      insights, True, ""),
     ("insights-archive.html", "Insights Archive | Triada Technologies",
      "Searchable list of earlier Triada Technologies articles on technology hiring, in-demand skills, and workforce planning, kept for 12 months.",
      archive_page, True, ""),
-    ("contact.html", "Contact Triada Technologies | Nationwide Staffing",
+    ("contact.html", "Contact | Triada Technologies",
      f"Contact Triada Technologies, based in Erie, PA and serving the USA. Call {PHONE} or email {EMAIL} to hire talent or submit your resume.",
      contact, True, ""),
 ]
@@ -1267,7 +1298,7 @@ if __name__ == "__main__":
                               build_post(p), script=True, schema=post_schema(p), og_type="article")
     outputs["404.html"] = page("Page not found | Triada Technologies", "The page you are looking for does not exist.", "404.html",
                                hero_card("404", "Page not found.", "The page you are looking for has moved or does not exist.")
-                               + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="index.html">Go to home</a></div></section>',
+                               + '\n<section class="listing"><div class="wrap"><a class="btn btn-white" href="./">Go to home</a></div></section>',
                                script=True, noindex=True)
     for name, text in {**outputs, **private}.items():
         with open(name, "w", encoding="utf-8") as f:

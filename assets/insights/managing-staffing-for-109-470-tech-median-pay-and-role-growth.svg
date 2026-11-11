@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 485 300" role="img" aria-label="Two puzzle pieces about to fit"><defs><pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#DDD7F3"/></pattern></defs><rect width="485" height="300" fill="#F0EDFB"/><rect width="485" height="300" fill="url(#dots)"/>
+<rect x="126" y="103" width="110" height="110" rx="14" fill="#DDD7F3"/>
+<rect x="120" y="95" width="110" height="110" rx="14" fill="#1E3A8A"/>
+<circle cx="230" cy="150" r="20" fill="#1E3A8A"/>
+<g transform="rotate(7 318 140)">
+<rect x="269" y="93" width="110" height="110" rx="14" fill="#DDD7F3"/>
+<rect x="263" y="85" width="110" height="110" rx="14" fill="#FFFFFF"/>
+<circle cx="263" cy="140" r="22" fill="#F0EDFB"/>
+</g>
+<rect x="388" y="58" width="30" height="30" rx="7" fill="#14B8A6" transform="rotate(16 403 73)"/>
+<circle cx="172" cy="150" r="7" fill="#FF6A00"/></svg>

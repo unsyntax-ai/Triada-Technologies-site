@@ -18,7 +18,9 @@ INK, NAVY, TEAL, ORANGE, WHITE = "#0F172A", "#1E3A8A", "#14B8A6", "#FF6A00", "#F
 SOFT = "#C9D3EE"      # passed / inactive marks
 FAINT = "#E4E9F5"     # quiet lines on white
 # background tint and the slightly darker dots on it
-TINTS = {"mist": ("#EEF2FB", "#D6DEF2"), "teal": ("#E6F6F3", "#C9ECE6"), "sand": ("#FFF1E6", "#FBDCC6")}
+TINTS = {"mist": ("#EEF2FB", "#D6DEF2"), "teal": ("#E6F6F3", "#C9ECE6"), "sand": ("#FFF1E6", "#FBDCC6"),
+         "sky": ("#E8F3FC", "#CFE5F7"), "lilac": ("#F0EDFB", "#DDD7F3")}
+TINT_ORDER = ["mist", "teal", "sand", "sky", "lilac"]
 
 
 # ---------- settings helpers: anything odd falls back to a safe default ----------
@@ -282,6 +284,138 @@ def paths(p, t):
 
 
 # name -> (drawing, what it means, settings the AI may give, default tint)
+
+def cloud(p, t):
+    """Cloud platforms, remote and hosted systems, scale."""
+    return f"""
+<g fill="{t[1]}" transform="translate(7 9)"><circle cx="196" cy="156" r="40"/><circle cx="250" cy="128" r="56"/><circle cx="308" cy="158" r="38"/><rect x="170" y="152" width="176" height="44" rx="22"/></g>
+<g fill="{WHITE}"><circle cx="196" cy="156" r="40"/><circle cx="250" cy="128" r="56"/><circle cx="308" cy="158" r="38"/><rect x="170" y="152" width="176" height="44" rx="22"/></g>
+<rect x="206" y="150" width="70" height="9" rx="4.5" fill="{NAVY}"/><rect x="206" y="168" width="104" height="9" rx="4.5" fill="{TEAL}"/>
+<path d="M186 214V250M250 214V250M314 214V250" stroke="{NAVY}" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 8" opacity=".5"/>
+<rect x="168" y="252" width="36" height="22" rx="7" fill="{NAVY}"/><rect x="232" y="252" width="36" height="22" rx="7" fill="{TEAL}"/><rect x="296" y="252" width="36" height="22" rx="7" fill="{NAVY}"/>
+<circle cx="372" cy="92" r="7" fill="{ORANGE}"/>"""
+
+
+def servers(p, t):
+    """Infrastructure, systems administration, reliability."""
+    out = []
+    for i, fill in enumerate((NAVY, WHITE, TEAL)):
+        y = 70 + i * 62
+        led = WHITE if fill != WHITE else TEAL
+        out.append(f"""<rect x="138" y="{y + 7}" width="214" height="50" rx="12" fill="{t[1]}"/>
+<rect x="132" y="{y}" width="214" height="50" rx="12" fill="{fill}"/>
+<circle cx="158" cy="{y + 25}" r="6" fill="{led}"/><circle cx="178" cy="{y + 25}" r="6" fill="{led}" opacity=".55"/>
+<rect x="214" y="{y + 20}" width="100" height="10" rx="5" fill="{led}" opacity=".35"/>""")
+    out.append(f'<circle cx="158" cy="95" r="6" fill="{ORANGE}"/>')
+    return "\n".join(out)
+
+
+def code(p, t):
+    """Software development, programming skills."""
+    widths = [(70, TEAL), (120, NAVY), (92, SOFT), (150, NAVY), (64, SOFT), (110, TEAL)]
+    rows, y = [], 118
+    for i, (w, c) in enumerate(widths):
+        x = 168 + (28 if i in (1, 2, 4) else 0)
+        rows.append(f'<rect x="{x}" y="{y}" width="{w}" height="10" rx="5" fill="{c}"/>')
+        y += 22
+    return f"""
+<rect x="146" y="64" width="250" height="186" rx="18" fill="{t[1]}"/>
+<rect x="138" y="56" width="250" height="186" rx="18" fill="{WHITE}"/>
+<rect x="138" y="56" width="250" height="36" rx="18" fill="{NAVY}"/><rect x="138" y="76" width="250" height="16" fill="{NAVY}"/>
+<circle cx="160" cy="74" r="5" fill="{SOFT}"/><circle cx="178" cy="74" r="5" fill="{SOFT}"/><circle cx="196" cy="74" r="5" fill="{ORANGE}"/>
+{''.join(rows)}
+<circle cx="372" cy="228" r="34" fill="{TEAL}"/>
+<path d="M362 216L350 228L362 240M382 216L394 228L382 240M376 214L368 242" fill="none" stroke="{WHITE}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>"""
+
+
+def shield(p, t):
+    """Cybersecurity, risk, compliance, trust."""
+    d = "M242 58L326 90V152C326 204 288 234 242 252C196 234 158 204 158 152V90Z"
+    return f"""
+<path d="{d}" fill="{t[1]}" transform="translate(7 9)"/>
+<path d="{d}" fill="{NAVY}"/>
+<path d="M242 58L326 90V152C326 204 288 234 242 252Z" fill="{TEAL}" opacity=".9"/>
+<circle cx="242" cy="148" r="38" fill="{WHITE}"/>
+<path d="M224 148L238 162L262 134" fill="none" stroke="{NAVY}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="344" cy="70" r="7" fill="{ORANGE}"/>"""
+
+
+def database(p, t):
+    """Data, databases, analytics, records."""
+    out = []
+    tops = {TEAL: "#5CD6C8", WHITE: "#F4F6FC", NAVY: "#3A56A8"}
+    for i, fill in enumerate((TEAL, WHITE, NAVY)):
+        y = 82 + i * 54
+        top = tops[fill]
+        dot = WHITE if fill != WHITE else TEAL
+        out.append(f"""<rect x="158" y="{y + 9}" width="168" height="44" fill="{t[1]}"/><ellipse cx="248" cy="{y + 53}" rx="84" ry="17" fill="{t[1]}"/>
+<rect x="152" y="{y}" width="168" height="44" fill="{fill}"/><ellipse cx="236" cy="{y + 44}" rx="84" ry="17" fill="{fill}"/>
+<ellipse cx="236" cy="{y}" rx="84" ry="17" fill="{top}"/>
+<circle cx="188" cy="{y + 28}" r="4.5" fill="{dot}" opacity=".8"/><circle cx="204" cy="{y + 28}" r="4.5" fill="{dot}" opacity=".5"/>""")
+    out.append(f'<circle cx="360" cy="88" r="7" fill="{ORANGE}"/>')
+    return "\n".join(out)
+
+
+def chip(p, t):
+    """AI, hardware, processors, automation."""
+    pins = []
+    for i in range(4):
+        o = 190 + i * 30
+        pins.append(f'<rect x="{o}" y="62" width="10" height="22" rx="5" fill="{SOFT}"/><rect x="{o}" y="216" width="10" height="22" rx="5" fill="{SOFT}"/>'
+                    f'<rect x="162" y="{o - 38}" width="22" height="10" rx="5" fill="{SOFT}"/><rect x="316" y="{o - 38}" width="22" height="10" rx="5" fill="{SOFT}"/>')
+    return f"""
+{''.join(pins)}
+<rect x="176" y="84" width="148" height="148" rx="22" fill="{t[1]}" transform="translate(7 9)"/>
+<rect x="176" y="84" width="148" height="148" rx="22" fill="{NAVY}"/>
+<rect x="204" y="112" width="92" height="92" rx="14" fill="{TEAL}"/>
+<circle cx="250" cy="158" r="26" fill="{WHITE}"/><circle cx="250" cy="158" r="9" fill="{ORANGE}"/>
+<path d="M250 132V120M250 196V184M224 158H212M288 158H276" stroke="{WHITE}" stroke-width="4" stroke-linecap="round"/>"""
+
+
+def branches(p, t):
+    """Workflows, version control, process, decisions in a team."""
+    return f"""
+<path d="M170 70V232" stroke="{NAVY}" stroke-width="7" stroke-linecap="round"/>
+<path d="M170 110C170 150 250 120 250 160V176C250 214 330 196 330 232" fill="none" stroke="{TEAL}" stroke-width="7" stroke-linecap="round"/>
+<path d="M330 232C330 252 248 238 170 232" fill="none" stroke="{SOFT}" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9"/>
+<g stroke="{NAVY}" stroke-width="5" fill="{WHITE}"><circle cx="170" cy="70" r="14"/><circle cx="170" cy="150" r="14"/><circle cx="170" cy="232" r="14"/></g>
+<g stroke="{TEAL}" stroke-width="5" fill="{WHITE}"><circle cx="250" cy="160" r="14"/><circle cx="330" cy="232" r="14"/></g>
+<circle cx="170" cy="232" r="6" fill="{ORANGE}"/>
+<rect x="350" y="92" width="64" height="12" rx="6" fill="{NAVY}" opacity=".85"/><rect x="350" y="114" width="44" height="12" rx="6" fill="{SOFT}"/>"""
+
+
+def headset(p, t):
+    """IT support, help desk, technical customer-facing roles."""
+    return f"""
+<circle cx="242" cy="150" r="92" fill="{t[1]}" transform="translate(6 8)"/>
+<circle cx="242" cy="150" r="92" fill="{WHITE}"/>
+<path d="M164 160A78 78 0 0 1 320 160" fill="none" stroke="{NAVY}" stroke-width="14" stroke-linecap="round"/>
+<rect x="148" y="148" width="34" height="62" rx="15" fill="{NAVY}"/><rect x="302" y="148" width="34" height="62" rx="15" fill="{NAVY}"/>
+<path d="M319 208C319 240 290 248 262 248" fill="none" stroke="{TEAL}" stroke-width="7" stroke-linecap="round"/>
+<rect x="238" y="238" width="30" height="20" rx="10" fill="{TEAL}"/>
+<rect x="208" y="112" width="78" height="50" rx="14" fill="{TEAL}"/><path d="M226 160L216 178L240 162Z" fill="{TEAL}"/>
+<circle cx="230" cy="137" r="5" fill="{WHITE}"/><circle cx="247" cy="137" r="5" fill="{WHITE}"/><circle cx="264" cy="137" r="5" fill="{WHITE}"/>
+<circle cx="344" cy="84" r="7" fill="{ORANGE}"/>"""
+
+
+def laptop(p, t):
+    """Remote work, dashboards, reporting, digital workplaces."""
+    vals = p.get("values") if isinstance(p.get("values"), list) else [40, 62, 50, 78, 90]
+    vals = [min(100, max(8, v)) if isinstance(v, (int, float)) else 50 for v in vals][:6] or [50]
+    bars = []
+    step = 112 / max(1, len(vals))
+    for i, v in enumerate(vals):
+        h = 78 * v / 100
+        bars.append(f'<rect x="{_f(190 + i * step)}" y="{_f(172 - h)}" width="{_f(step * 0.58)}" height="{_f(h)}" rx="4" fill="{TEAL if i == len(vals) - 1 else NAVY}"/>')
+    return f"""
+<rect x="154" y="62" width="196" height="134" rx="14" fill="{t[1]}" transform="translate(6 8)"/>
+<rect x="154" y="62" width="196" height="134" rx="14" fill="{NAVY}"/>
+<rect x="168" y="76" width="168" height="106" rx="7" fill="{WHITE}"/>
+{''.join(bars)}
+<rect x="118" y="196" width="268" height="16" rx="8" fill="{SOFT}"/><rect x="214" y="196" width="76" height="7" rx="3.5" fill="{t[1]}"/>
+<circle cx="372" cy="70" r="7" fill="{ORANGE}"/>"""
+
+
 MOTIFS = {
     "compass":  (compass,  "navigating change, direction, strategy", '"heading": 0-359 (needle angle)', "mist"),
     "bars":     (bars,     "demand, growth or decline, trends over time", '"values": 4-6 numbers 0-100, oldest first', "teal"),
@@ -295,6 +429,15 @@ MOTIFS = {
     "search":   (search,   "screening, finding the right candidate", '"pick": 0-5 (which profile is found)', "mist"),
     "blocks":   (blocks,   "skill stacks, layers of technology, building capability", '"layers": 3-5', "teal"),
     "paths":    (paths,    "career paths and decisions between two directions", '"chosen": "left" | "right"', "sand"),
+    "cloud":    (cloud,    "cloud platforms, remote and hosted systems, scale", "none", "sky"),
+    "servers":  (servers,  "infrastructure, systems administration, reliability", "none", "mist"),
+    "code":     (code,     "software development and programming skills", "none", "lilac"),
+    "shield":   (shield,   "cybersecurity, risk, compliance, trust", "none", "teal"),
+    "database": (database, "data, databases, analytics, records", "none", "sand"),
+    "chip":     (chip,     "AI, hardware, processors, automation", "none", "sky"),
+    "branches": (branches, "workflows, version control, process and team decisions", "none", "lilac"),
+    "headset":  (headset,  "IT support, help desk, technical customer-facing roles", "none", "mist"),
+    "laptop":   (laptop,   "remote work, dashboards, reporting, digital workplaces", '"values": 3-6 numbers 0-100 (bar heights)', "teal"),
 }
 
 LABELS = {"compass": "A compass", "bars": "A bar chart with a trend line", "gauge": "A gauge",
@@ -302,7 +445,10 @@ LABELS = {"compass": "A compass", "bars": "A bar chart with a trend line", "gaug
           "puzzle": "Two puzzle pieces about to fit", "calendar": "A calendar and a clock",
           "network": "A network of connected points", "ladder": "A ladder with one rung highlighted",
           "search": "A magnifying glass over candidate profiles", "blocks": "A stack of building blocks",
-          "paths": "A road splitting into two paths"}
+          "paths": "A road splitting into two paths", "cloud": "A cloud with connected systems",
+          "servers": "A stack of servers", "code": "A code editor window", "shield": "A shield with a check mark",
+          "database": "A stack of databases", "chip": "A computer chip", "branches": "A branching workflow",
+          "headset": "A support headset with a chat bubble", "laptop": "A laptop showing a chart"}
 
 # words that point to each illustration, used when the AI's choice is missing or invalid
 KEYWORDS = {
@@ -318,6 +464,15 @@ KEYWORDS = {
     "paths": ["path", "choice", "decision", "pivot", "switch"],
     "compass": ["navigating", "navigate", "shift", "change", "direction"],
     "bars": ["trend", "demand", "rise", "decline", "growth", "postings"],
+    "cloud": ["cloud", "aws", "azure", "hosting", "saas", "devops"],
+    "servers": ["infrastructure", "administrator", "administrators", "network", "systems", "uptime"],
+    "code": ["developer", "developers", "software", "programmer", "programmers", "programming", "coding", "engineer", "engineers"],
+    "shield": ["security", "cybersecurity", "cyber", "risk", "compliance", "privacy", "breach"],
+    "database": ["database", "databases", "data", "analytics", "analyst", "analysts", "sql"],
+    "chip": ["ai", "artificial", "automation", "machine", "semiconductor", "hardware", "agents", "copilot"],
+    "branches": ["workflow", "process", "pipeline", "agile", "branch", "collaborate", "collaboration"],
+    "headset": ["support", "helpdesk", "service", "customer", "desk"],
+    "laptop": ["remote", "dashboard", "report", "reporting", "workplace", "productivity", "efficiency"],
 }
 
 

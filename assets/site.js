@@ -2,6 +2,13 @@
   var root = document.documentElement;
   root.classList.add('js');
 
+  // The home page is shown as https://triadatechnologies.com/ , not .../index.html (an old link or bookmark gets tidied)
+  try {
+    if (/\/index\.html$/.test(location.pathname) && window.history && history.replaceState) {
+      history.replaceState(null, '', location.pathname.replace(/index\.html$/, '') + location.search + location.hash);
+    }
+  } catch (e) { /* the address stays as it was */ }
+
   // Top bar: frosted and transparent once the page is scrolled
   var header = document.querySelector('header.site');
   function onScroll() {
@@ -18,16 +25,43 @@
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          io.unobserve(entry.target);
+          var el = entry.target, wait = parseFloat(el.style.transitionDelay) || 0;
+          el.classList.add('in');
+          io.unobserve(el);
+          // the stagger delay belongs to the entrance only; left in place it also delayed every hover on the card
+          setTimeout(function () { el.style.transitionDelay = ''; }, wait + 1200);
         }
       });
     }, { threshold: 0.12 });
     targets.forEach(function (el) { io.observe(el); });
   } else {
-    targets.forEach(function (el) { el.classList.add('in'); });
+    targets.forEach(function (el) { el.classList.add('in'); el.style.transitionDelay = ''; });
   }
 
+
+  // Share buttons (insight articles, job pages): the phone's share sheet where there is one, otherwise copy the link
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-share]') : null;
+    if (!b) return;
+    e.preventDefault();
+    var canon = document.querySelector('link[rel="canonical"]');
+    var url = (canon && canon.href) || location.href, label = b.querySelector('span');
+    var said = function (t) {
+      if (!label) return;
+      var was = label.getAttribute('data-was') || label.textContent;
+      label.setAttribute('data-was', was); label.textContent = t;
+      setTimeout(function () { label.textContent = was; }, 1800);
+    };
+    if (navigator.share) { navigator.share({ title: document.title, url: url }).catch(function () { /* cancelled */ }); return; }
+    var fallback = function () {
+      var t = document.createElement('textarea'); t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); said('Link copied'); } catch (err) { said('Copy the page address'); }
+      t.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { said('Link copied'); }, fallback);
+    else fallback();
+  });
 
   // Home opening sequence: plain background, two full-width logo bars slide in from opposite sides, part vertically to
   // reveal the page, the hero settles in, and the upper bar thins to a line that stays at the top.
@@ -44,6 +78,17 @@
     var gap = Math.round(T * 0.66);              // the gap between the two bars in the logo
     barA.style.top = Math.round(H / 2 - gap / 2 - T) + 'px';
     barB.style.top = Math.round(H / 2 + gap / 2) + 'px';
+    // the two light panels end exactly at the outer edges of the bars (no light margin travelling with them);
+    // a thin strip fills the slit between the bars until they part, then fades
+    // the pieces overlap by 2px and meet in the middle of each bar's thickness (hidden under the bar once it moves),
+    // so no hairline can show where two light pieces touch
+    var edgeA = Math.round(H / 2 - gap / 2 - T) + T, edgeB = Math.round(H / 2 + gap / 2), half = Math.round(T / 2);
+    panelTop.style.height = (edgeA - half + 2) + 'px';
+    panelBottom.style.height = (H - (edgeB + half - 2)) + 'px';
+    var mid = document.createElement('span');
+    mid.className = 'opening-mid';
+    mid.style.top = (edgeA - half) + 'px'; mid.style.height = (edgeB - edgeA + 2 * half) + 'px';
+    intro.insertBefore(mid, barA);
     var running = [], ended = false;
     var move = function (el, from, to, opts) {
       var a = el.animate([from, to], Object.assign({ fill: 'both' }, opts));
@@ -78,6 +123,7 @@
       var up = -Math.round(H / 2 - gap / 2 - T);     // the upper bar rises until it touches the top edge
       var down = Math.round(H / 2 + gap / 2 + T) + 6;  // the lower bar leaves through the bottom
       setTimeout(function () { root.classList.add('intro-reveal'); }, 250);
+      move(mid, { opacity: 1 }, { opacity: 0 }, { duration: 120, easing: 'linear' });
       return Promise.all([
         move(barA, xy(0, 0), xy(0, up), { duration: 750, easing: part }),
         move(panelTop, xy(0, 0), xy(0, -Math.round(H / 2) - 6), { duration: 750, easing: part }),
@@ -106,6 +152,26 @@
       hero.style.setProperty('--p', p.toFixed(3));
       ticking = false;
     };
+    // the full-width photo band: it widens to the screen edges as it arrives, the photo drifts slower than the page,
+    // and its text rises in once, one line after another
+    var band = document.querySelector('.cta-band');
+    var bandStep = function () {
+      if (!band) return;
+      var r = band.getBoundingClientRect(), vh = window.innerHeight || 1;
+      var e = Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.65)));
+      var b = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+      band.style.setProperty('--e', e.toFixed(3));
+      band.style.setProperty('--b', b.toFixed(3));
+    };
+    if (band) {
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (en, o) {
+          if (en[0].isIntersecting) { band.classList.add('in'); o.disconnect(); }
+        }, { threshold: 0.3 }).observe(band);
+      } else { band.classList.add('in'); }
+    }
+    var step0 = step;
+    step = function () { step0(); bandStep(); };
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(step); } }, { passive: true });
     window.addEventListener('resize', step);
     step();
@@ -216,8 +282,8 @@
       },
       message: function (v) {
         if (!v) return 'Write a short message so we know how to help.';
-        if (v.length < 10) return 'Add a little more detail (at least 10 characters).';
-        if (v.length > 2000) return 'Shorten your message to 2000 characters or fewer.';
+        if (v.length < 60) return 'Please add at least 60 characters so we can help.';
+        if (v.length > 999) return 'Shorten your message to 999 characters or fewer.';
         return '';
       }
     };
@@ -236,6 +302,14 @@
         status.textContent = ''; status.className = '';
       });
     });
+    // live character count under the message box (used / total)
+    var msg = form.elements.message, counter = document.getElementById('message-count');
+    if (msg && counter) {
+      var max = msg.maxLength > 0 ? msg.maxLength : 999;
+      var count = function () { counter.textContent = msg.value.length + ' / ' + max; counter.classList.toggle('near', msg.value.length >= max * 0.9); };
+      msg.addEventListener('input', count); form.addEventListener('reset', function () { setTimeout(count, 0); });
+      count();
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var bad = Object.keys(rules).filter(function (field) { return !check(field); });

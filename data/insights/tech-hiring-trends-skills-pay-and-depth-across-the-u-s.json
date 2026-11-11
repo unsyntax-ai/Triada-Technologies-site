@@ -59,9 +59,8 @@
     }
   ],
   "art": {
-    "motif": "gauge",
-    "params": {
-      "level": 78
-    }
+    "motif": "bars",
+    "params": {},
+    "tint": "teal"
   }
 }

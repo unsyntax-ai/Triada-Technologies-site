@@ -59,6 +59,14 @@ Landscape phones wider than 700px (for example 844px) use the desktop layout by 
 - Page changes keep the bars still (cross-document view transitions, phone layout only). The test browser accepts the rule; the visual effect could not be watched here, so check it on a real phone.
 - Re-run after the change: 77 phone checks pass, 8-hop navigation walk passes, 121 desktop and tablet comparisons identical, phone controls (chips, switches, tiles, Apply bar) still build.
 
+## 4c. Three versions, Classic switch and sliding lens (2026-11-11)
+- `main` was merged into `mobile-dev` (72 commits) and the mobile layer re-applied on top; the workflow files are now in the branch, so a push republishes /mobile-dev/.
+- Version 1 (PC / browser "request desktop site"): identical to `main` in 50 of 50 comparisons at 701, 820, 980, 1024 and 1440px (earlier run: 70 of 70 at 701 to 1920px and landscape).
+- Version 2 (Classic, reached with the top-bar "Classic" button): identical to `main`'s phone site in 39 of 40 comparisons at 320, 360, 390 and 430px; the one difference was a sticky header offset (8px vs 10px) that did not repeat in 5 of 6 re-runs.
+- Version 3 (app view): 66 phone checks across 11 pages and 6 sizes pass (selected tab, lens position within 0.7px, orange icon, no overflow, all 42 internal links 200). Two photos on Home extend past the frame by design (clipped), same as `main`.
+- Lens: tapping another tab glides (frames at 0, 100, 198, 300, 374 and 440ms checked: stretches to about 77x47px, overshoots by about 5px, lands exactly), tapping the selected tab scrolls to the top with a pulse, Contact keeps Services selected and its tap navigates normally, Ctrl/Cmd-click opens normally.
+- Not verifiable here: the live motion, because the test browser pauses animations when its window is not focused (frames were inspected by stepping the animation). Check on a real iPhone and Android phone.
+
 ## 5. Not verified / open items
 1. **Real phone.** All testing was in a desktop browser with emulated sizes. The viewport swap of the Desktop switch, safe areas, iOS blur effects and the on-screen keyboard need a quick check on a real iPhone and Android phone.
 2. **Real backends.** Gemini writing a new post needs the secret key. Real admin sign-in, real job publishing and real AI job drafting need your PIN and live data. These were tested with a fake backend only, so the screens and logic are proven but not the live services. `admin.js` is unchanged.

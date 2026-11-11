@@ -3,34 +3,80 @@
 (function () {
   var root = document.documentElement;
   var phone = window.matchMedia('(max-width: 700px)');
-  var active = function () { return phone.matches && !root.classList.contains('fd'); };
+  var active = function () { return phone.matches && !root.classList.contains('classic'); };
 
-  // ----- "Desktop" / "Mobile site" switch: remembered for this tab only (sessionStorage), nothing is stored after it closes -----
+  // ----- "Classic" / "App view" switch: remembered for this tab only (sessionStorage), nothing is stored after it closes.
+  // Classic = the normal phone site without the app layer (same as before the app layer existed). A browser's own
+  // "request desktop site" is separate: it makes the page wider than a phone, so the app layer stays off by itself. -----
   var KEY = 'triada-view';
   function setView(v) {
-    try { if (v === 'desktop') sessionStorage.setItem(KEY, 'desktop'); else sessionStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+    try { if (v === 'classic') sessionStorage.setItem(KEY, 'classic'); else sessionStorage.removeItem(KEY); } catch (e) { /* ignore */ }
     location.replace(location.href);   // replaces the entry instead of adding history, and does not replay the home intro
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () { setView('desktop'); }); });
-  Array.prototype.forEach.call(document.querySelectorAll('.fd-pill'), function (b) { b.addEventListener('click', function () { setView('mobile'); }); });
-  function sizePill() {
-    if (!root.classList.contains('fd')) return;
-    var k = Math.max(1, window.innerWidth / (window.screen && window.screen.width ? window.screen.width : window.innerWidth));
-    root.style.setProperty('--fdk', k.toFixed(2));
-  }
-  sizePill();
-  window.addEventListener('resize', sizePill);
-  window.addEventListener('orientationchange', sizePill);
+  Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () { setView('classic'); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.classic-pill'), function (b) { b.addEventListener('click', function () { setView('app'); }); });
 
-  // ----- tapping the tab you are already on scrolls back to the top, like a native tab bar -----
+  // ----- tab bar: a liquid-glass lens glides from the selected tab to the one you tap, then the page changes.
+  // Tapping the tab you are already on scrolls back to the top. Without animation support or with reduced motion
+  // the lens just sits behind the selected tab and taps navigate straight away. -----
   var here = function (p) { var n = p.replace(/\/+$/, '').split('/').pop(); return n || 'index.html'; };
-  Array.prototype.forEach.call(document.querySelectorAll('.tabbar a'), function (a) {
-    a.addEventListener('click', function (e) {
-      if (!active() || here(a.pathname) !== here(location.pathname)) return;
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  var bar = document.querySelector('.tabbar');
+  var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  if (bar) {
+    var lens = document.createElement('span');
+    lens.className = 'tab-lens'; lens.setAttribute('aria-hidden', 'true');
+    bar.insertBefore(lens, bar.firstChild); bar.classList.add('has-lens');
+    var tabs = Array.prototype.slice.call(bar.querySelectorAll('a'));
+    var cur = bar.querySelector('a[aria-current]');
+    var busy = false, goTimer = 0;
+    var geom = function (a) { return { x: a.offsetLeft + 6, w: Math.max(0, a.offsetWidth - 12) }; };
+    var place = function (a) {
+      if (!a) { lens.style.display = 'none'; return; }
+      var g = geom(a);
+      lens.style.display = ''; lens.style.width = g.w + 'px'; lens.style.transform = 'translateX(' + g.x + 'px)';
+    };
+    var reset = function () {
+      clearTimeout(goTimer); busy = false;
+      bar.classList.remove('moving'); tabs.forEach(function (t) { t.classList.remove('is-target'); });
+      lens.getAnimations && lens.getAnimations().forEach(function (an) { an.cancel(); });
+      place(cur);
+    };
+    place(cur);
+    window.addEventListener('resize', function () { if (!busy) place(cur); });
+    window.addEventListener('orientationchange', function () { if (!busy) place(cur); });
+    if (phone.addEventListener) phone.addEventListener('change', function () { if (!busy) place(cur); });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) reset(); });   // back button: the page comes back as it was left
+
+    var glide = function (from, to, done) {
+      var f = geom(from), t = geom(to), dx = t.x - f.x, dir = dx < 0 ? -1 : 1;
+      // squash and stretch: it lengthens while it travels, overshoots a touch, then settles
+      var an = lens.animate([
+        { transform: 'translateX(' + f.x + 'px) scale(1,1)', offset: 0, easing: 'cubic-bezier(.3,.6,.3,1)' },
+        { transform: 'translateX(' + (f.x + dx * .55) + 'px) scale(1.2,.9)', offset: .45, easing: 'cubic-bezier(.3,.6,.3,1)' },
+        { transform: 'translateX(' + (t.x + dir * 5) + 'px) scale(1.04,.98)', offset: .85, easing: 'ease-out' },
+        { transform: 'translateX(' + t.x + 'px) scale(1,1)', offset: 1 }
+      ], { duration: 440, fill: 'forwards' });
+      an.onfinish = function () { place(to); an.cancel(); if (done) done(); };
+    };
+
+    tabs.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (!active() || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var samePage = here(a.pathname) === here(location.pathname);
+        if (a === cur && samePage) {                       // the tab you are on: back to the top
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+          if (!reduced() && lens.animate) lens.animate([{ transform: lens.style.transform + ' scale(1,1)' }, { transform: lens.style.transform + ' scale(1.08,.94)' }, { transform: lens.style.transform + ' scale(1,1)' }], { duration: 260, easing: 'ease-out' });
+          return;
+        }
+        if (a === cur || !cur || reduced() || !lens.animate || busy) return;   // a different page under the same tab, or no animation: plain navigation
+        e.preventDefault(); busy = true;
+        bar.classList.add('moving'); a.classList.add('is-target');
+        glide(cur, a);
+        goTimer = setTimeout(function () { location.href = a.href; }, 280);
+      });
     });
-  });
+  }
 
   // ----- the tab bar steps aside while a field has the on-screen keyboard -----
   document.addEventListener('focusin', function (e) { if (active() && e.target.matches('input, textarea, select')) root.classList.add('kbd'); });

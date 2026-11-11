@@ -2,20 +2,24 @@ name: Daily insight
 
 on:
   schedule:
-    # Five tries a day, at quiet minutes (UTC), spread from the small hours to late evening.
+    # Mondays and Wednesdays only: five tries on each of those days, at quiet minutes (UTC), spread from the small hours to late evening.
     # GitHub sometimes delays or skips a scheduled run, and Gemini is sometimes overloaded for a while,
     # so later tries make sure the post still goes out. Once today's post exists, a run does nothing.
-    - cron: "23 4 * * *"
-    - cron: "47 9 * * *"
-    - cron: "11 14 * * *"
-    - cron: "29 19 * * *"
-    - cron: "41 23 * * *"
+    - cron: "23 4 * * 1,3"
+    - cron: "47 9 * * 1,3"
+    - cron: "11 14 * * 1,3"
+    - cron: "29 19 * * 1,3"
+    - cron: "41 23 * * 1,3"
   push:
     branches: [main]        # rebuild pages whenever files are uploaded, so the list never goes stale
   workflow_dispatch:          # lets you run it by hand from the Actions tab
     inputs:
       redo_art:
         description: "Only redraw the illustrations of existing articles"
+        type: boolean
+        default: false
+      force:
+        description: "Write a new article even if today already has one (use to refresh today's insight)"
         type: boolean
         default: false
 
@@ -33,6 +37,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # always the newest files, not the snapshot from when the run was started, so runs started
+                      # close together can see each other's articles and never pick the same story twice
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -42,7 +49,7 @@ jobs:
         continue-on-error: true   # an early try that fails must not stop the site from building; a later try runs again
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }}
+        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }} ${{ inputs.force && '--force' || '' }}
       - name: Note if the insight failed
         if: steps.gen.outcome == 'failure'
         run: echo "::warning::Today's insight could not be written on this try. See the step above for the reason. A later scheduled try runs again."

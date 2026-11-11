@@ -94,6 +94,25 @@ footer.site-foot {
 .tabbar a[aria-current="page"] .tab-ic { background: rgba(30, 58, 138, .12); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7); }
 .tabbar a[aria-current="page"] svg { stroke: var(--orange); stroke-width: 2.3; }
 .tabbar a:focus-visible { outline-offset: -4px; }
+/* the selected-tab "liquid glass" lens: one frosted capsule that glides from tab to tab (built in mobile.js) */
+.tabbar a { position: relative; z-index: 1; transition: color .22s ease; }
+.tab-lens {
+  position: absolute; z-index: 0; top: 6px; left: 0; height: calc(var(--tab-h) - 12px); width: 60px; border-radius: 26px; pointer-events: none; will-change: transform;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, .38) 100%), rgba(30, 58, 138, .07);
+  -webkit-backdrop-filter: blur(8px) saturate(1.9) brightness(1.04); backdrop-filter: blur(8px) saturate(1.9) brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 #fff, inset 0 -1px 1px rgba(30, 58, 138, .12), inset 1px 0 0 rgba(255, 255, 255, .55), inset -1px 0 0 rgba(255, 255, 255, .55),
+    0 8px 18px -8px rgba(30, 58, 138, .38), 0 0 0 .5px rgba(30, 58, 138, .14);
+}
+.tab-lens::before { content: ""; position: absolute; inset: 3px 16% auto; height: 36%; border-radius: 999px; background: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0)); opacity: .7; }
+.tabbar.has-lens a[aria-current="page"] .tab-ic { background: none; box-shadow: none; }
+.tabbar a svg { transition: stroke .22s ease; }
+/* while the lens travels, the colours follow it: the tapped tab lights up, the one it left goes quiet */
+.tabbar.moving a[aria-current="page"]:not(.is-target) { color: #6B7690; font-weight: 500; }
+.tabbar.moving a[aria-current="page"]:not(.is-target) svg { stroke: currentColor; stroke-width: 2; }
+.tabbar a.is-target { color: var(--navy); font-weight: 600; }
+.tabbar a.is-target svg { stroke: var(--orange); stroke-width: 2.3; }
+@media (prefers-reduced-motion: reduce) { .tabbar a, .tabbar a svg { transition: none; } }
 /* out of the way during the home opening animation and while the on-screen keyboard is up */
 html.intro-on .tabbar { opacity: 0; transform: translateY(100%); pointer-events: none; }
 html.kbd .tabbar { transform: translateY(100%); pointer-events: none; }
@@ -134,7 +153,7 @@ a, button, summary { -webkit-tap-highlight-color: transparent; }
 
 
 /* ---------- Home: a little of the app look (quick actions, photo tag) ---------- */
-.intro .hero-actions { display: none; }   /* the quick actions below the photo replace these two buttons */
+.cta-band .hero-actions { display: none; }   /* the quick actions below the photo replace these two buttons */
 .hero-split .hero-photo { position: relative; }
 .pill-tag {
   display: inline-flex; position: absolute; top: 12px; left: 12px; z-index: 1; display: inline-flex; align-items: center; gap: 6px;
