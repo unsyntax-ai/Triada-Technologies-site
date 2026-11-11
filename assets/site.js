@@ -25,14 +25,17 @@
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          io.unobserve(entry.target);
+          var el = entry.target, wait = parseFloat(el.style.transitionDelay) || 0;
+          el.classList.add('in');
+          io.unobserve(el);
+          // the stagger delay belongs to the entrance only; left in place it also delayed every hover on the card
+          setTimeout(function () { el.style.transitionDelay = ''; }, wait + 1200);
         }
       });
     }, { threshold: 0.12 });
     targets.forEach(function (el) { io.observe(el); });
   } else {
-    targets.forEach(function (el) { el.classList.add('in'); });
+    targets.forEach(function (el) { el.classList.add('in'); el.style.transitionDelay = ''; });
   }
 
 
