@@ -3,7 +3,8 @@
   "focus": "Write for the staffing industry in the United States: what is changing in hiring and in the labor market, and what it means for employers planning their teams and for professionals planning their next role. Cover contract, contract-to-hire, direct-hire and temporary work, skills in demand, pay and workforce planning, using the main source's own specific story.",
   "feeds": [
     "https://hiringlab.indeed.com/feed/",
-    "https://stackoverflow.blog/feed/"
+    "https://stackoverflow.blog/feed/",
+    "https://www.ere.net/feed/"
   ],
   "pages": [
     {
@@ -31,12 +32,95 @@
       "link_prefix": "/ooh/computer-and-information-technology/",
       "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. technology occupation",
       "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/healthcare/home.htm",
+      "link_prefix": "/ooh/healthcare/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. healthcare occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/business-and-financial/home.htm",
+      "link_prefix": "/ooh/business-and-financial/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. business and finance occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/architecture-and-engineering/home.htm",
+      "link_prefix": "/ooh/architecture-and-engineering/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. engineering occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/construction-and-extraction/home.htm",
+      "link_prefix": "/ooh/construction-and-extraction/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. construction and skilled-trades occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/office-and-administrative-support/home.htm",
+      "link_prefix": "/ooh/office-and-administrative-support/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. administrative and office-support occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/production/home.htm",
+      "link_prefix": "/ooh/production/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. manufacturing and production occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/transportation-and-material-moving/home.htm",
+      "link_prefix": "/ooh/transportation-and-material-moving/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. logistics and transportation occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/sales/home.htm",
+      "link_prefix": "/ooh/sales/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. sales and customer-facing occupation",
+      "every_days": 120
+    },
+    {
+      "url": "https://www.bls.gov/ooh/math/home.htm",
+      "link_prefix": "/ooh/math/",
+      "about": "Occupational Outlook Handbook: duties, pay, job outlook and entry paths for a U.S. mathematics and data occupation",
+      "every_days": 120
     }
   ],
   "skip_urls": [
     "https://stackoverflow.blog/2026/10/15/your-team-shouldnt-build-an-ai-context-layer/"
   ],
-  "keywords": ["job", "hiring", "hire", "labor", "workforce", "talent", "employer", "worker", "wage", "pay", "salary", "career", "skill", "recruit", "staffing", "contract", "temporary", "remote", "layoff", "unemployment", "openings", "developer", "engineer", "ai ", "survey", "demand", "graduate", "seasonal"],
+  "keywords": [
+    "job",
+    "hiring",
+    "hire",
+    "labor",
+    "workforce",
+    "talent",
+    "employer",
+    "worker",
+    "wage",
+    "pay",
+    "salary",
+    "career",
+    "skill",
+    "recruit",
+    "staffing",
+    "contract",
+    "temporary",
+    "remote",
+    "layoff",
+    "unemployment",
+    "openings",
+    "developer",
+    "engineer",
+    "ai ",
+    "survey",
+    "demand",
+    "graduate",
+    "seasonal"
+  ],
   "angles": [
     "what this means for contract and contract-to-hire hiring",
     "what job seekers should do next to stand out",
