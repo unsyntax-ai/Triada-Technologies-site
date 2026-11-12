@@ -5,6 +5,11 @@ import json
 import os
 import re
 
+def _v(p):
+    """short content hash, so a changed phone file is never served stale from a cache"""
+    return hashlib.md5(open(p, "rb").read()).hexdigest()[:8]
+
+
 NAV = [
     ("index.html", "Home"),
     ("services.html", "Services"),
@@ -79,10 +84,10 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
-<link rel="stylesheet" href="assets/mobile-base.css">
-<link rel="stylesheet" href="assets/mobile-bars.css" media="(max-width: 700px)">
-<link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
-<script>(function(){{try{{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}}catch(e){{}}try{{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
+<link rel="stylesheet" href="assets/mobile-base.css?v={_v("assets/mobile-base.css")}">
+<link rel="stylesheet" href="assets/mobile-bars.css?v={_v("assets/mobile-bars.css")}" media="(max-width: 700px)">
+<link rel="stylesheet" href="assets/mobile.css?v={_v("assets/mobile.css")}" media="(max-width: 700px)">
+<script>(function(){{try{{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}}catch(e){{}}try{{if(sessionStorage.getItem("triada-view")!=="classic"&&window.name!=="triada-classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href*="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
 {schema}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -134,6 +139,7 @@ def header(active):
         back = (f'<a class="mobile-back" href="{parent[0]}" aria-label="Back to {parent[1]}"><svg viewBox="0 0 24 24" aria-hidden="true">'
                 '<path d="m15 6-6 6 6 6"/></svg></a>\n    ')
     return f'''<header class="site">
+  <div class="topglass">
   <div class="wrap bar">
     {back}<a class="brand" href="{HOME_LINK}" aria-label="Triada Technologies home"><img class="logo-base" src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"><img class="logo-hover" src="assets/logo-color.svg" width="116" height="34" alt="" aria-hidden="true"></a>
     <nav aria-label="Main">
@@ -150,6 +156,7 @@ def header(active):
   <div class="actbar">
     <a class="act act-line" href="jobs.html">Find work</a>
     <a class="act act-fill" href="contact.html">Hire talent</a>
+  </div>
   </div>
   <nav class="menubar" aria-label="Sections">
     <ul>
@@ -249,7 +256,7 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
          + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER + tabbar(page_name))
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
-        s += '<script src="assets/mobile.js"></script>\n'
+        s += '<script src="assets/mobile.js?v=' + _v("assets/mobile.js") + '"></script>\n'
     for src in extra:
         s += f'<script src="assets/{src}"></script>\n'
     return s + '</body>\n</html>\n'

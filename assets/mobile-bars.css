@@ -79,3 +79,28 @@ html.classic .menubar a:active { color: var(--accent-text); }
 /* a taller header: keep the full-bleed home hero clear of the extra bars */
 body:has(.hero-full) .hero-full { scroll-margin-top: 0; }
 @media (prefers-reduced-motion: reduce) { .vs-knob, .vs-track, .act, .menubar { transition: none; } }
+
+/* ---------- mobile web view: bars 1 and 2 are ONE glass bar; clearer "clean oil" glass once the page has scrolled ---------- */
+html.classic .topglass {
+  position: relative; isolation: isolate;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .8) 0%, rgba(255, 255, 255, .6) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9); backdrop-filter: blur(22px) saturate(1.9);
+  box-shadow: inset 0 1px 0 var(--glass-line), 0 10px 28px -16px rgba(15, 23, 42, .25);
+  transition: background .35s ease, box-shadow .35s ease, backdrop-filter .35s ease, -webkit-backdrop-filter .35s ease;
+}
+html.classic .topglass .wrap.bar, html.classic header.site.scrolled .topglass .wrap.bar, html.classic .topglass .actbar {
+  background: none; -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; box-shadow: none;
+}
+html.classic .topglass .wrap.bar::before { display: none; }
+html.classic .topglass .actbar { height: 52px; padding-bottom: 4px; }
+html.classic header.site.scrolled .topglass {
+  /* clear, oily glass: very see-through, strong blur and colour lift, a thin bright rim and a faint rainbow sheen */
+  background:
+    linear-gradient(115deg, rgba(120, 170, 255, .10) 0%, rgba(255, 255, 255, .06) 38%, rgba(255, 190, 140, .10) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .10));
+  -webkit-backdrop-filter: blur(18px) saturate(2.3) brightness(1.04); backdrop-filter: blur(18px) saturate(2.3) brightness(1.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -1px 0 rgba(255, 255, 255, .4), inset 0 0 0 .5px rgba(255, 255, 255, .5), 0 12px 30px -14px rgba(15, 23, 42, .28);
+}
+/* menu bar: dissolves together with the glass while reading down, returns on the way back up */
+html.classic .menubar { transition: background .3s ease, border-color .3s ease, opacity .3s ease, transform .3s ease, visibility 0s; }
+html.classic.menu-hide .menubar { opacity: 0; transform: translateY(-10px); pointer-events: none; visibility: hidden; transition: opacity .3s ease, transform .3s ease, visibility 0s .3s; }

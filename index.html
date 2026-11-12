@@ -33,10 +33,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
-<link rel="stylesheet" href="assets/mobile-base.css">
-<link rel="stylesheet" href="assets/mobile-bars.css" media="(max-width: 700px)">
-<link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
-<script>(function(){try{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}catch(e){}try{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}catch(e){}})()</script>
+<link rel="stylesheet" href="assets/mobile-base.css?v=e0115a12">
+<link rel="stylesheet" href="assets/mobile-bars.css?v=ee47c98d" media="(max-width: 700px)">
+<link rel="stylesheet" href="assets/mobile.css?v=851da6fd" media="(max-width: 700px)">
+<script>(function(){try{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}catch(e){}try{if(sessionStorage.getItem("triada-view")!=="classic"&&window.name!=="triada-classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href*="assets/mobile.css"]');if(l)l.media="not all"}catch(e){}})()</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": ["Organization", "EmploymentAgency"], "@id": "https://triadatechnologies.com/#organization", "name": "Triada Technologies", "url": "https://triadatechnologies.com/", "logo": {"@type": "ImageObject", "url": "https://triadatechnologies.com/assets/favicon-512.png", "width": 512, "height": 512}, "image": "https://triadatechnologies.com/assets/og-image.jpg", "description": "Nationwide staffing and recruitment partner headquartered in Erie, PA, providing temporary, contract, contract-to-hire, direct-hire, and executive search services across the United States.", "email": "hr@triadatechnologies.com", "sameAs": ["https://www.linkedin.com/company/triada-technologies/"], "address": {"@type": "PostalAddress", "addressLocality": "Erie", "addressRegion": "PA", "addressCountry": "US"}, "areaServed": {"@type": "Country", "name": "United States"}, "knowsAbout": ["Contract staffing", "Contract-to-hire", "Direct hire placement", "Executive search", "Vendor management systems", "Technology hiring"]}, {"@type": "WebSite", "@id": "https://triadatechnologies.com/#website", "url": "https://triadatechnologies.com/", "name": "Triada Technologies", "inLanguage": "en-US", "publisher": {"@id": "https://triadatechnologies.com/#organization"}}]}</script>
 <script>(function(){var d=document.documentElement;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var seen=false,nav=window.performance&&performance.getEntriesByType&&performance.getEntriesByType("navigation")[0];try{seen=sessionStorage.getItem("triada-intro")==="1"}catch(e){}if(seen&&!(nav&&nav.type==="reload"))return;try{sessionStorage.setItem("triada-intro","1")}catch(e){}d.classList.add("intro-on");setTimeout(function(){d.classList.remove("intro-on")},9000)})()</script>
 </head>
@@ -44,6 +44,7 @@
 <a class="skip" href="#main">Skip to content</a>
 <span class="top-bar-mark" aria-hidden="true"></span>
 <header class="site">
+  <div class="topglass">
   <div class="wrap bar">
     <a class="brand" href="./" aria-label="Triada Technologies home"><img class="logo-base" src="assets/logo.svg" width="116" height="34" alt="Triada Technologies"><img class="logo-hover" src="assets/logo-color.svg" width="116" height="34" alt="" aria-hidden="true"></a>
     <nav aria-label="Main">
@@ -65,6 +66,7 @@
   <div class="actbar">
     <a class="act act-line" href="jobs.html">Find work</a>
     <a class="act act-fill" href="contact.html">Hire talent</a>
+  </div>
   </div>
   <nav class="menubar" aria-label="Sections">
     <ul>
@@ -243,6 +245,6 @@
 </nav>
 
 <script src="assets/site.js"></script>
-<script src="assets/mobile.js"></script>
+<script src="assets/mobile.js?v=d36ffa36"></script>
 </body>
 </html>

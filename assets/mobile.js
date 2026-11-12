@@ -11,6 +11,7 @@
   var KEY = 'triada-view';
   function setView(v) {
     try { if (v === 'classic') sessionStorage.setItem(KEY, 'classic'); else sessionStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+    window.name = v === 'classic' ? 'triada-classic' : '';   // fallback for browsers that block sessionStorage
     location.replace(location.href);   // replaces the entry instead of adding history, and does not replay the home intro
   }
   Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () {
@@ -20,6 +21,18 @@
     var go = function () { setView(toApp ? 'app' : 'classic'); };
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) go(); else setTimeout(go, 200);
   }); b.setAttribute('aria-checked', root.classList.contains('classic') ? 'false' : 'true'); });
+
+  // mobile web view: the menu bar dissolves while the page moves up (reading down) and returns when you move back
+  var lastY = window.scrollY, hidden = false;
+  window.addEventListener('scroll', function () {
+    if (!root.classList.contains('classic') || !phone.matches) return;
+    var y = window.scrollY, d = y - lastY;
+    if (y < 24) { hidden = false; }
+    else if (d > 6) { hidden = true; }
+    else if (d < -6) { hidden = false; }
+    if (Math.abs(d) > 6 || y < 24) lastY = y;
+    root.classList.toggle('menu-hide', hidden);
+  }, { passive: true });
 
   // third bar (mobile web view): bring the current page's chip into view so the swipe row starts where you are
   var rail = document.querySelector('.menubar ul'), cur = rail && rail.querySelector('[aria-current]');
