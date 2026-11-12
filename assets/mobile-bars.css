@@ -1,0 +1,81 @@
+/* Phone header, shared by the app view and the mobile web view (loaded up to 700px wide only).
+   Bar 1: logo + App-view switch.  Bar 2: Find work / Hire talent.  Bar 3 (mobile web view only): swipeable menu.
+   All three are glass and stay fixed at the top; bar 3 turns transparent once the page scrolls. Desktop never loads this file. */
+:root { --bar-h: 56px; --glass-line: rgba(255, 255, 255, .85); }
+
+/* ---------- bar 1: logo + switch ---------- */
+header.site .wrap.bar,
+header.site.scrolled .wrap.bar {
+  position: relative; box-sizing: border-box; height: var(--bar-h); min-height: var(--bar-h);
+  flex-wrap: nowrap; gap: var(--s-2);
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg, rgba(255, 255, 255, .78) 0%, rgba(255, 255, 255, .5) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(1.9); backdrop-filter: blur(20px) saturate(1.9);
+  border: 0; border-radius: 0; border-bottom: 1px solid rgba(15, 23, 42, .05);
+  box-shadow: inset 0 1px 0 var(--glass-line);
+}
+/* soft specular highlight sweeping in from the top left, the "wet glass" cue */
+header.site .wrap.bar::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(110% 160% at 8% -60%, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 60%); opacity: .65;
+}
+header.site .wrap.bar > * { position: relative; }
+header.site .bar nav, header.site .bar .header-cta { display: none; }   /* the desktop menu and buttons are replaced by bars 2 and 3 */
+.brand img { height: 34px; width: auto; }
+
+/* Apple-Settings-style switch: ON = app view, OFF = mobile web view */
+.view-switch {
+  display: inline-flex; align-items: center; gap: 9px; flex: none; margin-left: auto; padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--navy); font: 600 13px/1 var(--sans); -webkit-tap-highlight-color: transparent;
+}
+.vs-track { position: relative; width: 51px; height: 31px; border-radius: 999px; background: #34C759; box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .08); transition: background .2s ease; }
+.vs-knob { position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, .22), 0 1px 1px rgba(0, 0, 0, .12); transition: left .2s cubic-bezier(.3, .9, .3, 1), width .12s ease; }
+.view-switch:active .vs-knob { width: 33px; }
+.view-switch:active .vs-knob { left: 16px; }
+html.classic .vs-track, html.flip:not(.classic) .vs-track { background: #D1D1D6; }
+html.classic .vs-knob, html.flip:not(.classic) .vs-knob { left: 2px; }
+html.classic.flip .vs-track { background: #34C759; }
+html.classic.flip .vs-knob { left: 22px; }
+html.classic .view-switch:active .vs-knob, html.flip:not(.classic) .view-switch:active .vs-knob { left: 2px; }
+html.classic.flip .view-switch:active .vs-knob { left: 16px; }
+
+/* ---------- bar 2: two fixed buttons, same height as bar 1 ---------- */
+.actbar {
+  display: flex; align-items: center; justify-content: center; gap: 12px; box-sizing: border-box; height: var(--bar-h);
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg, rgba(255, 255, 255, .62) 0%, rgba(255, 255, 255, .42) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(1.9); backdrop-filter: blur(20px) saturate(1.9);
+  border-bottom: 1px solid rgba(15, 23, 42, .06); box-shadow: 0 10px 28px -16px rgba(15, 23, 42, .25);
+}
+.act {
+  flex: 1 1 0; max-width: 170px; display: inline-flex; align-items: center; justify-content: center; height: 40px; border-radius: var(--r-pill);
+  font: 600 15px/1 var(--sans); text-decoration: none; -webkit-tap-highlight-color: transparent;
+  background: #FFFFFF; color: var(--navy); border: 1px solid var(--line); box-shadow: var(--shadow-soft);   /* same look as the website's Find work / Hire talent buttons */
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+/* touch screen: a press effect instead of hover */
+.act:active { transform: scale(.95); border-color: var(--orange); box-shadow: var(--shadow-lift); }
+
+/* ---------- bar 3 (mobile web view only): the website's own menu (plain links, orange underline), tinted glass, swipeable ---------- */
+html.classic .menubar {
+  display: block; box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(30, 58, 138, .13), rgba(30, 58, 138, .08));
+  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  border-bottom: 1px solid rgba(30, 58, 138, .1);
+  transition: background .3s ease, border-color .3s ease, backdrop-filter .3s ease, -webkit-backdrop-filter .3s ease;
+}
+html.classic header.site.scrolled .menubar { background: transparent; border-bottom-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.classic .menubar ul {
+  display: flex; flex-wrap: nowrap; gap: var(--s-3); margin: 0; list-style: none; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+html.classic .menubar ul::-webkit-scrollbar { display: none; }
+html.classic .menubar li { flex: none; }
+html.classic .menubar a { white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+html.classic .menubar a:hover::after { transform: scaleX(0); }   /* no hover on touch; the underline shows for the current page and while pressed */
+html.classic .menubar a[aria-current="page"]::after, html.classic .menubar a:active::after { transform: scaleX(1); }
+html.classic .menubar a:active { color: var(--accent-text); }
+
+/* a taller header: keep the full-bleed home hero clear of the extra bars */
+body:has(.hero-full) .hero-full { scroll-margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .vs-knob, .vs-track, .act, .menubar { transition: none; } }

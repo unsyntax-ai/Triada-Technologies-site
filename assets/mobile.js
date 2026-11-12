@@ -13,8 +13,17 @@
     try { if (v === 'classic') sessionStorage.setItem(KEY, 'classic'); else sessionStorage.removeItem(KEY); } catch (e) { /* ignore */ }
     location.replace(location.href);   // replaces the entry instead of adding history, and does not replay the home intro
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () { setView('classic'); }); });
-  Array.prototype.forEach.call(document.querySelectorAll('.classic-pill'), function (b) { b.addEventListener('click', function () { setView('app'); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.view-switch'), function (b) { b.addEventListener('click', function () {
+    var toApp = root.classList.contains('classic');   // the switch is ON in the app view; flipping it goes to the other view
+    b.setAttribute('aria-checked', toApp ? 'true' : 'false');
+    root.classList.toggle('flip');                      // lets the knob slide before the page reloads in the other view
+    var go = function () { setView(toApp ? 'app' : 'classic'); };
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) go(); else setTimeout(go, 200);
+  }); b.setAttribute('aria-checked', root.classList.contains('classic') ? 'false' : 'true'); });
+
+  // third bar (mobile web view): bring the current page's chip into view so the swipe row starts where you are
+  var rail = document.querySelector('.menubar ul'), cur = rail && rail.querySelector('[aria-current]');
+  if (cur) rail.scrollLeft = Math.max(0, cur.offsetLeft - (rail.clientWidth - cur.offsetWidth) / 2);
 
   // ----- tab bar: a liquid-glass lens flows from the selected tab to the one you tap. The glide starts on the page you tap
   // and CONTINUES on the next page (the start time is passed along for a moment), so it reads as one movement, not a jump.

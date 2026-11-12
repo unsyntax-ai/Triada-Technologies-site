@@ -9,7 +9,7 @@ Desktop and tablet (anything wider than 700px) must look and behave exactly as b
 | File | What it does | Applies when |
 | --- | --- | --- |
 | `assets/mobile.css` | The whole phone layout: glass top bar, bottom tab bar, tiles, rails, timeline, icon rows, sticky Apply bar. | Only up to 700px wide (the `<link>` has `media="(max-width: 700px)"`). |
-| `assets/mobile-base.css` | Hides every phone-only element at all other widths and styles the "App view" pill. Contains no layout rules for desktop. | All widths, but it only sets `display: none` on phone-only elements. |
+| `assets/mobile-base.css` | Hides every phone-only element at all other widths (the phone header bars live in `assets/mobile-bars.css`). Contains no layout rules for desktop. | All widths, but it only sets `display: none` on phone-only elements. |
 | `assets/mobile.js` | Phone behaviour: type chips, "I am" switch, industry tiles, job Apply bar, the Classic/App view switch. Builds controls on top of existing fields, which stay the source of truth. | Runs everywhere, acts only when the viewport is at most 700px and desktop view was not chosen. |
 
 ### Shared (generated or loaded by every page; change with care, test desktop and mobile)
@@ -51,3 +51,6 @@ Desktop and tablet (anything wider than 700px) must look and behave exactly as b
 2. Serve a pristine copy of the production site and this branch side by side.
 3. For every page and for widths 701, 768, 820, 844, 932, 1024, 1180, 1366, 1440, 1920, 2560, compare each element's position, size and key styles (see `TESTING-REPORT.md`). Any difference is a regression.
 4. Phones: run the page checks at 360, 390 and 430px, plus landscape 568, 667 and 700px.
+
+## Phone header (both views)
+`assets/mobile-bars.css` (phones only, loaded in both views): bar 1 glass with logo + Apple-style App-view switch (ON = app view, OFF = mobile web view); bar 2 glass, same height, "Find work" and "Hire talent"; bar 3 (mobile web view only) tinted glass, swipeable menu that turns transparent once the page scrolls. The app view keeps its bottom tab bar as the menu. The old bottom "App view" pill is gone.

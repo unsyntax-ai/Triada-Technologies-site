@@ -80,6 +80,7 @@ def head(title, desc, page, schema="", og_type="website", noindex=False):
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600&family=Google+Sans+Flex:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/mobile-base.css">
+<link rel="stylesheet" href="assets/mobile-bars.css" media="(max-width: 700px)">
 <link rel="stylesheet" href="assets/mobile.css" media="(max-width: 700px)">
 <script>(function(){{try{{var r=sessionStorage.getItem("triada-lens");if(r&&Date.now()-JSON.parse(r).t0<1500)document.documentElement.classList.add("lens-wait")}}catch(e){{}}try{{if(sessionStorage.getItem("triada-view")!=="classic")return;document.documentElement.classList.add("classic");var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute("content","width=device-width, initial-scale=1");var l=document.querySelector('link[href$="assets/mobile.css"]');if(l)l.media="not all"}}catch(e){{}}}})()</script>
 {schema}</head>
@@ -125,6 +126,7 @@ def header(active):
             HOME_LINK if href == "index.html" else href, ' aria-current="page"' if href == active else "", label)
         for href, label in NAV
     )
+    menu = chr(10).join('      <li><a href="{}"{}>{}</a></li>'.format(HOME_LINK if h == "index.html" else h, ' aria-current="page"' if h == active else "", l) for h, l in NAV)
     parent = {"job.html": ("jobs.html", "Jobs"), "insights-archive.html": ("insights.html", "Insights")}.get(
         page_name_for_back, ("insights.html", "Insights") if page_name_for_back.startswith("insight-") else None)
     back = ""
@@ -143,8 +145,17 @@ def header(active):
       <a class="btn btn-white" href="jobs.html">Find work</a>
       <a class="btn btn-white" href="contact.html">Hire talent</a>
     </div>
-    <button class="view-switch" type="button" aria-label="Switch to the classic mobile site"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 20V9"/></svg><span>Classic</span></button>
+    <button class="view-switch" type="button" role="switch" aria-checked="true" aria-label="App view"><span class="vs-label">App view</span><span class="vs-track"><span class="vs-knob"></span></span></button>
   </div>
+  <div class="actbar">
+    <a class="act act-line" href="jobs.html">Find work</a>
+    <a class="act act-fill" href="contact.html">Hire talent</a>
+  </div>
+  <nav class="menubar" aria-label="Sections">
+    <ul>
+{menu}
+    </ul>
+  </nav>
 </header>
 '''
 
@@ -171,12 +182,6 @@ def tabbar(active):
     idx = next((i for i, t in enumerate(TABS) if t[0] == active), 0)
     # the glass lens is part of the page, placed behind the selected tab by CSS (--i), so it is right from the first paint
     return f'<nav class="tabbar" aria-label="Primary" style="--i:{idx}">\n  <span class="tab-lens" aria-hidden="true"></span>\n{links}\n</nav>\n'
-
-
-FD_PILL = (
-    '<button class="classic-pill" type="button" aria-label="Switch back to the app view"><svg viewBox="0 0 24 24" aria-hidden="true">'
-    '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>App view</span></button>' + chr(10)
-)
 
 
 def svc_contact():
@@ -241,7 +246,7 @@ def page(title, desc, page_name, body, script=False, schema="", og_type="website
     if page_name == "index.html":
         h = h.replace("</head>", INTRO_HEAD + "</head>", 1)
     s = (h + '<span class="top-bar-mark" aria-hidden="true"></span>\n' + header(page_name)
-         + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER + tabbar(page_name) + FD_PILL)
+         + '\n<main id="main">\n' + body + '\n</main>\n\n' + FOOTER + tabbar(page_name))
     if script:
         s += '\n<script src="assets/site.js"></script>\n'
         s += '<script src="assets/mobile.js"></script>\n'
