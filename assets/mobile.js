@@ -201,13 +201,14 @@
     jobBar();
     if (window.MutationObserver) new MutationObserver(jobBar).observe(box, { childList: true, subtree: true });
   }
-  // ----- App view only: a floating chat box that replaces the contact form. It asks one thing at a time, uses the same rules
-  // and the same server function as the website's contact form, and ends with an envelope that folds and turns green.
-  // Nothing here runs at desktop width or in the mobile web view. Add #chat-demo to the address to see the last screen without sending. -----
+  // ----- App view only: a floating chat box that stands in for the contact form. It talks like a messaging app: the team asks
+  // one question at a time, the visitor answers in the composer, and a check mark confirms at the end. Same rules and same
+  // server function as the website's contact form. All motion is CSS; this script only adds and removes classes.
+  // Nothing here runs at desktop width or in the mobile web view. -----
   var CHAT = {
     api: 'https://evofqeolhdlteyztrzin.supabase.co/functions/v1/contact', key: 'sb_publishable_GZfm9qny4LxQHdqBBeoSeQ_gkyqVTLj',
     phone: '+1 469 396 2108', phoneHref: 'tel:+14693962108', email: 'hr@triadatechnologies.com',
-    bypass: true   // TEMPORARY: skips the server and just plays the finish. Set to false once the contact function is deployed.
+    bypass: true   // TEMPORARY: skips the server and just shows the confirmation. Set to false once the contact function is deployed.
   };
   var chatBuilt = false;
   function buildChat() {
@@ -215,8 +216,10 @@
     if (chatBuilt || !active() || pg === 'contact.html' || pg === 'admin.html') return;   // the contact page already has the real form
     chatBuilt = true;
     var el = function (tag, cls, html) { var n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
-    var noMotion = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
-    var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var calm = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var later = function (fn, ms) { return setTimeout(fn, calm() ? 0 : ms); };
+    var MARK = '<img src="assets/favicon-192.png" width="40" height="40" alt="">';
 
     // the same rules as the website's contact form
     var rules = {
@@ -233,102 +236,138 @@
       },
       phone: function (v) {
         if (!v) return '';
-        if (!/^\+?[\d\s().-]+$/.test(v)) return 'Use digits, spaces and + ( ) - only, for example (814) 555-0123.';
+        if (!/^\+?[\d\s().-]+$/.test(v)) return 'Use digits, spaces and + ( ) - only.';
         var d = v.replace(/\D/g, '');
-        if (d.length < 10 || d.length > 15) return 'Enter the full phone number with area code, or skip.';
+        if (d.length < 10 || d.length > 15) return 'Enter the full number with area code, or tap Skip.';
         return '';
       },
       message: function (v) {
         if (!v) return 'Write a short message so we know how to help.';
-        if (v.length < 60) return 'Please add at least 60 characters so we can help.';
+        if (v.length < 60) return 'Add ' + (60 - v.length) + ' more characters so we can help.';
         if (v.length > 999) return 'Shorten your message to 999 characters or fewer.';
         return '';
       }
     };
     var steps = [
-      { f: 'name', q: function () { return 'Hi! What is your first name?'; }, ph: 'First name', ac: 'given-name', max: 80 },
-      { f: 'company', q: function (a) { return 'Nice to meet you, ' + esc(a.name) + '. Which company are you with?'; }, ph: 'Company name', ac: 'organization', max: 100, skip: true },
-      { f: 'email', q: function () { return 'What is your email address?'; }, ph: 'name@company.com', ac: 'email', type: 'email', mode: 'email', max: 120 },
-      { f: 'phone', q: function () { return 'And a phone number, if you would like a call?'; }, ph: '(814) 555-0123', ac: 'tel', type: 'tel', mode: 'tel', max: 30, skip: true },
-      { f: 'reason', q: function () { return 'How can we help?'; }, choices: [['client', 'Hiring talent'], ['candidate', 'Looking for work'], ['vendor', 'Vendor or partner']] },
-      { f: 'message', q: function () { return 'Tell us a little about it.'; }, area: true, max: 999 }
+      { f: 'name', say: function () { return ['Hi, thanks for reaching out to Triada Technologies.', 'What is your first name?']; }, ph: 'First name', ac: 'given-name', max: 80 },
+      { f: 'company', say: function (a) { return ['Nice to meet you, ' + a.name + '. Which company are you with?']; }, ph: 'Company', ac: 'organization', max: 100, skip: true },
+      { f: 'email', say: function () { return ['What is the best email to reach you?']; }, ph: 'Email', ac: 'email', type: 'email', mode: 'email', max: 120 },
+      { f: 'phone', say: function () { return ['And a phone number, in case a call is easier?']; }, ph: 'Phone', ac: 'tel', type: 'tel', mode: 'tel', max: 30, skip: true },
+      { f: 'reason', say: function () { return ['What brings you here?']; }, choices: [['client', 'Hiring talent'], ['candidate', 'Looking for work'], ['vendor', 'Vendor or partner']] },
+      { f: 'message', say: function () { return ['Tell us a little about it. A few sentences help us pass you to the right person.']; }, ph: 'Message', area: true, max: 999 }
     ];
-    var ans, at, openedAt;
-    var reset = function () { ans = { name: '', company: '', email: '', phone: '', reason: '', message: '' }; at = 0; };
+    var ans, at, openedAt, busy, sent;
+    var reset = function () { ans = { name: '', company: '', email: '', phone: '', reason: '', message: '' }; at = -1; busy = false; sent = false; };
     reset();
 
-    // ---- the floating button with the travelling neon border ----
-    var fab = el('button', 'chat-fab', '<span class="cf-glow"></span><span class="cf-ring"></span><span class="cf-face"><img src="assets/favicon-192.png" width="30" height="30" alt=""></span>');
-    fab.type = 'button'; fab.setAttribute('aria-label', 'Contact us: open the chat form'); fab.setAttribute('aria-haspopup', 'dialog');
+    // ---- the floating button: company mark, thin edge with a travelling light ----
+    var fab = el('button', 'chat-fab', '<span class="cf-glow"></span><span class="cf-ring"></span><span class="cf-face">' + MARK.replace('width="40" height="40"', 'width="30" height="30"') + '</span>');
+    fab.type = 'button'; fab.setAttribute('aria-label', 'Message the Triada team'); fab.setAttribute('aria-haspopup', 'dialog');
 
-    // ---- the popup ----
+    // ---- the chat window ----
     var ov = el('div', 'chat-ov'); ov.hidden = true;
-    var card = el('div', 'chat-card'); card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-labelledby', 'chat-q');
-    var xb = el('button', 'chat-x', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'); xb.type = 'button'; xb.setAttribute('aria-label', 'Close');
-    var bk = el('button', 'chat-back', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>'); bk.type = 'button'; bk.setAttribute('aria-label', 'Previous question');
-    var dots = el('div', 'chat-dots'); dots.setAttribute('aria-hidden', 'true');
-    steps.forEach(function () { dots.appendChild(el('i')); });
-    var stage = el('div', 'chat-stage');
-    var done = el('div', 'chat-done'); done.hidden = true;
-    card.appendChild(bk); card.appendChild(xb); card.appendChild(dots); card.appendChild(stage); card.appendChild(done);
+    var card = el('div', 'chat-card'); card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-label', 'Message the Triada team');
+    card.innerHTML =
+      '<div class="ch-head"><span class="ch-av">' + MARK + '</span><span class="ch-id"><strong>Triada Technologies</strong><span>Replies within 24 hours</span></span>' +
+      '<button type="button" class="ch-x" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></div>' +
+      '<div class="ch-log" role="log" aria-live="polite"></div>' +
+      '<div class="ch-quick"></div>' +
+      '<form class="ch-compose" novalidate><div class="cc-row"><span class="cc-field"></span>' +
+      '<button type="submit" class="cc-send" aria-label="Send" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button></div>' +
+      '<div class="cc-hint" aria-live="polite"></div><input class="ch-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"></form>' +
+      '<div class="ch-done" hidden></div>';
     ov.appendChild(card);
     document.body.appendChild(fab); document.body.appendChild(ov);
+    var log = card.querySelector('.ch-log'), quick = card.querySelector('.ch-quick'), form = card.querySelector('.ch-compose'),
+        slot = card.querySelector('.cc-field'), sendBtn = card.querySelector('.cc-send'), hint = card.querySelector('.cc-hint'), done = card.querySelector('.ch-done');
+    var field = null;
 
-    var render = function (dir) {
-      var s = steps[at];
-      Array.prototype.forEach.call(dots.children, function (d, i) { d.className = i < at ? 'is-done' : (i === at ? 'is-now' : ''); });
-      bk.style.visibility = at ? 'visible' : 'hidden';
-      var html = '<h2 id="chat-q" class="chat-q">' + s.q(ans) + '</h2>';
-      if (s.choices) {
-        html += '<div class="chat-choices">' + s.choices.map(function (c) { return '<button type="button" class="chat-choice" data-v="' + c[0] + '">' + c[1] + '</button>'; }).join('') + '</div>';
-      } else {
-        html += '<form class="chat-form" novalidate>';
-        html += s.area
-          ? '<textarea class="chat-in" name="v" maxlength="' + s.max + '" rows="5" placeholder="At least 60 characters, so we know how to help." aria-describedby="chat-err"></textarea><div class="chat-meta"><span class="chat-err" id="chat-err" role="alert"></span><span class="chat-count">0 / ' + s.max + '</span></div>'
-          : '<input class="chat-in" name="v" type="' + (s.type || 'text') + '" ' + (s.mode ? 'inputmode="' + s.mode + '" ' : '') + 'autocomplete="' + s.ac + '" maxlength="' + s.max + '" placeholder="' + s.ph + '" aria-describedby="chat-err"><div class="chat-meta"><span class="chat-err" id="chat-err" role="alert"></span></div>';
-        html += '<input class="chat-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">';   // bot trap, same idea as the website form
-        html += '<div class="chat-btns">' + (s.skip ? '<button type="button" class="chat-skip">Skip</button>' : '') + '<button type="submit" class="chat-next">' + (s.area ? 'Send message' : 'Next') + '</button></div></form>';
-      }
-      stage.innerHTML = html;
-      stage.className = 'chat-stage' + (dir ? ' in-' + dir : '');
-      var form = stage.querySelector('form'), inp = stage.querySelector('.chat-in'), err = stage.querySelector('.chat-err');
-      if (s.choices) {
-        Array.prototype.forEach.call(stage.querySelectorAll('.chat-choice'), function (b) {
-          if (ans.reason === b.getAttribute('data-v')) b.classList.add('is-on');
-          b.addEventListener('click', function () { ans.reason = b.getAttribute('data-v'); go(1); });
-        });
-        return;
-      }
-      if (ans[s.f]) inp.value = ans[s.f];
-      var counter = stage.querySelector('.chat-count');
-      var count = function () { if (counter) { counter.textContent = inp.value.length + ' / ' + s.max; counter.classList.toggle('near', inp.value.length >= s.max * .9); } };
-      var showErr = function (t) { err.textContent = t; inp.classList.toggle('bad', !!t); if (t) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); };
-      inp.addEventListener('input', function () { if (inp.classList.contains('bad')) showErr(rules[s.f] && s.f !== 'company' ? rules[s.f](inp.value.trim()) : ''); count(); });
-      count();
-      var skip = stage.querySelector('.chat-skip');
-      if (skip) skip.addEventListener('click', function () { ans[s.f] = ''; go(1); });
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var v = inp.value.trim(), t = rules[s.f] ? rules[s.f](v) : '';
-        if (t) { showErr(t); inp.focus(); return; }
-        ans[s.f] = v;
-        if (s.area) send(form); else go(1);
-      });
-      if (!noMotion()) setTimeout(function () { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }, 260); else inp.focus();
+    var toBottom = function () { log.scrollTop = log.scrollHeight; };
+    var bubble = function (who, text, extra) {
+      var b = el('div', 'bub ' + who + (extra ? ' ' + extra : ''));
+      b.textContent = text; log.appendChild(b); toBottom(); return b;
     };
-    var go = function (d) { at = Math.max(0, Math.min(steps.length - 1, at + d)); render(d > 0 ? 'next' : 'prev'); };
-    bk.addEventListener('click', function () { var inp = stage.querySelector('.chat-in'); if (inp && steps[at].f !== 'reason') ans[steps[at].f] = inp.value.trim(); go(-1); });
+    // the team "types" for a moment before each line, like a real conversation
+    var teamSays = function (lines, then) {
+      var i = 0;
+      var nextLine = function () {
+        if (i >= lines.length) { then && then(); return; }
+        var t = el('div', 'bub them typing', '<i></i><i></i><i></i>'); t.setAttribute('aria-label', 'Typing'); log.appendChild(t); toBottom();
+        later(function () { t.remove(); bubble('them', lines[i++]); later(nextLine, 260); }, 520 + Math.min(lines[i].length * 9, 520));
+      };
+      nextLine();
+    };
+    var composer = function (s) {
+      quick.innerHTML = ''; hint.textContent = ''; hint.className = 'cc-hint';
+      form.classList.toggle('is-off', !!s.choices);
+      if (s.choices) {
+        s.choices.forEach(function (c) {
+          var b = el('button', 'qr', esc(c[1])); b.type = 'button';
+          b.addEventListener('click', function () { if (busy) return; ans.reason = c[0]; answer(c[1]); });
+          quick.appendChild(b);
+        });
+        field = null; slot.innerHTML = ''; return;
+      }
+      if (s.skip) {
+        var k = el('button', 'qr qr-skip', 'Skip'); k.type = 'button';
+        k.addEventListener('click', function () { if (busy) return; ans[s.f] = ''; answer('Skip', 'skipped'); });
+        quick.appendChild(k);
+      }
+      field = el(s.area ? 'textarea' : 'input', 'cc-in');
+      if (s.area) { field.rows = 1; } else { field.type = s.type || 'text'; field.autocomplete = s.ac; }
+      if (s.mode) field.setAttribute('inputmode', s.mode);
+      if (s.f === 'name') field.setAttribute('autocapitalize', 'words');
+      field.maxLength = s.max; field.placeholder = s.ph; field.setAttribute('aria-label', s.ph);
+      field.setAttribute('enterkeyhint', s.area ? 'enter' : 'send');
+      slot.innerHTML = ''; slot.appendChild(field);
+      var sync = function () {
+        var v = field.value.trim();
+        sendBtn.disabled = !v;
+        if (s.area) {
+          field.style.height = 'auto'; field.style.height = Math.min(field.scrollHeight, 132) + 'px'; toBottom();
+          hint.className = 'cc-hint';
+          hint.textContent = v.length < 60 ? 'At least 60 characters, ' + v.length + ' so far' : v.length + ' / 999';
+        } else if (hint.classList.contains('is-bad')) { hint.textContent = ''; hint.className = 'cc-hint'; }
+      };
+      field.addEventListener('input', sync); sync();
+      later(function () { try { field.focus({ preventScroll: true }); } catch (e) { field.focus(); } }, 60);
+    };
+    var ask = function () {
+      at++; busy = true; form.classList.add('is-off'); quick.innerHTML = '';
+      var s = steps[at];
+      teamSays(s.say(ans), function () { busy = false; composer(s); });
+    };
+    var answer = function (text, extra) {
+      busy = true; quick.innerHTML = ''; form.classList.add('is-off');
+      bubble('me', text, extra);
+      if (steps[at].f === 'message') { later(send, 380); return; }
+      later(ask, 380);
+    };
+    var refuse = function (t) {
+      hint.textContent = t; hint.className = 'cc-hint is-bad';
+      form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake');
+      if (field) field.focus();
+    };
+    form.addEventListener('animationend', function () { form.classList.remove('shake'); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy || !field) return;
+      var s = steps[at], v = field.value.trim(), t = rules[s.f] ? rules[s.f](v) : '';
+      if (!v) { if (s.skip) { ans[s.f] = ''; answer('Skip', 'skipped'); } else refuse(rules[s.f] ? rules[s.f]('') : 'Type an answer first.'); return; }
+      if (t) { refuse(t); return; }
+      ans[s.f] = v; answer(v);
+    });
+    // Enter sends in single-line answers; in the message box it adds a new line
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' && field && field.tagName === 'INPUT') { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit')); } });
 
     // ---- sending: the same function, the same fields and the same bot checks as the website's contact form ----
-    var sending = false;
-    var send = function (form) {
-      if (sending) return; sending = true;
-      var btn = form.querySelector('.chat-next'), err = form.querySelector('.chat-err'), inp = form.querySelector('.chat-in');
-      btn.disabled = true; btn.textContent = 'Sending...'; err.textContent = '';
-      var fail = function (t) { sending = false; btn.disabled = false; btn.textContent = 'Send message'; err.textContent = t; };
-      var direct = ' Please try again, or email ' + CHAT.email + '.';
-      var ok = function () { sending = false; finish(); };
-      if (CHAT.bypass || location.hash === '#chat-demo') { setTimeout(ok, 700); return; }   // no server call: only plays the finish
+    var send = function () {
+      var t = el('div', 'bub them typing', '<i></i><i></i><i></i>'); log.appendChild(t); toBottom();
+      var failed = function (text) {
+        t.remove(); bubble('them', text, 'is-err'); busy = false;
+        composer(steps[at]); if (field) { field.value = ans.message; field.dispatchEvent(new Event('input')); }
+      };
+      if (CHAT.bypass) { later(function () { t.remove(); finish(); }, 700); return; }
       fetch(CHAT.api, {
         method: 'POST',
         headers: { apikey: CHAT.key, 'Content-Type': 'application/json', 'x-region': 'us-east-1' },
@@ -336,80 +375,73 @@
                                message: ans.message, website: form.elements.website.value, t: Date.now() - openedAt })
       }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { r: r, j: j }; }); })
         .then(function (x) {
-          if (x.r.ok && x.j.ok) { ok(); return; }
-          if (x.r.status === 400 && x.j.fields) {
-            var bad = Object.keys(x.j.fields)[0];
-            if (bad === 'message') { fail(x.j.fields.message); inp.classList.add('bad'); return; }
-            sending = false;
-            var idx = steps.map(function (s) { return s.f; }).indexOf(bad);
-            if (idx > -1) { at = idx; render('prev'); var e2 = stage.querySelector('.chat-err'); if (e2) e2.textContent = x.j.fields[bad]; } else fail('Please check your entries.');
-          } else if (x.r.status === 429) fail('You have sent several messages already. Please try again later, or email ' + CHAT.email + '.');
-          else fail('We could not send your message.' + direct);
+          if (x.r.ok && x.j.ok) { t.remove(); finish(); return; }
+          if (x.r.status === 400 && x.j.fields) failed(x.j.fields[Object.keys(x.j.fields)[0]]);
+          else if (x.r.status === 429) failed('You have sent several messages already. Please try again later, or email ' + CHAT.email + '.');
+          else failed('The message did not go through. Tap send to try again, or email ' + CHAT.email + '.');
         })
-        .catch(function () { fail('We could not reach our server.' + direct); });
+        .catch(function () { failed('We could not reach our server. Tap send to try again, or email ' + CHAT.email + '.'); });
     };
 
-    // ---- the envelope: the form folds into an envelope that turns green ----
+    // ---- the confirmation: a check mark draws itself, then the details settle in ----
     var finish = function () {
-      stage.className = 'chat-stage is-out';
-      dots.style.opacity = '0'; bk.style.visibility = 'hidden';
+      sent = true;
       done.innerHTML =
-        '<div class="env" aria-hidden="true"><div class="env-back"></div><div class="env-letter"><i></i><i></i><i></i></div><div class="env-front"></div><div class="env-flap"></div>' +
-        '<svg class="env-ok" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/><path d="m12.5 20.5 5.2 5.2 9.8-10.6"/></svg></div>' +
-        '<h2 class="chat-q" id="chat-q" tabindex="-1">Query sent</h2>' +
-        '<p class="chat-sub">Thank you' + (ans.name ? ', ' + esc(ans.name) : '') + '. Our team will contact you within 24 hours. Or reach us directly:</p>' +
-        '<div class="chat-direct"><a href="' + CHAT.phoneHref + '">' + CHAT.phone + '</a><a href="mailto:' + CHAT.email + '">' + CHAT.email + '</a></div>' +
-        '<div class="chat-btns"><button type="button" class="chat-next chat-fin">Done</button></div>';
-      var env = done.querySelector('.env');
-      setTimeout(function () {
-        stage.hidden = true; done.hidden = false; card.classList.add('is-done');
-        void env.offsetWidth; env.classList.add(noMotion() ? 'is-final' : 'is-go');
-        done.querySelector('.chat-fin').addEventListener('click', close);
-        setTimeout(function () { var h = done.querySelector('h2'); if (h) h.focus({ preventScroll: true }); }, noMotion() ? 0 : 2000);
-      }, noMotion() ? 0 : 240);
+        '<svg class="dn-check" viewBox="0 0 80 80" aria-hidden="true"><circle class="dn-disc" cx="40" cy="40" r="36"/><circle class="dn-ring" cx="40" cy="40" r="36"/><path class="dn-tick" d="M25 41.5l10 10 20-22"/></svg>' +
+        '<h2 class="dn-title" tabindex="-1">Message sent</h2>' +
+        '<p class="dn-sub">Thanks' + (ans.name ? ', ' + esc(ans.name) : '') + '. Someone from our team will reply within 24 hours.</p>' +
+        '<p class="dn-or">Need us sooner?</p>' +
+        '<div class="dn-list"><a href="' + CHAT.phoneHref + '"><span class="dn-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.6l1.4 4-2 1.3a12 12 0 0 0 6.6 6.6l1.3-2 4 1.4v2.6a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg></span><span>' + CHAT.phone + '</span></a>' +
+        '<a href="mailto:' + CHAT.email + '"><span class="dn-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 7.5 8 6 8-6"/></svg></span><span>' + CHAT.email + '</span></a></div>' +
+        '<button type="button" class="dn-btn">Done</button>';
+      done.querySelector('.dn-btn').addEventListener('click', close);
+      card.classList.add('is-sent');
+      later(function () { log.hidden = true; quick.hidden = true; form.hidden = true; done.hidden = false; done.querySelector('.dn-title').focus({ preventScroll: true }); }, 220);
     };
 
-    // ---- opening and closing: grows from the button like an app opening, and shrinks back into it ----
-    var isOpen = false, lastFocus = null;
-    var flight = function (toButton) {
+    // ---- opening and closing (CSS spring): the window grows out of the button and folds back into it ----
+    var isOpen = false, lastFocus = null, shutTimer = 0;
+    var aim = function () {
       var a = fab.getBoundingClientRect(), c = card.getBoundingClientRect();
-      var from = 'translate(' + (a.left + a.width / 2 - c.left - c.width / 2) + 'px,' + (a.top + a.height / 2 - c.top - c.height / 2) + 'px) scale(' + (a.width / c.width) + ',' + (a.height / c.height) + ')';
-      var kf = [{ transform: from, opacity: 0 }, { transform: 'none', opacity: 1 }];
-      return card.animate(toButton ? kf.slice().reverse() : kf, { duration: toButton ? 300 : 520, easing: toButton ? 'cubic-bezier(.4,0,.8,.4)' : 'cubic-bezier(.18,.9,.24,1.08)', fill: 'both' });
+      card.style.setProperty('--ox', Math.round(a.left + a.width / 2 - (c.left + c.width / 2)) + 'px');
+      card.style.setProperty('--oy', Math.round(a.top + a.height / 2 - (c.top + c.height / 2)) + 'px');
     };
     var open = function () {
-      if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
-      if (done.hidden === false) { reset(); done.hidden = true; stage.hidden = false; card.classList.remove('is-done'); dots.style.opacity = ''; }
-      openedAt = Date.now(); render();
-      ov.hidden = false; root.classList.add('chat-open'); fab.classList.add('is-away');
-      if (!noMotion()) { ov.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, fill: 'both' }); flight(false); stage.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: 160, fill: 'backwards' }); }
+      if (isOpen) return; isOpen = true; lastFocus = document.activeElement; clearTimeout(shutTimer);
+      if (sent) {   // a finished conversation starts fresh
+        reset(); log.innerHTML = ''; log.hidden = false; quick.hidden = false; form.hidden = false; done.hidden = true; done.innerHTML = ''; card.classList.remove('is-sent');
+      }
+      ov.classList.remove('is-shut'); ov.hidden = false; root.classList.add('chat-open'); fab.classList.add('is-away');
+      fit(); aim(); void card.offsetWidth; ov.classList.add('is-open');
+      if (at < 0) { openedAt = Date.now(); later(ask, 280); }
+      else if (field) later(function () { field.focus({ preventScroll: true }); }, 300);
     };
     var close = function () {
       if (!isOpen) return; isOpen = false;
-      var fin = function () { ov.hidden = true; root.classList.remove('chat-open'); fab.classList.remove('is-away'); if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true }); };
-      if (noMotion()) { fin(); return; }
-      ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'both' });
-      flight(true).onfinish = function () { fin(); card.getAnimations().forEach(function (an) { an.cancel(); }); ov.getAnimations().forEach(function (an) { an.cancel(); }); };
+      aim(); ov.classList.remove('is-open'); ov.classList.add('is-shut'); fab.classList.remove('is-away');
+      var gone = function () { if (isOpen) return; ov.hidden = true; ov.classList.remove('is-shut'); root.classList.remove('chat-open'); if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true }); };
+      shutTimer = setTimeout(gone, calm() ? 0 : 340);
     };
     fab.addEventListener('click', open);
-    xb.addEventListener('click', close);
+    card.querySelector('.ch-x').addEventListener('click', close);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     document.addEventListener('keydown', function (e) {
       if (!isOpen) return;
       if (e.key === 'Escape') { close(); return; }
-      if (e.key === 'Tab') {   // keep the focus inside the popup
-        var f = Array.prototype.filter.call(card.querySelectorAll('button, input, textarea, a[href]'), function (n) { return !n.disabled && n.offsetParent !== null && n.tabIndex !== -1 && getComputedStyle(n).visibility !== 'hidden'; });
+      if (e.key === 'Tab') {   // keep the focus inside the window
+        var f = Array.prototype.filter.call(card.querySelectorAll('button, input:not(.ch-trap), textarea, a[href]'), function (n) { return !n.disabled && n.offsetParent !== null; });
         if (!f.length) return;
         var first = f[0], last = f[f.length - 1];
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
-    // on-screen keyboard: keep the popup inside the visible part of the screen
-    if (window.visualViewport) {
-      var fit = function () { if (isOpen) { ov.style.height = window.visualViewport.height + 'px'; ov.style.top = window.visualViewport.offsetTop + 'px'; } };
-      window.visualViewport.addEventListener('resize', fit); window.visualViewport.addEventListener('scroll', fit);
-    }
+    // on-screen keyboard: the window shrinks to the visible part of the screen so the composer stays in view
+    var fit = function () {
+      if (!window.visualViewport) return;
+      ov.style.height = window.visualViewport.height + 'px'; ov.style.top = window.visualViewport.offsetTop + 'px'; toBottom();
+    };
+    if (window.visualViewport) { window.visualViewport.addEventListener('resize', function () { if (isOpen) fit(); }); window.visualViewport.addEventListener('scroll', function () { if (isOpen) fit(); }); }
   }
   if (active()) buildChat();
   if (phone.addEventListener) phone.addEventListener('change', buildChat);
