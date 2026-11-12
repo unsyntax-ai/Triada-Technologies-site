@@ -53,10 +53,10 @@ footer.site-foot {
 .tabbar { --pl: max(4px, env(safe-area-inset-left, 0px)); --pr: max(4px, env(safe-area-inset-right, 0px)); }
 .tabbar a { position: relative; z-index: 1; transition: color .22s ease; }
 .tab-lens {
-  position: absolute; z-index: 0; top: 10px; height: calc(var(--tab-h) - 20px); pointer-events: none; will-change: left, width;
-  left: calc(var(--pl) + (100% - var(--pl) - var(--pr)) / 5 * var(--i, 0) + 1px);
-  width: calc((100% - var(--pl) - var(--pr)) / 5 - 2px);
-  border-radius: 22px; corner-shape: squircle;   /* Apple-style continuous corners where the browser supports them */
+  position: absolute; z-index: 0; top: 6px; height: calc(var(--tab-h) - 12px); pointer-events: none; will-change: left, width;
+  left: calc(var(--pl) + (100% - var(--pl) - var(--pr)) / 5 * var(--i, 0) - 3px);
+  width: calc((100% - var(--pl) - var(--pr)) / 5 + 6px);
+  border-radius: 25px; corner-shape: squircle;   /* Apple-style continuous corners where the browser supports them */
   background: linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, .38) 100%), rgba(30, 58, 138, .07);
   -webkit-backdrop-filter: blur(8px) saturate(1.9) brightness(1.04); backdrop-filter: blur(8px) saturate(1.9) brightness(1.04);
   box-shadow:
@@ -319,20 +319,20 @@ body:has(.job-bar) .chat-fab { bottom: calc(var(--tab-h) + var(--safe-b) + 84px)
 html.kbd .chat-fab { display: none; }
 .chat-fab:active { transform: scale(.92); }
 .chat-fab.is-away { transform: scale(.6); opacity: 0; pointer-events: none; }
-/* a neon gradient that travels around the edge in a loop: a spinning colour wheel clipped to a thin ring */
+/* a thin edge with a soft comet of light that travels around it: champagne head, fading through violet and blue */
 .cf-ring, .cf-glow { position: absolute; inset: 0; border-radius: 20px; overflow: hidden; }
+.cf-ring { background: linear-gradient(160deg, rgba(255, 255, 255, .32), rgba(255, 255, 255, .08)); }
 .cf-ring::before, .cf-glow::before {
   content: ""; position: absolute; left: 50%; top: 50%; width: 170%; aspect-ratio: 1; margin: -85% 0 0 -85%;
-  background: conic-gradient(from 0deg, #ff7a18, #ff2d95, #8b5cf6, #22d3ee, #34d399, #ffe14d, #ff7a18);
-  animation: chat-spin 3.2s linear infinite;
+  background: conic-gradient(from 0deg, rgba(120, 150, 255, 0) 0deg, rgba(120, 150, 255, 0) 150deg, #5b7cfa 215deg, #a78bfa 262deg, #f5c9a0 304deg, #fffaf0 332deg, rgba(255, 250, 240, 0) 352deg);
+  animation: chat-spin 3.6s linear infinite;
 }
-.cf-glow { inset: -3px; border-radius: 23px; filter: blur(9px); opacity: .55; }
+.cf-glow { inset: -2px; border-radius: 22px; filter: blur(8px); opacity: .4; }
 .cf-face {
-  position: absolute; inset: 2.5px; border-radius: 17.5px; display: grid; place-items: center;
-  background: linear-gradient(160deg, #1b2c63, #0F1E4A); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
+  position: absolute; inset: 1.5px; border-radius: 18.5px; display: grid; place-items: center;
+  background: radial-gradient(120% 100% at 30% 0%, #26397a 0%, #101e4b 62%, #0b1536 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
 }
-.cf-face svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.cf-face svg path:last-child { stroke-width: 2.6; }
+.cf-face img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .35)); }
 @keyframes chat-spin { to { transform: rotate(360deg); } }
 @supports (corner-shape: squircle) { .cf-ring, .cf-glow, .cf-face { corner-shape: squircle; } }
 

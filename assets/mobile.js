@@ -50,7 +50,7 @@
     var tabs = Array.prototype.slice.call(bar.querySelectorAll('a'));
     var curIdx = 0, KEYL = 'triada-lens', DUR = 520;
     tabs.forEach(function (t, i) { if (t.hasAttribute('aria-current')) curIdx = i; });
-    var edges = function (i) { var t = tabs[i]; return { l: t.offsetLeft + 1, r: t.offsetLeft + t.offsetWidth - 1 }; };
+    var edges = function (i) { var t = tabs[i]; return { l: t.offsetLeft - 3, r: t.offsetLeft + t.offsetWidth + 3 }; };
     var bez = function (x1, y1, x2, y2) {   // CSS cubic-bezier as a function of time, for building the two edge paths
       var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
       var X = function (t) { return ((ax * t + bx) * t + cx) * t; }, Y = function (t) { return ((ay * t + by) * t + cy) * t; };
@@ -206,7 +206,8 @@
   // Nothing here runs at desktop width or in the mobile web view. Add #chat-demo to the address to see the last screen without sending. -----
   var CHAT = {
     api: 'https://evofqeolhdlteyztrzin.supabase.co/functions/v1/contact', key: 'sb_publishable_GZfm9qny4LxQHdqBBeoSeQ_gkyqVTLj',
-    phone: '+1 469 396 2108', phoneHref: 'tel:+14693962108', email: 'hr@triadatechnologies.com'
+    phone: '+1 469 396 2108', phoneHref: 'tel:+14693962108', email: 'hr@triadatechnologies.com',
+    bypass: true   // TEMPORARY: skips the server and just plays the finish. Set to false once the contact function is deployed.
   };
   var chatBuilt = false;
   function buildChat() {
@@ -257,7 +258,7 @@
     reset();
 
     // ---- the floating button with the travelling neon border ----
-    var fab = el('button', 'chat-fab', '<span class="cf-glow"></span><span class="cf-ring"></span><span class="cf-face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6a.6.6 0 0 1-1-.46V16A2.5 2.5 0 0 1 4 13.5z"/><path d="M8.5 9.8h.01M12 9.8h.01M15.5 9.8h.01"/></svg></span>');
+    var fab = el('button', 'chat-fab', '<span class="cf-glow"></span><span class="cf-ring"></span><span class="cf-face"><img src="assets/favicon-192.png" width="30" height="30" alt=""></span>');
     fab.type = 'button'; fab.setAttribute('aria-label', 'Contact us: open the chat form'); fab.setAttribute('aria-haspopup', 'dialog');
 
     // ---- the popup ----
@@ -327,7 +328,7 @@
       var fail = function (t) { sending = false; btn.disabled = false; btn.textContent = 'Send message'; err.textContent = t; };
       var direct = ' Please try again, or email ' + CHAT.email + '.';
       var ok = function () { sending = false; finish(); };
-      if (location.hash === '#chat-demo') { setTimeout(ok, 700); return; }   // preview of the last screen only; sends nothing
+      if (CHAT.bypass || location.hash === '#chat-demo') { setTimeout(ok, 700); return; }   // no server call: only plays the finish
       fetch(CHAT.api, {
         method: 'POST',
         headers: { apikey: CHAT.key, 'Content-Type': 'application/json', 'x-region': 'us-east-1' },
