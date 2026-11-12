@@ -104,3 +104,6 @@ html.classic header.site.scrolled .topglass {
 /* menu bar: dissolves together with the glass while reading down, returns on the way back up */
 html.classic .menubar { transition: background .3s ease, border-color .3s ease, opacity .3s ease, transform .3s ease, visibility 0s; }
 html.classic.menu-hide .menubar { opacity: 0; transform: translateY(-10px); pointer-events: none; visibility: hidden; transition: opacity .3s ease, transform .3s ease, visibility 0s .3s; }
+
+/* app view: no second bar (Find work / Hire talent); the mobile web view keeps it */
+html:not(.classic) .actbar { display: none; }
