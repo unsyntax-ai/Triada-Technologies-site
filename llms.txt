@@ -13,6 +13,7 @@
 
 ## Insights
 
+- [Planning Tech Teams Around 2026 Web Developer Benchmarks](https://triadatechnologies.com/insight-planning-tech-teams-around-2026-web-developer-benchmarks.html): Updated 2026 benchmark data highlights how web development now encompasses server configuration, database design, and security log monitoring. (2026-11-17)
 - [Tech Pay Growth Accelerates as Quits Rates Remain Low](https://triadatechnologies.com/insight-tech-pay-growth-accelerates-as-quits-rates-remain-low.html): U.S. tech job postings and wage growth are accelerating across data, software, and systems roles, yet worker voluntary quits remain low. Learn how employers and IT professionals can navigate this shifting compensation environment. (2026-11-16)
 - [Standing Out in Cybersecurity as Postings Reach 457,398](https://triadatechnologies.com/insight-standing-out-in-cybersecurity-as-postings-reach-457-398.html): CyberSeek data reveals 457,398 open cybersecurity roles in 2025, matching national workforce supply. IT candidates can stand out by targeting certification gaps and mastering workplace AI governance. (2026-11-12)
 - [New BLS OEWS Data Guides IT Contract and Direct Hiring](https://triadatechnologies.com/insight-new-bls-oews-data-guides-it-contract-and-direct-hiring.html): The release of updated national BLS OEWS benchmark data provides crucial pay and employment baseline guidance for employers and IT professionals balancing contract, contract-to-hire, and direct-hire strategies. (2026-11-11)
