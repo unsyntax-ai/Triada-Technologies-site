@@ -213,7 +213,7 @@ FOOTER = f'''<footer class="site-foot">
   <div class="wrap foot">
     <div class="foot-brand">
       <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
-      <p class="foot-tag">Creating value for everyone.</p>
+      <p class="foot-tag"><a class="foot-quiet" href="admin.html" rel="nofollow" aria-label="Creating value for everyone (admin sign-in)">Creating value for everyone.</a></p>
       <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
     </div>
     <div class="foot-col">
@@ -634,10 +634,6 @@ jobs = '''<section class="page-hero" style="border-top:0">
       </div>
       <div class="jobs-cta">
         <button class="btn btn-solid" type="button" id="find-open">Find a Job</button>
-        <div class="admin-slot">
-          <a class="btn btn-solid" href="admin.html">Post a job</a>
-          <small>Admin only</small>
-        </div>
       </div>
     </div>
   </div>
@@ -893,6 +889,18 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
           <span id="a-page" aria-live="polite"></span>
           <button class="btn btn-white btn-sm" type="button" id="a-next">Next</button>
         </div>
+      </div>
+
+      <div class="card admin-card" id="a-insight-card">
+        <h2>Post an insight from links</h2>
+        <p>Paste two or three web addresses, one per line (up to five). The site reads each page, the AI keeps the ones that are useful, and writes one new insight from them in Triada's own voice. It appears on the Insights page in about three minutes.</p>
+        <textarea id="a-urls" aria-label="Web addresses" placeholder="https://" spellcheck="false" autocomplete="off"></textarea>
+        <button class="btn btn-solid" type="button" id="a-insight-go">Write insight from these links</button>
+        <p id="a-insight-msg" class="a-msg" role="status"></p>
+        <h3 class="a-sub">No link? Let the site choose the story</h3>
+        <p>Finds a fresh story on the sources we follow and writes the insight, the same work the schedule does.</p>
+        <button class="btn btn-white" type="button" id="a-insight-daily">Find a story and write</button>
+        <p id="a-daily-msg" class="a-msg" role="status"></p>
       </div>
     </div>
   </section>

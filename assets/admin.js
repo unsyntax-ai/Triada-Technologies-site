@@ -356,6 +356,45 @@
       .then(function () { $('a-draft').disabled = false; });
   });
 
+  // ----- insight from links: the server starts the writer; the new post appears on the site a few minutes later -----
+  $('a-insight-go').addEventListener('click', function () {
+    var raw = $('a-urls').value.trim();
+    if (!/https:\/\//i.test(raw)) { msg('a-insight-msg', 'Paste at least one web address that starts with https://', 'bad'); return; }
+    var go = $('a-insight-go');
+    go.disabled = true;
+    msg('a-insight-msg', 'Starting...', '');
+    token().then(function (t) {
+      return fetch(T.url + '/functions/v1/insight-trigger', {
+        method: 'POST', headers: { apikey: T.key, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json', 'x-region': 'us-east-1' },
+        body: JSON.stringify({ urls: raw })
+      });
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || 'It could not be started. Try again.'); return d; });
+    }).then(function (d) {
+      var n = d.count || 1;
+      msg('a-insight-msg', 'Started with ' + n + (n === 1 ? ' link' : ' links') + (d.dropped ? ' (' + d.dropped + ' skipped: only https addresses work)' : '') + '. The insight is checked and written now, and shows on the Insights page in about three minutes. If none of the pages are usable, nothing is posted.', 'ok');
+      $('a-urls').value = '';
+    }).catch(function (e) { msg('a-insight-msg', e.message, 'bad'); })
+      .then(function () { go.disabled = false; });
+  });
+
+  $('a-insight-daily').addEventListener('click', function () {
+    var go = $('a-insight-daily');
+    go.disabled = true;
+    msg('a-daily-msg', 'Starting...', '');
+    token().then(function (t) {
+      return fetch(T.url + '/functions/v1/insight-trigger', {
+        method: 'POST', headers: { apikey: T.key, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json', 'x-region': 'us-east-1' },
+        body: JSON.stringify({ mode: 'daily' })
+      });
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || 'It could not be started. Try again.'); return d; });
+    }).then(function () {
+      msg('a-daily-msg', 'Started. It finds a fresh story and writes the insight now, and it shows on the Insights page in about three minutes. If no fresh story can be read, nothing is posted.', 'ok');
+    }).catch(function (e) { msg('a-daily-msg', e.message, 'bad'); })
+      .then(function () { go.disabled = false; });
+  });
+
   // ----- form -----
   function lines(v) { return v.split('\n').map(function (x) { return x.replace(/^[-•*\s]+/, '').trim(); }).filter(Boolean); }
   function fill(d) {

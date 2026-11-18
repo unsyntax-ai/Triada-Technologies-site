@@ -1,0 +1,68 @@
+{
+  "slug": "tech-pay-growth-accelerates-as-quits-rates-remain-low",
+  "title": "Tech Pay Growth Accelerates as Quits Rates Remain Low",
+  "description": "Explore rising U.S. tech wage growth in Q3 2026, low voluntary quits, and effective workforce strategies combining internal upskilling with contingent staffing.",
+  "tag": "Hiring trends",
+  "summary": "U.S. tech job postings and wage growth are accelerating across data, software, and systems roles, yet worker voluntary quits remain low. Learn how employers and IT professionals can navigate this shifting compensation environment.",
+  "palette": "navy",
+  "published": "2026-11-16",
+  "updated": "2026-11-16",
+  "has_art": true,
+  "topic": "digital compensation chart and network nodes",
+  "art": {
+    "motif": "gauge",
+    "params": {},
+    "tint": "mist"
+  },
+  "sections": [
+    {
+      "heading": "Postings Rise and Tech Pay Growth Accelerates",
+      "paragraphs": [
+        "Across the United States, employment openings have shown new momentum, with technology roles playing an unexpectedly strong part in the rebound. For the first time in almost four years, annual job posting trends shifted into positive territory, showing a 3.1 percent increase for the year ending in late October 2026. While listings across information technology fields remain below early-2020 peaks, every tech category experienced annual gains, led by software development. Software roles, which encompass application developers, infrastructure engineers, systems developers, and software architects, are seeing renewed activity as organizations update existing platforms and develop specialized utilities.",
+        "Alongside this uptick in job openings, compensation growth in the tech sector is accelerating. Data and analytics roles, as well as IT systems and solutions positions, lead the upward pay trend, with wage growth in both sectors climbing by over three percentage points across six months. Software engineering pay gains also accelerated, reaching 2.9 percent in September 2026, compared to 1.5 percent during the same month a year earlier. This acceleration reflects rising enterprise demand for specialized technical skills as businesses expand their core infrastructure."
+      ]
+    },
+    {
+      "heading": "Why Higher Compensation Has Not Sparked Voluntary Turnover",
+      "paragraphs": [
+        "Despite accelerating pay and broader hiring gains, technology professionals across the United States are largely choosing to stay in their current roles. Voluntary turnover remains unexpectedly muted across key tech sectors. In professional and business services, the quits rate registered 2.1 percent in September 2026, remaining nearly a full percentage point under its pre-pandemic 2019 average. A similar dynamic exists in the information sector, where voluntary departures stay below 2019 baseline levels despite a minor recent increase.",
+        "This reluctance to change employers creates a tight candidate supply for companies seeking seasoned direct-hire professionals. Even with higher pay offers appearing in job ads, many tech workers prefer the stability of their current positions over external market transitions. For technology leaders, this stationary workforce means relying solely on direct hiring to fill urgent skills gaps can prove challenging and slow."
+      ]
+    },
+    {
+      "heading": "Balancing Upskilling and External Staffing for AI and Software",
+      "paragraphs": [
+        "To navigate this hiring landscape, enterprise leaders are re-evaluating how they acquire technical talent. Industry sentiment has shifted away from relying purely on external recruitment. In a recent survey of five hundred talent acquisition professionals, 83 percent stated that company success depends more on upskilling existing staff in areas like artificial intelligence than on hiring new employees. Additional data from the Linux Foundation highlights that organizations are about three and a half times more likely to retrain internal staff for strategic priorities than to recruit outside candidates.",
+        "Corporate employers demonstrate this strategy by prioritizing institutional knowledge. Industry executives emphasize that tech workers with long tenures,sometimes averaging over eleven years,possess valuable business context that takes years to replicate. When organizations face immediate needs in niche areas like agentic AI or complex database architecture, they deploy flexible staffing options. Utilizing contract, temporary, or contract-to-hire arrangements allows firms to bring in targeted expertise quickly while internal personnel undergo structured upskilling programs."
+      ]
+    },
+    {
+      "heading": "Strategic Guidance for Employers and IT Professionals",
+      "paragraphs": [
+        "For hiring managers planning technology teams, adapting to current wage and turnover dynamics requires a balanced talent strategy. Employers should pair internal upskilling initiatives with flexible contingent staffing options. Bringing on temporary or contract experts helps maintain project delivery timelines without permanently expanding payrolls. Furthermore, contract-to-hire pathways offer a practical way to evaluate candidates for critical software or systems engineering positions before extending direct-hire offers. When external specialists join the team, managers should establish clear knowledge-transfer processes so that specialized expertise spreads across the broader organization.",
+        "For job seekers and IT professionals evaluating their next career moves, current market conditions offer wage growth alongside stability. Rather than changing jobs purely for minor pay bumps, candidates should evaluate potential employers based on internal training support and long-term skill development, particularly in high-demand domains like data, AI, and systems engineering. Technical specialists seeking immediate moves can leverage contract or temporary placements to gain hands-on experience with emerging tools, building competitive advantages while maintaining career flexibility in an evolving compensation market."
+      ]
+    }
+  ],
+  "takeaways": [
+    "U.S. tech wage growth is rising fast in data, systems, and software categories while voluntary quits remain low.",
+    "Employers are heavily prioritizing internal upskilling over external hiring for strategic capabilities like AI.",
+    "Combining contract and contract-to-hire staffing with internal training helps fill immediate skill gaps efficiently."
+  ],
+  "sources": [
+    {
+      "title": "2026 Q3 US Tech Labor Market Update - Indeed Hiring Lab",
+      "url": "https://hiringlab.indeed.com/2026/11/12/2026-q3-us-tech-labor-market-update/"
+    },
+    {
+      "title": "Ask the Experts: Build or buy your AI talent?",
+      "url": "https://www.informationweek.com/it-staffing-careers/ask-the-experts-build-or-buy-your-ai-talent-"
+    },
+    {
+      "title": "15-1252.00 - Software Developers",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00"
+    }
+  ],
+  "angle": "what is happening to pay and compensation",
+  "primary_source": "https://hiringlab.indeed.com/2026/11/12/2026-q3-us-tech-labor-market-update/"
+}

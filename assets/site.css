@@ -927,3 +927,10 @@ footer.site-foot .foot-col li { margin: 0; line-height: 1.4; }
 /* Main page headings (Services, About, Jobs, Insights, Contact): large but not oversized, and on one line on desktop */
 h1.pt { font-size: clamp(34px, 4.2vw, 52px); line-height: 1.1; }
 @media (min-width: 801px) { h1.pt { white-space: nowrap; } }
+
+/* the admin entry: the footer tagline itself is the link. It looks and behaves like plain text; keyboard focus still shows an outline */
+footer.site-foot .foot-quiet { color: inherit; text-decoration: none; cursor: default; }
+footer.site-foot .foot-quiet:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; border-radius: 2px; }
+#a-urls { min-height: 120px; }
+.a-sub { margin: var(--s-4) 0 var(--s-1); font-size: 20px; }
+#a-insight-card .a-msg { margin-bottom: 0; }

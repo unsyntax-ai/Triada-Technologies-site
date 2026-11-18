@@ -22,6 +22,10 @@ on:
         description: "Write a new article even if today already has one (use to refresh today's insight)"
         type: boolean
         default: false
+      urls:
+        description: "Write one new article from these web pages (one address per line). Used by the admin page's links box. Leave empty for the normal daily pick."
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -49,7 +53,8 @@ jobs:
         continue-on-error: true   # an early try that fails must not stop the site from building; a later try runs again
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }} ${{ inputs.force && '--force' || '' }}
+          INSIGHT_URLS: ${{ inputs.urls }}   # passed as data, never pasted into the command
+        run: python3 scripts/generate_insights.py ${{ inputs.redo_art && '--redo-art' || '' }} ${{ inputs.force && '--force' || '' }} ${{ inputs.urls != '' && '--urls-env' || '' }}
       - name: Note if the insight failed
         if: steps.gen.outcome == 'failure'
         run: echo "::warning::Today's insight could not be written on this try. See the step above for the reason. A later scheduled try runs again."
