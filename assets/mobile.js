@@ -38,82 +38,186 @@
   var rail = document.querySelector('.menubar ul'), cur = rail && rail.querySelector('[aria-current]');
   if (cur) rail.scrollLeft = Math.max(0, cur.offsetLeft - (rail.clientWidth - cur.offsetWidth) / 2);
 
-  // ----- tab bar: a liquid-glass lens flows from the selected tab to the one you tap. The glide starts on the page you tap
-  // and CONTINUES on the next page (the start time is passed along for a moment), so it reads as one movement, not a jump.
-  // Its leading edge runs ahead and the trailing edge follows, so it stretches like a drop. Tapping the tab you are on
-  // scrolls to the top. With reduced motion (or no animation support) taps simply navigate. -----
+  // ----- tab bar: a liquid-glass lens. Press a tab and it expands under your finger; keep the finger down and drag across the bar:
+  // the lens follows continuously, stretching with speed and recovering like a drop of liquid. Lift on any tab to open it.
+  // Two edge springs (the leading edge stiff, the trailing edge soft) give the stretch and the overshoot; a spring on size gives the
+  // press and the squash. Pointer Events carry touch, mouse and pen alike. Navigation happens once, on release; hovering only
+  // highlights. A tap or key press on the current tab scrolls to the top. The glide continues across the page change. -----
   var here = function (p) { var n = p.replace(/\/+$/, '').split('/').pop(); return n || 'index.html'; };
   var bar = document.querySelector('.tabbar');
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   if (bar) {
     var lens = bar.querySelector('.tab-lens');
     var tabs = Array.prototype.slice.call(bar.querySelectorAll('a'));
-    var curIdx = 0, KEYL = 'triada-lens', DUR = 520;
-    tabs.forEach(function (t, i) { if (t.hasAttribute('aria-current')) curIdx = i; });
-    var edges = function (i) { var t = tabs[i]; return { l: t.offsetLeft - 3, r: t.offsetLeft + t.offsetWidth + 3 }; };
-    var bez = function (x1, y1, x2, y2) {   // CSS cubic-bezier as a function of time, for building the two edge paths
-      var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
-      var X = function (t) { return ((ax * t + bx) * t + cx) * t; }, Y = function (t) { return ((ay * t + by) * t + cy) * t; };
-      var dX = function (t) { return (3 * ax * t + 2 * bx) * t + cx; };
-      return function (x) {
-        if (x <= 0) return 0;
-        if (x >= 1) return 1;
-        var t = x;
-        for (var i = 0; i < 8; i++) { var e = X(t) - x; if (Math.abs(e) < 1e-5) break; var d = dX(t); if (Math.abs(d) < 1e-6) break; t -= e / d; }
-        return Y(t);
-      };
+    var icons = tabs.map(function (t) { return t.querySelector('.tab-ic'); });
+    var curIdx = 0, KEYL = 'triada-lens', PAD = 3;
+    tabs.forEach(function (t, i) { if (t.hasAttribute('aria-current')) curIdx = i; t.setAttribute('draggable', 'false'); });
+
+    // real refraction where the browser can bend what is behind glass (Chromium, not iPhone); elsewhere the glass is tint, rim light and highlights
+    var ua = navigator.userAgent;
+    if (window.CSS && CSS.supports && /Chrome\//.test(ua) && !/iP(hone|ad|od)|CriOS|FxiOS|EdgiOS/.test(ua) && CSS.supports('backdrop-filter', 'url(#a)')) {
+      var map = "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='100' viewBox='0 0 200 100' preserveAspectRatio='none'><defs><linearGradient id='x' x1='0' x2='1' y1='0' y2='0'>" +
+        "<stop offset='0' stop-color='rgb(222,128,128)'/><stop offset='.22' stop-color='rgb(128,128,128)'/><stop offset='.78' stop-color='rgb(128,128,128)'/><stop offset='1' stop-color='rgb(34,128,128)'/></linearGradient></defs>" +
+        "<rect width='200' height='100' fill='url(#x)'/></svg>";
+      var holder = document.createElement('div');
+      holder.setAttribute('aria-hidden', 'true'); holder.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+      holder.innerHTML = '<svg width="0" height="0" focusable="false"><filter id="triada-lens-refract" primitiveUnits="objectBoundingBox" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">' +
+        '<feImage href="data:image/svg+xml,' + encodeURIComponent(map) + '" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="m" scale=".2" xChannelSelector="R" yChannelSelector="B"/></filter></svg>';
+      document.body.appendChild(holder); root.classList.add('glass-refract');
+    }
+
+    // ----- geometry -----
+    var geo = [];
+    var measure = function () { geo = tabs.map(function (t) { return { l: t.offsetLeft, r: t.offsetLeft + t.offsetWidth, c: t.offsetLeft + t.offsetWidth / 2 }; }); };
+    var edges = function (i) { if (!geo.length) measure(); return { l: geo[i].l - PAD, r: geo[i].r + PAD }; };
+    var idxAt = function (x) { if (!geo.length) measure(); for (var i = 0; i < geo.length; i++) if (x < geo[i].r) return i; return geo.length - 1; };
+    window.addEventListener('resize', function () { geo = []; });
+
+    // ----- spring state: left edge, right edge, size (press) and height (squash) -----
+    var S = { L: { x: 0, v: 0 }, R: { x: 0, v: 0 }, P: { x: 1, v: 0 }, Y: { x: 1, v: 0 } };
+    var live = false, raf = 0, lastT = 0, drag = null, target = curIdx, hover = -1, lastPtr = 0, TL = 0, TR = 0, TP = 1;
+    var sp = function (o, t, k, z, h) { var a = -k * (o.x - t) - 2 * z * Math.sqrt(k) * o.v; o.v += a * h; o.x += o.v * h; };
+
+    var setHover = function (h) {
+      if (h === hover) return; hover = h;
+      tabs.forEach(function (t, i) { t.classList.toggle('is-target', i === h); });
     };
-    var lead = bez(.12, .85, .25, 1.14), trail = bez(.42, 0, .2, 1);
-    var glide = function (from, to, elapsed) {
-      if (!lens || !lens.animate || from === to) return null;
-      var A = edges(from), B = edges(to), right = B.l > A.l, N = 30, frames = [];
-      for (var i = 0; i <= N; i++) {
-        var t = i / N, fast = lead(t), slow = trail(Math.max(0, (t - .1) / .9));
-        var l = A.l + (B.l - A.l) * (right ? slow : fast);
-        var r = A.r + (B.r - A.r) * (right ? fast : slow);
-        l = Math.max(3, l); r = Math.min(bar.clientWidth - 3, r);   // the overshoot never pokes past the screen edge
-        frames.push({ left: l + 'px', width: Math.max(8, r - l) + 'px', transform: 'scaleY(' + (1 - .07 * Math.sin(Math.PI * t)).toFixed(3) + ')', offset: t });
-      }
-      var an = lens.animate(frames, { duration: DUR, easing: 'linear', fill: 'both' });
-      if (elapsed) an.currentTime = elapsed;
-      an.onfinish = function () { an.cancel(); };   // hands the lens back to the CSS resting position, which is the same spot
-      return an;
+    var ensure = function () {
+      if (live) return; measure();
+      var e = edges(curIdx);
+      S.L.x = e.l; S.R.x = e.r; S.L.v = S.R.v = S.P.v = S.Y.v = 0; S.P.x = 1; S.Y.x = 1;
+      live = true; lens.style.left = '0px'; bar.classList.add('lens-live');
     };
-    var settle = function () {
-      bar.classList.remove('moving');
+    var finish = function () {
+      live = false; lens.style.cssText = ''; lens.classList.remove('is-press');
+      icons.forEach(function (n) { n.style.transform = ''; });
       tabs.forEach(function (t) { t.classList.remove('is-target'); });
-      if (lens && lens.getAnimations) lens.getAnimations().forEach(function (an) { an.cancel(); });
-      try { sessionStorage.removeItem(KEYL); } catch (e) { /* ignore */ }
+      bar.classList.remove('lens-live', 'moving'); hover = -1;
+    };
+    // where the two edges are heading: under the finger while dragging, otherwise the tab we are settling on
+    var aim = function () {
+      var barW = bar.clientWidth;
+      if (drag && !drag.out) {
+        var b = geo[drag.from], tabW = b.r - b.l, w = tabW + 2 * PAD + 8;
+        var off = (b.c - drag.x0) * Math.max(0, 1 - Math.abs(drag.x - drag.x0) / (tabW * .8));   // eases from the tab's centre to the finger
+        var c = drag.x + off;
+        TL = c - w / 2; TR = c + w / 2;
+        TP = 1.06;
+        var grow = w * (TP - 1) / 2 + 2;   // keep the enlarged glass inside the screen edges
+        if (TL < grow) { TR += grow - TL; TL = grow; }
+        if (TR > barW - grow) { TL -= TR - (barW - grow); TR = barW - grow; }
+      } else { var e = edges(target); TL = e.l; TR = e.r; TP = 1; }
+    };
+    var step = function (h) {
+      var dir = Math.abs(S.L.v + S.R.v) > 40 ? S.L.v + S.R.v : (TL + TR) / 2 - (S.L.x + S.R.x) / 2;
+      var rightLeads = dir >= 0;
+      sp(S.L, TL, rightLeads ? 300 : 640, rightLeads ? .62 : .74, h);   // the leading edge is stiff, the trailing edge is soft and elastic
+      sp(S.R, TR, rightLeads ? 640 : 300, rightLeads ? .74 : .62, h);
+      if (S.R.x - S.L.x < 36) { var m = (S.L.x + S.R.x) / 2; S.L.x = m - 18; S.R.x = m + 18; }
+      sp(S.P, TP, 380, .55, h);
+      sp(S.Y, 1 - Math.min(.05, Math.abs(S.L.v + S.R.v) / 2 / 11000), 520, .6, h);   // a touch of squash at speed
+    };
+    var render = function () {
+      lens.style.width = (S.R.x - S.L.x).toFixed(2) + 'px';
+      lens.style.transform = 'translate3d(' + S.L.x.toFixed(2) + 'px,0,0) scale(' + S.P.x.toFixed(4) + ',' + (S.P.x * S.Y.x).toFixed(4) + ')';
+      lens.style.setProperty('--sh', Math.max(-1, Math.min(1, (S.L.v + S.R.v) / 2800)).toFixed(3));
+      var lc = (S.L.x + S.R.x) / 2;
+      for (var i = 0; i < tabs.length; i++) {   // icons swell as the glass reaches them
+        var e = Math.max(0, 1 - Math.abs(lc - geo[i].c) / ((geo[i].r - geo[i].l) * .9));
+        e = e * e * (3 - 2 * e);
+        icons[i].style.transform = 'translateY(' + (-1.2 * e).toFixed(2) + 'px) scale(' + (1 + .17 * e).toFixed(3) + ')';
+      }
+    };
+    var atRest = function () {
+      return !drag && Math.abs(S.L.x - TL) < .25 && Math.abs(S.R.x - TR) < .25 && Math.abs(S.L.v) < 2 && Math.abs(S.R.v) < 2 &&
+             Math.abs(S.P.x - 1) < .002 && Math.abs(S.P.v) < .05 && Math.abs(S.Y.x - 1) < .002 && Math.abs(S.Y.v) < .05;
+    };
+    var frame = function (t) {
+      raf = 0;
+      var dt = lastT ? Math.min(.033, (t - lastT) / 1000) : .016; lastT = t;
+      aim();
+      var n = Math.max(1, Math.ceil(dt / .008)), h = dt / n;
+      for (var i = 0; i < n; i++) step(h);
+      render();
+      setHover(drag ? (drag.out ? curIdx : idxAt(drag.x)) : target);
+      if (atRest()) { if (!navigating) finish(); lastT = 0; } else raf = requestAnimationFrame(frame);
+    };
+    var wake = function () { if (!raf) { lastT = 0; raf = requestAnimationFrame(frame); } };
+
+    // ----- committing a choice: once, on release -----
+    var navigating = false;
+    var toTop = function () { window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); };
+    var go = function (a, idx) {
+      if (navigating) return; navigating = true;
+      if (!reduced() && live) {
+        // hand the glide to the next page: where the edges are and how fast they are moving
+        try { sessionStorage.setItem(KEYL, JSON.stringify({ l: S.L.x, r: S.R.x, vl: S.L.v, vr: S.R.v, p: S.P.x, t: idx, t0: Date.now() })); } catch (err) { /* ignore */ }
+        target = idx; setHover(idx); bar.classList.add('moving'); wake();
+      }
+      window.location.href = a.href;
+    };
+    var commit = function (idx) {
+      var a = tabs[idx], samePage = here(a.pathname) === here(location.pathname);
+      if (idx === curIdx && samePage) { target = curIdx; toTop(); wake(); return; }   // the tab you are on: back to the top
+      if (idx === curIdx) { target = curIdx; go(a, idx); return; }                    // same tab, another page
+      go(a, idx);
     };
 
-    // arriving from another tab: pick the glide up where the previous page left it
+    // ----- pointer handling (touch, mouse, pen) -----
+    var end = function (e, cancelled) {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      var d = drag; drag = null; lastPtr = Date.now();
+      try { bar.releasePointerCapture(d.id); } catch (err) { /* ignore */ }
+      lens.classList.remove('is-press');
+      if (cancelled || d.out) { target = curIdx; if (live) { bar.classList.remove('moving'); wake(); } return; }   // let go away from the bar: back where it was
+      commit(idxAt(Math.max(0, Math.min(bar.clientWidth, d.x))));
+    };
+    bar.addEventListener('pointerdown', function (e) {
+      if (navigating || drag || !active() || e.isPrimary === false || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      var a = e.target.closest ? e.target.closest('a') : null, i = a ? tabs.indexOf(a) : -1;
+      if (i < 0) return;
+      var r = bar.getBoundingClientRect();
+      measure();
+      drag = { id: e.pointerId, from: i, left: r.left, top: r.top, x0: e.clientX - r.left, x: e.clientX - r.left, out: false };
+      try { bar.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      if (reduced()) return;
+      ensure(); target = curIdx;
+      S.Y.x = .93;   // the press: a quick squash that springs open into the larger glass
+      lens.classList.add('is-press'); bar.classList.add('moving'); wake();
+    });
+    bar.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      drag.x = e.clientX - drag.left; drag.out = e.clientY < drag.top - 56;   // dragged well above the bar: treated as cancelling
+    });
+    bar.addEventListener('pointerup', function (e) { end(e, false); });
+    bar.addEventListener('pointercancel', function (e) { end(e, true); });
+    bar.addEventListener('lostpointercapture', function (e) { if (drag && e.pointerId === drag.id) end(e, true); });
+    // no browser menu, text selection or link dragging on the bar
+    ['contextmenu', 'dragstart', 'selectstart'].forEach(function (n) { bar.addEventListener(n, function (e) { e.preventDefault(); }); });
+    // a click that follows a pointer gesture was already handled; a click without one is the keyboard (Enter on a focused tab)
+    bar.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('a') : null; if (!a) return;
+      if (Date.now() - lastPtr < 800) { e.preventDefault(); return; }
+      if (!active() || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var idx = tabs.indexOf(a);
+      e.preventDefault(); if (!reduced()) ensure(); target = curIdx; commit(idx);
+    }, true);
+
+    // ----- arriving from another tab: pick the glide up where the previous page left it -----
     try {
       var rec = JSON.parse(sessionStorage.getItem(KEYL) || 'null');
       sessionStorage.removeItem(KEYL);
-      if (rec && !reduced() && rec.t === curIdx) {
-        var el = Date.now() - rec.t0;
-        if (el >= 0 && el < DUR - 40) glide(rec.f, rec.t, el);
+      if (rec && !reduced() && rec.t === curIdx && Date.now() - rec.t0 < 1400) {
+        ensure();
+        S.L.x = rec.l; S.R.x = rec.r; S.L.v = rec.vl || 0; S.R.v = rec.vr || 0; S.P.x = rec.p || 1; target = curIdx;
+        aim(); render(); wake();
       }
-    } catch (e) { /* ignore */ }
+    } catch (err) { /* ignore */ }
     root.classList.remove('lens-wait');
-    window.addEventListener('pageshow', function (e) { if (e.persisted) settle(); });   // back button: the page comes back as it was left
-
-    tabs.forEach(function (a, idx) {
-      a.addEventListener('click', function (e) {
-        if (!active() || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        var samePage = here(a.pathname) === here(location.pathname);
-        if (idx === curIdx && samePage) {                       // the tab you are on: back to the top
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
-          if (!reduced() && lens && lens.animate) lens.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.08,.94)' }, { transform: 'scale(1,1)' }], { duration: 260, easing: 'ease-out' });
-          return;
-        }
-        if (idx === curIdx || reduced() || !lens || !lens.animate) return;   // same tab on another page, or no animation: plain navigation
-        try { sessionStorage.setItem(KEYL, JSON.stringify({ f: curIdx, t: idx, t0: Date.now() })); } catch (err) { return; }
-        bar.classList.add('moving');
-        a.classList.add('is-target');
-        glide(curIdx, idx, 0);       // starts now; the link then navigates normally and the next page continues it
-      });
+    window.addEventListener('pageshow', function (e) {   // back button: the page comes back as it was left
+      if (!e.persisted) return;
+      navigating = false; drag = null; target = curIdx; cancelAnimationFrame(raf); raf = 0; finish();
     });
   }
 
