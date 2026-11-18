@@ -359,23 +359,17 @@ html.kbd .chat-fab { display: none; }
 .chat-fab:active { transform: scale(.9); transition-duration: .12s; }
 .chat-fab.is-away { transform: scale(.6); opacity: 0; pointer-events: none; transition: transform .25s ease, opacity .2s ease; }
 .chat-fab.is-waiting { transform: translateY(18px) scale(.7); opacity: 0; pointer-events: none; }
-/* the button: a round glass disc with the company mark, a thin light that travels around its rim, and a soft ripple that
-   breathes outward from it. Only transform and opacity animate. */
+/* the button: a round glass disc with the company mark and a soft teal ripple that breathes outward from it. Only transform and opacity animate. */
 .cf-ring, .cf-glow, .cf-face { position: absolute; border-radius: 50%; }
 .cf-glow {   /* the ripple: a soft ring that grows out of the disc and fades, every few seconds */
   inset: -2px; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(255, 106, 0, 0) 80%, rgba(255, 126, 40, .34) 90%, rgba(130, 110, 255, .22) 97%, rgba(130, 110, 255, 0) 100%);
+  background: radial-gradient(closest-side, rgba(20, 184, 166, 0) 80%, rgba(20, 184, 166, .32) 90%, rgba(13, 148, 136, .18) 97%, rgba(13, 148, 136, 0) 100%);
   animation: chat-ripple 3.6s cubic-bezier(.2, .6, .3, 1) infinite;
 }
 @keyframes chat-ripple { 0% { transform: scale(.94); opacity: 0; } 18% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-.cf-ring {   /* the rim: a faint line all the way round, with a bright comet of light circling it */
+.cf-ring {   /* the rim: a faint still line */
   inset: 0; overflow: hidden; background: rgba(30, 58, 138, .16); transition: opacity .35s ease;
   box-shadow: 0 10px 22px -8px rgba(15, 28, 80, .42), 0 2px 6px rgba(15, 28, 80, .14);
-}
-.cf-ring::before {
-  content: ""; position: absolute; left: 50%; top: 50%; width: 130%; aspect-ratio: 1; margin: -65% 0 0 -65%;
-  background: conic-gradient(from 0deg, rgba(120, 150, 255, 0) 0deg, rgba(120, 150, 255, 0) 190deg, #5b7cfa 240deg, #a78bfa 285deg, #ff7a1f 330deg, #ffd9b0 350deg, rgba(255, 217, 176, 0) 360deg);
-  animation: chat-spin 3.2s linear infinite;
 }
 .cf-face {   /* a white glass disc; the mark sits in its centre */
   inset: 2px; display: grid; place-items: center; overflow: hidden;
@@ -386,16 +380,20 @@ html.kbd .chat-fab { display: none; }
   background: radial-gradient(110% 110% at 32% 12%, #ffffff 0%, #f6f8ff 58%, #e8edfb 100%); box-shadow: inset 0 -4px 8px rgba(30, 58, 138, .08);
 }
 .cf-face img { position: relative; width: 29px; height: 29px; display: block; transition: filter .35s ease; }
-@keyframes chat-spin { to { transform: rotate(360deg); } }
-/* while the page scrolls: clear liquid glass with a dark mark; the white face, the ripple and the travelling light return when it stops */
-.chat-fab.is-moving .cf-face::before { opacity: 0; }
+/* while the page scrolls: crystal-clear liquid glass with a black mark and nothing around it (no rim, no shadow, no ripple).
+   When scrolling stops, the white face, the rim and the ripple come back. */
+.cf-face { transition: transform .35s ease, box-shadow .35s ease, background-color .35s ease; }
+.chat-fab.is-moving .cf-ring, .chat-fab.is-moving .cf-glow, .chat-fab.is-moving .cf-face::before { opacity: 0; }
+.chat-fab.is-moving .cf-glow { animation-play-state: paused; }
 .chat-fab.is-moving .cf-face {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 0 0 .5px rgba(255, 255, 255, .6);
-  -webkit-backdrop-filter: blur(10px) saturate(1.8); backdrop-filter: blur(10px) saturate(1.8);
+  transform: scale(1.074);   /* fills the whole disc now that the rim is gone */
+  background:
+    linear-gradient(135deg, rgba(150, 215, 255, .2), rgba(255, 255, 255, .03) 42%, rgba(255, 175, 225, .17)),   /* a faint oil sheen */
+    radial-gradient(90% 70% at 30% 8%, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 60%);                   /* light entering at the top */
+  -webkit-backdrop-filter: blur(1.5px) saturate(1.9) brightness(1.08); backdrop-filter: blur(1.5px) saturate(1.9) brightness(1.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7), inset 0 1.5px 1px rgba(255, 255, 255, .95), inset 0 -1.5px 2px rgba(255, 255, 255, .45), inset 0 0 14px rgba(255, 255, 255, .28);
 }
-.chat-fab.is-moving .cf-face img { filter: brightness(0) opacity(.82); }
-.chat-fab.is-moving .cf-glow { opacity: 0; animation-play-state: paused; }
-.chat-fab.is-moving .cf-ring::before { animation-play-state: paused; }
+.chat-fab.is-moving .cf-face img { filter: brightness(0); }
 
 /* the sheet */
 html.chat-open { overflow: hidden; }
@@ -539,7 +537,7 @@ textarea.cc-in { min-height: 22px; max-height: 104px; padding: 7px 0; overflow-y
 .chat-card .cc-in:focus, .chat-card .cc-in:focus-visible { outline: none; }   /* the capsule shows the focus instead */
 
 @media (prefers-reduced-motion: reduce) {
-  .cf-ring::before, .cf-glow { animation: none; }
+  .cf-glow { animation: none; }
   .chat-fab, .chat-card, .chat-ov.is-open .chat-card, .chat-ov::before { transition: none; }
   .tchip, .bub, .qr, .dn-check, .dn-ring, .dn-tick, .dn-title, .dn-sub, .dn-or, .dn-list, .dn-btn, .bub.typing i, .ch-compose.shake .cc-row { animation: none; }
 }
