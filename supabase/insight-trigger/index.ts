@@ -1,6 +1,7 @@
 // Supabase Edge Function: insight-trigger
 // Lets the signed-in admin start a hand-picked insight from the admin page.
-// POST JSON: { urls: "one web address per line" }   (a list of strings also works)
+// POST JSON: { urls: "one web address per line" }   write one insight from those pages (a list of strings also works)
+//             { mode: "daily" }                       run the normal daily pick now, the same work the schedule does, and write a new insight
 // It checks that the caller is the signed-in admin, cleans the list (https only, at most 5), and then asks GitHub to run the
 // "Daily insight" workflow with those addresses. The workflow reads the pages, the AI checks they are usable and writes one article.
 //
@@ -58,8 +59,9 @@ if (g.Deno) {
       const token = env("GITHUB_DISPATCH_TOKEN");
       if (!token) return reply({ error: "The link tool is not set up yet (the GitHub token is missing)." }, 503);
       const body = await req.json().catch(() => ({}));
-      const { urls, dropped } = cleanUrls(body.urls);
-      if (!urls.length) return reply({ error: "Paste at least one web address that starts with https://." }, 400);
+      const daily = body.mode === "daily";
+      const { urls, dropped } = daily ? { urls: [] as string[], dropped: 0 } : cleanUrls(body.urls);
+      if (!daily && !urls.length) return reply({ error: "Paste at least one web address that starts with https://." }, 400);
 
       const gh = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/insights.yml/dispatches`, {
         method: "POST",
@@ -67,13 +69,13 @@ if (g.Deno) {
           Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28",
           "Content-Type": "application/json", "User-Agent": "triada-insight-trigger",
         },
-        body: JSON.stringify({ ref: "main", inputs: { urls: urls.join("\n") } }),
+        body: JSON.stringify({ ref: "main", inputs: daily ? { force: "true" } : { urls: urls.join("\n") } }),
       });
       if (gh.status !== 204) {
         const why = gh.status === 401 || gh.status === 403 ? "GitHub did not accept the token." : gh.status === 404 || gh.status === 422 ? "GitHub could not find the Daily insight workflow on main." : "GitHub did not start the run.";
         return reply({ error: why + " Please check the setup notes." }, 502);
       }
-      return reply({ ok: true, count: urls.length, dropped });
+      return reply({ ok: true, count: urls.length, dropped, mode: daily ? "daily" : "links" });
     } catch {
       return reply({ error: "Something went wrong. Try again." }, 500);
     }

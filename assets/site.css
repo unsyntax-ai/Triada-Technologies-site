@@ -932,3 +932,5 @@ h1.pt { font-size: clamp(34px, 4.2vw, 52px); line-height: 1.1; }
 footer.site-foot .foot-quiet { margin-left: 10px; color: inherit; opacity: .45; text-decoration: none; font-size: 12px; transition: opacity .2s ease; }
 footer.site-foot .foot-quiet:hover, footer.site-foot .foot-quiet:focus-visible { opacity: .9; }
 #a-urls { min-height: 120px; }
+.a-sub { margin: var(--s-4) 0 var(--s-1); font-size: 20px; }
+#a-insight-card .a-msg { margin-bottom: 0; }

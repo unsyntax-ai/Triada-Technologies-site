@@ -193,10 +193,14 @@
 
       <div class="card admin-card" id="a-insight-card">
         <h2>Post an insight from links</h2>
-        <p>Paste up to five web addresses, one per line. The site reads each page, the AI checks it is usable, and writes one new insight from the pages that are. It appears on the Insights page in about three minutes.</p>
+        <p>Paste two or three web addresses, one per line (up to five). The site reads each page, the AI keeps the ones that are useful, and writes one new insight from them in Triada's own voice. It appears on the Insights page in about three minutes.</p>
         <textarea id="a-urls" aria-label="Web addresses" placeholder="https://" spellcheck="false" autocomplete="off"></textarea>
-        <button class="btn btn-solid" type="button" id="a-insight-go">Write insight</button>
+        <button class="btn btn-solid" type="button" id="a-insight-go">Write insight from these links</button>
         <p id="a-insight-msg" class="a-msg" role="status"></p>
+        <h3 class="a-sub">No link? Let the site choose the story</h3>
+        <p>Finds a fresh story on the sources we follow and writes the insight, the same work the schedule does.</p>
+        <button class="btn btn-white" type="button" id="a-insight-daily">Find a story and write</button>
+        <p id="a-daily-msg" class="a-msg" role="status"></p>
       </div>
     </div>
   </section>

@@ -409,12 +409,21 @@ def parse_json(text):
     return json.loads(text[a:b + 1] if a != -1 and b > a else text)
 
 
-def article_prompt(source_blocks, recent_titles, topic_hint, fix="", angle="", main_title=""):
+MANUAL_BRIEF = """Today's article is built on pages the Triada admin chose by hand. Treat the SOURCES below as equals: find the real
+story or the common thread in them (what they show, together) and build the article on that. Do not summarise the pages one after another.
+Write it as Triada Technologies' own point of view, in the voice of the company's leadership: use "we" and "our" for Triada's opinions,
+priorities and advice ("we see", "our advice"), and say clearly what this means for employers and for job seekers.
+The facts must come only from the SOURCES. Never claim anything about Triada that is not general advice: no invented placements, clients,
+numbers, awards or experiences. Opinions and guidance are welcome; facts and figures must trace back to the sources."""
+
+
+def article_prompt(source_blocks, recent_titles, topic_hint, fix="", angle="", main_title="", manual=False):
+    lead = MANUAL_BRIEF if manual else f"""Today's article is built on the MAIN SOURCE, the first one below ("{main_title}"). Its specific story, findings and facts
+are the heart of the article, and the title must name what is new in it. The other sources only add supporting facts."""
     return f"""You write for the Insights section of Triada Technologies, a nationwide staffing firm (headquartered in Erie, PA) serving employers and professionals across the United States.
 Write ONE original article (550 to 750 words) for the staffing industry, for hiring managers and job seekers anywhere in the United States. {topic_hint}
 
-Today's article is built on the MAIN SOURCE, the first one below ("{main_title}"). Its specific story, findings and facts
-are the heart of the article, and the title must name what is new in it. The other sources only add supporting facts.
+{lead}
 Today's angle: {angle or "what this means for employers and candidates"}. Make the article clearly about that angle, in staffing terms (hiring, contract and direct-hire work, candidates, workforce planning).
 
 Rules:
@@ -831,7 +840,7 @@ def run(args):
         for attempt in range(6):
             try:
                 fix = why if why and not why.startswith("request failed") else ""
-                candidate = parse_json(gemini(article_prompt("\n\n".join(blocks), recent, cfg.get("focus", ""), fix, angle, chosen[0][1]), model, key, temperature=0.8))
+                candidate = parse_json(gemini(article_prompt("\n\n".join(blocks), recent, cfg.get("focus", ""), fix, angle, chosen[0][1], manual=bool(urls)), model, key, temperature=0.8))
             except Exception as e:
                 why = f"request failed: {e}"
                 if time_left() < 15:

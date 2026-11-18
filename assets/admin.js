@@ -378,6 +378,23 @@
       .then(function () { go.disabled = false; });
   });
 
+  $('a-insight-daily').addEventListener('click', function () {
+    var go = $('a-insight-daily');
+    go.disabled = true;
+    msg('a-daily-msg', 'Starting...', '');
+    token().then(function (t) {
+      return fetch(T.url + '/functions/v1/insight-trigger', {
+        method: 'POST', headers: { apikey: T.key, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json', 'x-region': 'us-east-1' },
+        body: JSON.stringify({ mode: 'daily' })
+      });
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) throw new Error(d.error || 'It could not be started. Try again.'); return d; });
+    }).then(function () {
+      msg('a-daily-msg', 'Started. It finds a fresh story and writes the insight now, and it shows on the Insights page in about three minutes. If no fresh story can be read, nothing is posted.', 'ok');
+    }).catch(function (e) { msg('a-daily-msg', e.message, 'bad'); })
+      .then(function () { go.disabled = false; });
+  });
+
   // ----- form -----
   function lines(v) { return v.split('\n').map(function (x) { return x.replace(/^[-•*\s]+/, '').trim(); }).filter(Boolean); }
   function fill(d) {
