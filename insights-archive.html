@@ -71,8 +71,23 @@
 
 <section class="listing" data-page="20">
   <div class="wrap">
-    <p class="archive-empty">No archived articles yet. Articles move here 30 days after they are published.</p>
-    <p style="margin-top:20px"><a class="btn btn-white" href="insights.html">Back to Insights</a></p>
+    <div class="toolbar">
+      <label for="q">Search
+        <input id="q" type="search" placeholder="Search articles" autocomplete="off">
+      </label>
+      <label for="month">Date
+        <select id="month"><option value="">All dates</option><option value="2026-10">October 2026</option></select>
+      </label>
+      <label for="sort">Sort
+        <select id="sort"><option value="new">Latest first</option><option value="old">Oldest first</option></select>
+      </label>
+    </div>
+    <ul class="archive-list" id="items">
+      <li class="archive-row" data-item data-date="2026-10-18" data-text="navigating the changing technology labor market technology hiring is experiencing a steady labor market where specialized technical skills and automated verification are redefining value for both employers and job seekers. hiring trends"><a href="insight-navigating-the-changing-technology-labor-market.html">Navigating the Changing Technology Labor Market</a><span>Oct 18, 2026 · Hiring trends</span></li>
+    </ul>
+    <p id="empty" class="archive-empty" hidden>No articles match your search.</p>
+    <div class="load-more"><button class="btn btn-white" type="button" id="more" hidden>Show more</button></div>
+    <p style="margin-top:32px"><a class="btn btn-white" href="insights.html">Back to Insights</a></p>
   </div>
 </section>
 </main>
@@ -82,7 +97,7 @@
     <div class="foot-brand">
       <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
       <p class="foot-tag">Creating value for everyone.</p>
-      <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
+      <p class="copy">© 2026 Triada Technologies. All rights reserved. <a class="foot-quiet" href="admin.html" rel="nofollow">Admin</a></p>
     </div>
     <div class="foot-col">
       <h2>Explore</h2>

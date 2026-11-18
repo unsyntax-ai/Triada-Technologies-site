@@ -143,7 +143,7 @@ FOOTER = f'''<footer class="site-foot">
     <div class="foot-brand">
       <img src="assets/logo.svg" width="116" height="34" alt="Triada Technologies">
       <p class="foot-tag">Creating value for everyone.</p>
-      <p class="copy">© 2026 Triada Technologies. All rights reserved.</p>
+      <p class="copy">© 2026 Triada Technologies. All rights reserved. <a class="foot-quiet" href="admin.html" rel="nofollow">Admin</a></p>
     </div>
     <div class="foot-col">
       <h2>Explore</h2>
@@ -540,10 +540,6 @@ jobs = '''<section class="page-hero" style="border-top:0">
       </div>
       <div class="jobs-cta">
         <button class="btn btn-solid" type="button" id="find-open">Find a Job</button>
-        <div class="admin-slot">
-          <a class="btn btn-solid" href="admin.html">Post a job</a>
-          <small>Admin only</small>
-        </div>
       </div>
     </div>
   </div>
@@ -799,6 +795,14 @@ admin_page = f'''<section class="page-hero hero-carded" style="border-top:0">
           <span id="a-page" aria-live="polite"></span>
           <button class="btn btn-white btn-sm" type="button" id="a-next">Next</button>
         </div>
+      </div>
+
+      <div class="card admin-card" id="a-insight-card">
+        <h2>Post an insight from links</h2>
+        <p>Paste up to five web addresses, one per line. The site reads each page, the AI checks it is usable, and writes one new insight from the pages that are. It appears on the Insights page in about three minutes.</p>
+        <textarea id="a-urls" aria-label="Web addresses" placeholder="https://" spellcheck="false" autocomplete="off"></textarea>
+        <button class="btn btn-solid" type="button" id="a-insight-go">Write insight</button>
+        <p id="a-insight-msg" class="a-msg" role="status"></p>
       </div>
     </div>
   </section>

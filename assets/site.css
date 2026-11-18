@@ -927,3 +927,8 @@ footer.site-foot .foot-col li { margin: 0; line-height: 1.4; }
 /* Main page headings (Services, About, Jobs, Insights, Contact): large but not oversized, and on one line on desktop */
 h1.pt { font-size: clamp(34px, 4.2vw, 52px); line-height: 1.1; }
 @media (min-width: 801px) { h1.pt { white-space: nowrap; } }
+
+/* the admin entry in the footer: there for the owner, quiet for everyone else */
+footer.site-foot .foot-quiet { margin-left: 10px; color: inherit; opacity: .45; text-decoration: none; font-size: 12px; transition: opacity .2s ease; }
+footer.site-foot .foot-quiet:hover, footer.site-foot .foot-quiet:focus-visible { opacity: .9; }
+#a-urls { min-height: 120px; }
