@@ -367,33 +367,35 @@ html.kbd .chat-fab { display: none; }
   animation: chat-ripple 3.6s cubic-bezier(.2, .6, .3, 1) infinite;
 }
 @keyframes chat-ripple { 0% { transform: scale(.94); opacity: 0; } 18% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-.cf-ring {   /* the rim: a faint still line */
-  inset: 0; overflow: hidden; background: rgba(30, 58, 138, .16); transition: opacity .35s ease;
+/* at rest: crystal-clear liquid glass with a black mark and nothing around it, and the teal ripple breathing outward.
+   While the page scrolls it turns into the solid white disc (with its rim and shadow) and the ripple pauses; it clears again when scrolling stops. */
+.cf-ring {   /* the rim and shadow of the solid version: hidden at rest */
+  inset: 0; overflow: hidden; background: rgba(30, 58, 138, .16); opacity: 0; transition: opacity .35s ease;
   box-shadow: 0 10px 22px -8px rgba(15, 28, 80, .42), 0 2px 6px rgba(15, 28, 80, .14);
 }
-.cf-face {   /* a white glass disc; the mark sits in its centre */
+.cf-face {
   inset: 2px; display: grid; place-items: center; overflow: hidden;
-  background: rgba(255, 255, 255, .3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
-}
-.cf-face::before {   /* the white colour layer: it fades out to leave clear glass while the page scrolls */
-  content: ""; position: absolute; inset: 0; transition: opacity .35s ease;
-  background: radial-gradient(110% 110% at 32% 12%, #ffffff 0%, #f6f8ff 58%, #e8edfb 100%); box-shadow: inset 0 -4px 8px rgba(30, 58, 138, .08);
-}
-.cf-face img { position: relative; width: 29px; height: 29px; display: block; transition: filter .35s ease; }
-/* while the page scrolls: crystal-clear liquid glass with a black mark and nothing around it (no rim, no shadow, no ripple).
-   When scrolling stops, the white face, the rim and the ripple come back. */
-.cf-face { transition: transform .35s ease, box-shadow .35s ease, background-color .35s ease; }
-.chat-fab.is-moving .cf-ring, .chat-fab.is-moving .cf-glow, .chat-fab.is-moving .cf-face::before { opacity: 0; }
-.chat-fab.is-moving .cf-glow { animation-play-state: paused; }
-.chat-fab.is-moving .cf-face {
-  transform: scale(1.074);   /* fills the whole disc now that the rim is gone */
+  transform: scale(1.074);   /* the clear glass fills the whole disc */
   background:
     linear-gradient(135deg, rgba(150, 215, 255, .2), rgba(255, 255, 255, .03) 42%, rgba(255, 175, 225, .17)),   /* a faint oil sheen */
     radial-gradient(90% 70% at 30% 8%, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 60%);                   /* light entering at the top */
   -webkit-backdrop-filter: blur(1.5px) saturate(1.9) brightness(1.08); backdrop-filter: blur(1.5px) saturate(1.9) brightness(1.08);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7), inset 0 1.5px 1px rgba(255, 255, 255, .95), inset 0 -1.5px 2px rgba(255, 255, 255, .45), inset 0 0 14px rgba(255, 255, 255, .28);
+  transition: transform .35s ease, box-shadow .35s ease, background-color .35s ease;
 }
-.chat-fab.is-moving .cf-face img { filter: brightness(0); }
+.cf-face::before {   /* the solid white layer: hidden at rest */
+  content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(110% 110% at 32% 12%, #ffffff 0%, #f6f8ff 58%, #e8edfb 100%); box-shadow: inset 0 -4px 8px rgba(30, 58, 138, .08);
+}
+.cf-face img { position: relative; width: 29px; height: 29px; display: block; filter: brightness(0); transition: filter .35s ease; }
+/* while the page scrolls: the solid white disc with the orange mark */
+.chat-fab.is-moving .cf-ring, .chat-fab.is-moving .cf-face::before { opacity: 1; }
+.chat-fab.is-moving .cf-glow { opacity: 0; animation-play-state: paused; }
+.chat-fab.is-moving .cf-face {
+  transform: none; background: rgba(255, 255, 255, .3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.chat-fab.is-moving .cf-face img { filter: none; }
 
 /* the sheet */
 html.chat-open { overflow: hidden; }
