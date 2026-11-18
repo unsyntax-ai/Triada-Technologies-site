@@ -359,37 +359,43 @@ html.kbd .chat-fab { display: none; }
 .chat-fab:active { transform: scale(.9); transition-duration: .12s; }
 .chat-fab.is-away { transform: scale(.6); opacity: 0; pointer-events: none; transition: transform .25s ease, opacity .2s ease; }
 .chat-fab.is-waiting { transform: translateY(18px) scale(.7); opacity: 0; pointer-events: none; }
-.cf-ring, .cf-glow, .cf-face { position: absolute; }
-.cf-ring { inset: 0; overflow: hidden; background: linear-gradient(160deg, rgba(255, 255, 255, .32), rgba(255, 255, 255, .08)); transition: opacity .35s ease; }
+/* the button: a round glass disc with the company mark, a thin light that travels around its rim, and a soft ripple that
+   breathes outward from it. Only transform and opacity animate. */
+.cf-ring, .cf-glow, .cf-face { position: absolute; border-radius: 50%; }
+.cf-glow {   /* the ripple: a soft ring that grows out of the disc and fades, every few seconds */
+  inset: -2px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 106, 0, 0) 80%, rgba(255, 126, 40, .34) 90%, rgba(130, 110, 255, .22) 97%, rgba(130, 110, 255, 0) 100%);
+  animation: chat-ripple 3.6s cubic-bezier(.2, .6, .3, 1) infinite;
+}
+@keyframes chat-ripple { 0% { transform: scale(.94); opacity: 0; } 18% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.cf-ring {   /* the rim: a faint line all the way round, with a bright comet of light circling it */
+  inset: 0; overflow: hidden; background: rgba(30, 58, 138, .16); transition: opacity .35s ease;
+  box-shadow: 0 10px 22px -8px rgba(15, 28, 80, .42), 0 2px 6px rgba(15, 28, 80, .14);
+}
 .cf-ring::before {
-  content: ""; position: absolute; left: 50%; top: 50%; width: 170%; aspect-ratio: 1; margin: -85% 0 0 -85%;
-  background: conic-gradient(from 0deg, rgba(120, 150, 255, 0) 0deg, rgba(120, 150, 255, 0) 150deg, #5b7cfa 215deg, #a78bfa 262deg, #f5c9a0 304deg, #fffaf0 332deg, rgba(255, 250, 240, 0) 352deg);
-  animation: chat-spin 3.6s linear infinite;
+  content: ""; position: absolute; left: 50%; top: 50%; width: 130%; aspect-ratio: 1; margin: -65% 0 0 -65%;
+  background: conic-gradient(from 0deg, rgba(120, 150, 255, 0) 0deg, rgba(120, 150, 255, 0) 190deg, #5b7cfa 240deg, #a78bfa 285deg, #ff7a1f 330deg, #ffd9b0 350deg, rgba(255, 217, 176, 0) 360deg);
+  animation: chat-spin 3.2s linear infinite;
 }
-/* a still, soft halo (no blur filter on anything that moves) */
-.cf-glow { inset: -6px; background: radial-gradient(closest-side, rgba(91, 124, 250, .28), rgba(91, 124, 250, 0)); transition: opacity .35s ease; }
-.cf-face {
-  inset: 1.5px; display: grid; place-items: center;
-  background: rgba(255, 255, 255, .26); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+.cf-face {   /* a white glass disc; the mark sits in its centre */
+  inset: 2px; display: grid; place-items: center; overflow: hidden;
+  background: rgba(255, 255, 255, .3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
 }
-.cf-face::before {   /* the colour layer: it fades out to leave clear glass */
-  content: ""; position: absolute; inset: 0; background: radial-gradient(120% 100% at 30% 0%, #26397a 0%, #101e4b 62%, #0b1536 100%); transition: opacity .35s ease;
+.cf-face::before {   /* the white colour layer: it fades out to leave clear glass while the page scrolls */
+  content: ""; position: absolute; inset: 0; transition: opacity .35s ease;
+  background: radial-gradient(110% 110% at 32% 12%, #ffffff 0%, #f6f8ff 58%, #e8edfb 100%); box-shadow: inset 0 -4px 8px rgba(30, 58, 138, .08);
 }
-.cf-face img { position: relative; width: 30px; height: 30px; display: block; transition: filter .35s ease; }
+.cf-face img { position: relative; width: 29px; height: 29px; display: block; transition: filter .35s ease; }
 @keyframes chat-spin { to { transform: rotate(360deg); } }
-/* while the page scrolls: clear liquid glass with a dark mark; colour and the edge come back when scrolling stops */
+/* while the page scrolls: clear liquid glass with a dark mark; the white face, the ripple and the travelling light return when it stops */
 .chat-fab.is-moving .cf-face::before { opacity: 0; }
 .chat-fab.is-moving .cf-face {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 0 0 .5px rgba(255, 255, 255, .6), 0 6px 18px -8px rgba(15, 23, 42, .35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 0 0 .5px rgba(255, 255, 255, .6);
   -webkit-backdrop-filter: blur(10px) saturate(1.8); backdrop-filter: blur(10px) saturate(1.8);
 }
 .chat-fab.is-moving .cf-face img { filter: brightness(0) opacity(.82); }
-.chat-fab.is-moving .cf-ring, .chat-fab.is-moving .cf-glow { opacity: 0; }
+.chat-fab.is-moving .cf-glow { opacity: 0; animation-play-state: paused; }
 .chat-fab.is-moving .cf-ring::before { animation-play-state: paused; }
-/* iOS app-icon shape: a continuous-curvature superellipse (n = 5); border-radius 22.4% is the fallback */
-.chat-fab { --icon-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100.00 50.00 L99.98 63.69 L99.94 68.06 L99.86 71.23 L99.75 73.81 L99.61 76.01 L99.44 77.94 L99.24 79.68 L99.01 81.26 L98.74 82.71 L98.44 84.05 L98.11 85.30 L97.74 86.46 L97.35 87.55 L96.91 88.57 L96.44 89.52 L95.94 90.43 L95.39 91.27 L94.81 92.07 L94.19 92.82 L93.53 93.53 L92.82 94.19 L92.07 94.81 L91.27 95.39 L90.43 95.94 L89.52 96.44 L88.57 96.91 L87.55 97.35 L86.46 97.74 L85.30 98.11 L84.05 98.44 L82.71 98.74 L81.26 99.01 L79.68 99.24 L77.94 99.44 L76.01 99.61 L73.81 99.75 L71.23 99.86 L68.06 99.94 L63.69 99.98 L50.00 100.00 L36.31 99.98 L31.94 99.94 L28.77 99.86 L26.19 99.75 L23.99 99.61 L22.06 99.44 L20.32 99.24 L18.74 99.01 L17.29 98.74 L15.95 98.44 L14.70 98.11 L13.54 97.74 L12.45 97.35 L11.43 96.91 L10.48 96.44 L9.57 95.94 L8.73 95.39 L7.93 94.81 L7.18 94.19 L6.47 93.53 L5.81 92.82 L5.19 92.07 L4.61 91.27 L4.06 90.43 L3.56 89.52 L3.09 88.57 L2.65 87.55 L2.26 86.46 L1.89 85.30 L1.56 84.05 L1.26 82.71 L0.99 81.26 L0.76 79.68 L0.56 77.94 L0.39 76.01 L0.25 73.81 L0.14 71.23 L0.06 68.06 L0.02 63.69 L0.00 50.00 L0.02 36.31 L0.06 31.94 L0.14 28.77 L0.25 26.19 L0.39 23.99 L0.56 22.06 L0.76 20.32 L0.99 18.74 L1.26 17.29 L1.56 15.95 L1.89 14.70 L2.26 13.54 L2.65 12.45 L3.09 11.43 L3.56 10.48 L4.06 9.57 L4.61 8.73 L5.19 7.93 L5.81 7.18 L6.47 6.47 L7.18 5.81 L7.93 5.19 L8.73 4.61 L9.57 4.06 L10.48 3.56 L11.43 3.09 L12.45 2.65 L13.54 2.26 L14.70 1.89 L15.95 1.56 L17.29 1.26 L18.74 0.99 L20.32 0.76 L22.06 0.56 L23.99 0.39 L26.19 0.25 L28.77 0.14 L31.94 0.06 L36.31 0.02 L50.00 0.00 L63.69 0.02 L68.06 0.06 L71.23 0.14 L73.81 0.25 L76.01 0.39 L77.94 0.56 L79.68 0.76 L81.26 0.99 L82.71 1.26 L84.05 1.56 L85.30 1.89 L86.46 2.26 L87.55 2.65 L88.57 3.09 L89.52 3.56 L90.43 4.06 L91.27 4.61 L92.07 5.19 L92.82 5.81 L93.53 6.47 L94.19 7.18 L94.81 7.93 L95.39 8.73 L95.94 9.57 L96.44 10.48 L96.91 11.43 L97.35 12.45 L97.74 13.54 L98.11 14.70 L98.44 15.95 L98.74 17.29 L99.01 18.74 L99.24 20.32 L99.44 22.06 L99.61 23.99 L99.75 26.19 L99.86 28.77 L99.94 31.94 L99.98 36.31Z'/%3E%3C/svg%3E"); }
-.cf-ring, .cf-face { border-radius: 22.4%; -webkit-mask: var(--icon-shape) center / 100% 100% no-repeat; mask: var(--icon-shape) center / 100% 100% no-repeat; }
-.cf-glow { border-radius: 50%; }
 
 /* the sheet */
 html.chat-open { overflow: hidden; }
@@ -533,7 +539,7 @@ textarea.cc-in { min-height: 22px; max-height: 104px; padding: 7px 0; overflow-y
 .chat-card .cc-in:focus, .chat-card .cc-in:focus-visible { outline: none; }   /* the capsule shows the focus instead */
 
 @media (prefers-reduced-motion: reduce) {
-  .cf-ring::before { animation: none; }
+  .cf-ring::before, .cf-glow { animation: none; }
   .chat-fab, .chat-card, .chat-ov.is-open .chat-card, .chat-ov::before { transition: none; }
   .tchip, .bub, .qr, .dn-check, .dn-ring, .dn-tick, .dn-title, .dn-sub, .dn-or, .dn-list, .dn-btn, .bub.typing i, .ch-compose.shake .cc-row { animation: none; }
 }
